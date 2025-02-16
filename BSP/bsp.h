@@ -39,7 +39,7 @@ typedef struct face_s {
 typedef struct bspbrush_s {
 	int				id;
 	struct bspbrush_s 	*next;
-	vec3_s			mins, maxs;
+	vec3_t			mins, maxs;
 	int				side, testside;
 	mapbrush_t		*original;
 	int				numsides;
