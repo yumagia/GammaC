@@ -8,6 +8,8 @@ typedef vec_t vec3_t[3];
 #define	SIDE_BACK		1
 #define	SIDE_CROSS		-2
 
+#define MAX_BOUND_DIM		99999
+
 #define	PI	                3.14159265358979323846
 
 extern vec3_t vec3_origin;
@@ -23,3 +25,10 @@ extern vec3_t vec3_origin;
 #define	VectorNegate(x) {x[0]=-x[0];x[1]=-x[1];x[2]=-x[2];}
 
 double VectorLength(vec3_t v);
+
+void VectorMA (vec3_t va, double scale, vec3_t vb, vec3_t vc);
+
+void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross);
+vec_t VectorNormalize(vec3_t in, vec3_t out);
+void VectorInverse (vec3_t v);
+

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cmdlib.h"
-#include "vec3.h"
+#include "veclib.h"
 #include "polylib.h"
 #include "bsplib.h"
 

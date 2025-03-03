@@ -92,12 +92,13 @@ bspbrush_t *CopyBrush(bspbrush_t *brush) {
 
 	for (i=0, i<brush->numsides; i++) {
 		if (brush->sides[i].winding) {
-			newbrush->sides[i].winding = CopyWinding (brush->sides[i].winding);
+			newbrush->sides[i].winding = CopyWinding(brush->sides[i].winding);
 		}
 	}
 
 	return newbrush;
 }
+
 
 /*
 ================
