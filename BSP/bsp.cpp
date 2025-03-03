@@ -1,7 +1,8 @@
 
 
 #include "bsp.h"
-//#include "cmdlib.h"
+#include "polylib.h"
+#include "cmdlib.h"
 
 /*
 ================
@@ -55,6 +56,70 @@ void FreeBrush(bspbrush_t *brushes) {
 	}
 }
 
+
+/*
+================
+FreeBrushList
+================
+*/
+
+void FreeBrushList(bspbrush_t *brushes) {
+	bspbrush_t		*next;
+
+	for ( ; brushes; brushes = next) {
+		next = brushes->next;
+
+		FreeBrush(brushes);
+	}
+}
+
+/*
+================
+CopyBrush
+
+Duplicates the brush and its windings and sides
+================
+*/
+bspbrush_t *CopyBrush(bspbrush_t *brush) {
+	bspbrush_t 		*newbrush;
+	int				size;
+	int				i;
+
+	size = (int)&(((bspbrush_t *)0)->sides[brush->numsides]);
+
+	newbrush = AllocBrush(brush->numsides);
+	memcpy(newbrush, brush, size);
+
+	for (i=0, i<brush->numsides; i++) {
+		if (brush->sides[i].winding) {
+			newbrush->sides[i].winding = CopyWinding (brush->sides[i].winding);
+		}
+	}
+
+	return newbrush;
+}
+
+/*
+================
+PointInLeaf
+================
+*/
+node_t *PointInLeaf(node_t *node, vec3_t point) {
+	vec_t			d;
+	plane_t			*plane;
+
+	while (node->planenum != PLANENUM_LEAF) {
+		plane = &mapplanes[node->planenum];
+		d = DotProduct(point, plane->normal) - plane->dist;
+		if (d > 0) {
+			node = node->children[0];
+		}
+		else {
+			node = node->children[1];
+		}
+	}
+}
+
 /*
 ================
 LeafNode
@@ -64,7 +129,7 @@ void LeafNode (node_t *node, bspbrush_t *brushes) {
 	bspbrush_t		*b;
 	int				i;
 
-	node->planenum = -1;
+	node->planenum = PLANENUM_LEAF;
 	node->contents = 0;
 
 	for (b=brushes; b; b=b->next) {
@@ -84,7 +149,7 @@ void LeafNode (node_t *node, bspbrush_t *brushes) {
 ================
 SelectSplitSide
 
-Uses a basic greedy hueristic to choose the best side for partitioning.
+Uses a basic greedy heuristic to choose the best side for partitioning.
 Returns NULL if there aren't any valid planes to split with.
 ================
 */
@@ -111,15 +176,14 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	bestside = SelectSplitSide(node);
 
 	if (!bestside) {
-		// We add a leaf
+		//We add a leaf
 		node->side = NULL;
-		node->planenum = -1;
 		LeafNode(node, brushes);
 		return node;
 	}
 
 	node->side = bestside;
-	node->planenum = bestside->planenum & ~1;	// From Quake II. It's a bit less trivial in Scratch
+	node->planenum = bestside->planenum & ~1;	//Stuff like this is a bit less trivial in Scratch
 	
 	SplitBrushList();
 

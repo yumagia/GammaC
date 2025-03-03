@@ -1,10 +1,20 @@
 #pragma once
 
 #include "cmdlib.h"
-#include "mathlib/vec3.h"
+#include "vec3.h"
 #include "polylib.h"
 #include "bsplib.h"
 
+typedef struct plane_s  {
+	vec3_t			normal;
+	vec_t			dist;
+	struct plane_s		*hash_chain;
+} plane_t;
+
+#define MAX_MAP_PLANES 65536
+
+extern	plane_t			mapplanes[MAX_MAP_PLANES];
+extern	int				nummapplanes;
 
 typedef struct side_s {
 	int				planenum;
@@ -28,6 +38,10 @@ typedef struct brush_s {
 	side_t			*original_sides;
 } mapbrush_t;
 
+#define PLANENUM_LEAF		-1
+
+#define MAXEDGES		20
+
 typedef struct face_s {
 	struct face_s		*next;
 	winding_t		*w;
@@ -50,6 +64,8 @@ typedef struct leafface_s {
 	face_t			*pFace;
 	struct leafface_s	*pNext;
 } leafface_t;
+
+#define MAX_NODE_BRUSHES	8
 
 typedef struct node_s {
 	int				id;

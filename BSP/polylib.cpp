@@ -1,4 +1,7 @@
+#pragma once
+
 #include "polylib.h"
+#include "vec3.h"
 #include "cmdlib.h"
 
 void pwinding(winding_t *w) {
