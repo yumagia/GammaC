@@ -1,8 +1,6 @@
 
 
-#include "bsp.h"
-#include "polylib.h"
-#include "cmdlib.h"
+#include "gbsp.h"
 
 /*
 ================
