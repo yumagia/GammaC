@@ -192,8 +192,7 @@ int BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane) {
  * and a plane. It uses the brush's minimum AABB to actually calculate splits
  * 
  */
-int	QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits)
-{
+int	QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits) {
 	int			i, num;
 	plane_t		*plane;
 	int			s;
@@ -610,7 +609,7 @@ int BrushMostlyOnSide(bspbrush_t *brush, plane_t *plane) {
  * the original unchanged
  */
 void SplitBrush(bspbrush_t *brush, int planenum,
-bspbrush_t **front, bspbrush_t **back) {
+		bspbrush_t **front, bspbrush_t **back) {
 	bspbrush_t	*b[2];
 	int			i, j;
 	winding_t	*w, *cw[2], *midwinding;
@@ -826,7 +825,7 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	side_t			*bestside;
 	bspbrush_t	*children[2];
 
-	bestside = SelectSplitSide(node);
+	bestside = SelectSplitSide(brushes, node);
 
 	if (!bestside) {
 		//We add a leaf

@@ -127,9 +127,34 @@ extern	vec3_t		map_mins, map_maxs;
 
 #define	MAX_MAP_SIDES		(MAX_MAP_BRUSHES*6)
 
+void		BoundBrush(bspbrush_t *brush);
+
 node_t		*AllocNode();
 bspbrush_t	*AllocBrush(int numsides);
 void 		FreeBrush(bspbrush_t *brushes);
+void		FreeBrushList(bspbrush_t *brushes);
+bspbrush_t	*CopyBrush(bspbrush_t *brush);
+
+node_t		*PointInLeaf(node_t *node, vec3_t point);
+int		BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane);
+
+int		QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits);
+int		TestBrushToPlanenum(bspbrush_t *brush, int planenum,
+					int *numsplits, bool *hintsplit, int *epsilonbrush);
+
+bool		WindingIsTiny(winding_t *w);
+bool		WindingIsHuge(winding_t *w);
+
 void 		LeafNode (node_t *node, bspbrush_t *brushes);
-side_t 		*SelectSplitSide(node_t *node);
-node_t 		*BuildTree_r(node_t *node, bspbrush_t *brushes);
+
+void		CheckPlaneAgainstParents(int pnum, node_t *node);
+bool		CheckPlaneAgainstVolume(int pnum, node_t *node);
+
+side_t		*SelectSplitSide(bspbrush_t *brushes, node_t *node);
+int			BrushMostlyOnSide(bspbrush_t *brush, plane_t *plane);
+void		SplitBrush(bspbrush_t *brush, int planenum,
+				bspbrush_t **front, bspbrush_t **back);
+void		SplitBrushList(bspbrush_t *brushes, 
+				node_t *node, bspbrush_t **front, bspbrush_t **back);
+
+node_t		*BuildTree_r(node_t *node, bspbrush_t *brushes);
