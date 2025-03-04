@@ -4,7 +4,7 @@
 vec3_t vec3_origin = {0,0,0};
 
 
-double VectorLength(vec3_t v) {
+double	VectorLength(vec3_t v) {
 	int				i;
 	double			length;
 
@@ -16,7 +16,7 @@ double VectorLength(vec3_t v) {
 	return length;
 }
 
-vec_t VectorNormalize(vec3_t in, vec3_t out) {
+vec_t	VectorNormalize(vec3_t in, vec3_t out) {
 	vec_t	length, ilength;
 
 	length = sqrt (in[0]*in[0] + in[1]*in[1] + in[2]*in[2]);

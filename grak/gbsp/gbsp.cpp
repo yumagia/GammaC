@@ -124,7 +124,7 @@ node_t *PointInLeaf(node_t *node, vec3_t point) {
 LeafNode
 ================
 */
-void LeafNode (node_t *node, bspbrush_t *brushes) {
+void LeafNode(node_t *node, bspbrush_t *brushes) {
 	bspbrush_t		*b;
 	int				i;
 
