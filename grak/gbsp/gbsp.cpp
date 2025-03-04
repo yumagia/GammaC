@@ -9,13 +9,12 @@
 #define	PSIDE_BOTH			(PSIDE_FRONT|PSIDE_BACK)
 #define	PSIDE_FACING		4
 
-/*
-==================
-BoundBrush
-
-Sets the mins/maxs based on the windings
-==================
-*/
+/**
+ * @brief Calculates the sum of two integers
+ * 
+ * @param brush A reference to a bspbrush
+ * @return Sets the mins/maxs based on the windings
+ */
 void BoundBrush(bspbrush_t *brush) {
 	int			i, j;
 	winding_t	*w;

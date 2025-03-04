@@ -1,4 +1,3 @@
-#pragma once
 
 #include "cmdlib.h"
 #include "veclib.h"
