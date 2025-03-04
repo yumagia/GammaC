@@ -5,6 +5,7 @@
 #include "polylib.h"
 #include "bspfile.h"
 
+
 #define	MAX_BRUSH_SIDES	128
 #define	CLIP_EPSILON	0.1
 
@@ -59,7 +60,8 @@ typedef struct bspbrush_s {
 	int				id;
 	struct bspbrush_s 	*next;
 	vec3_t			mins, maxs;
-	int				side, testside;	// Side of node during construction
+	int				side;		// Side of node during construction
+	int				testside;	// Used for split testing
 	mapbrush_t		*original;
 	int				numsides;
 	side_t			sides[6];
@@ -81,6 +83,7 @@ typedef struct node_s {
 	vec3_t			minb, maxb;		// Valid post-portalization
 	bspbrush_t		*volume;		// A single bounding box for every node, leafs too
 	// non-leaf nodes only
+	bool			detail_seperator;	// A detail brush caused the split
 	side_t			*side;			// The side which created the node
 	struct node_s		*children[2];
 	face_t			*sidefaces;		// The ones which reside on the plane of the side

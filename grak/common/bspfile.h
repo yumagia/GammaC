@@ -1,4 +1,4 @@
-#pragma once
+#include "gfiles.h"
 
 typedef struct epair_s {
 	epair_t			*next;
