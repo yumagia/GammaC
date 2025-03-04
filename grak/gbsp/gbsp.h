@@ -3,27 +3,32 @@
 #include "cmdlib.h"
 #include "veclib.h"
 #include "polylib.h"
-#include "bsplib.h"
+#include "bspfile.h"
+
+#define	MAX_BRUSH_SIDES	128
+#define	CLIP_EPSILON	0.1
+
+#define	BOGUS_RANGE	8192
+
+#define	TEXINFO_NODE		-1			// Side is already on a node
 
 typedef struct plane_s  {
 	vec3_t			normal;
-	vec_t			dist;
+	vec_t			dist;			// The distance from normal vector
+	int		type;				// Denotes specialized cases	
 	struct plane_s		*hash_chain;
 } plane_t;
 
-#define MAX_MAP_PLANES 65536
-
-extern	plane_t			mapplanes[MAX_MAP_PLANES];
-extern	int				nummapplanes;
-
 typedef struct side_s {
 	int				planenum;
-	int				textureidx;
+	int				texinfo;
 	winding_t		*winding;
-	struct side_s		*original;
-	bool				visible;
-	bool				tested;
-	bool				bevel;
+	struct side_s		*original;		// bspbrush_t sides will reference the mapbrush_t sides
+	int				contents;	// Content flag from Miptex
+	int				surf;		// Surface flag from Miptex
+	bool			visible;		// Visible are chosen first
+	bool			tested;			// True upon use as a splitter, tested are never reused
+	bool			bevel;			// Beveled are never used to split
 } side_t;
 
 typedef struct brush_s {
@@ -43,18 +48,18 @@ typedef struct brush_s {
 #define MAXEDGES		20
 
 typedef struct face_s {
-	struct face_s		*next;
+	struct face_s		*next;			// The next on the node
 	winding_t		*w;
 	int				planenum;
 	int				numverts;
-	side_t			*original;
+	side_t			*original;		// Save the side this face came from
 } face_t;
 
 typedef struct bspbrush_s {
 	int				id;
 	struct bspbrush_s 	*next;
 	vec3_t			mins, maxs;
-	int				side, testside;
+	int				side, testside;	// Side of node during construction
 	mapbrush_t		*original;
 	int				numsides;
 	side_t			sides[6];
@@ -71,29 +76,35 @@ typedef struct node_s {
 	int				id;
 
 	// leaves and internal nodes
-	int				planenum;	// -1 = leaf node
+	int				planenum;	// -1 = Leaf node
 	struct node_s		*parent;
-	vec3_t			minb, maxb;
-	// nodes only
-	side_t			*side; 
+	vec3_t			minb, maxb;		// Valid post-portalization
+	bspbrush_t		*volume;		// A single bounding box for every node, leafs too
+	// non-leaf nodes only
+	side_t			*side;			// The side which created the node
 	struct node_s		*children[2];
-	face_t			*face;
+	face_t			*sidefaces;		// The ones which reside on the plane of the side
 	// leaves only
-	bspbrush_t		*brushlist;
+	bspbrush_t		*brushlist;		// Fragments of all brushes on this leaf
 	leafface_t		*leaffacelist;
-	int				contents;
-	int				occupied;
-	entity_t		*occupantlist;
-	struct portal_s		*portals;
+	int				contents;	// OR of all brush contents
+	int				occupied;	// >= 1 means it can reach an entity
+	entity_t		*occupantlist;		// For flood testing
+	int				cluster;	// Used for VIS
+	int				area;		// For areaportals
+	struct portal_s		*portals;		// Also on nodes during BSP, but are pushed down on VIS
 } node_t;
 
 typedef struct portal_s {
 	int				id;
-	plane_t			*plane;
-	node_t			*onnode;
-	node_t			*nodes[2];
+	plane_t			*plane;	
+	node_t			*onnode;		// NULL = The outside box
+	node_t			*nodes[2];		// [0] = Front
 	struct portal_s		*next[2];
 	winding_t		*winding;
+	bool			sidefound;		// False if ->side hasn't been checked
+	side_t			*side;			// NULL = Non-visible
+	face_t		    	*face[2];		// Portal Face, Write into BSP file
 } portal_t;
 
 typedef struct tree_s {
@@ -104,6 +115,15 @@ typedef struct tree_s {
 } tree_t;
 
 
+extern	plane_t		mapplanes[MAX_MAP_PLANES];
+extern	int			nummapplanes;
+
+extern	int			nummapbrushes;
+extern	mapbrush_t	mapbrushes[MAX_MAP_BRUSHES];
+
+extern	vec3_t		map_mins, map_maxs;
+
+#define	MAX_MAP_SIDES		(MAX_MAP_BRUSHES*6)
 
 node_t		*AllocNode();
 bspbrush_t	*AllocBrush(int numsides);
