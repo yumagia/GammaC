@@ -1,5 +1,4 @@
 
-
 #include "gbsp.h"
 
 #define	PLANESIDE_EPSILON	0.0001 
