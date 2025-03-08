@@ -1,12 +1,94 @@
 
 #include "gbsp.h"
 
+int		c_nodes;
+int		c_nonvis;
+
+// Use a reasonable epsilon to spare a marginally 
+// poking brush from a chop
 #define	PLANESIDE_EPSILON	0.0001 
 
 #define	PSIDE_FRONT			1
 #define	PSIDE_BACK			2
 #define	PSIDE_BOTH			(PSIDE_FRONT|PSIDE_BACK)
 #define	PSIDE_FACING		4
+
+/**
+ * @brief Create a new brush from an AABB
+ * 
+ */
+bspbrush_t	*BrushFromBounds(vec3_t mins, vec3_t maxs) {
+	bspbrush_t	*b;
+	int			i;
+	vec3_t		normal;
+	vec_t		dist;
+
+	b = AllocBrush(6);
+	b->numsides = 6;
+	for (i = 0; i < 3; i++) {
+		VectorClear(normal);
+		normal[i] = 1;
+		dist = maxs[i];
+		b->sides[i].planenum = FindFloatPlane(normal, dist);
+
+		normal[i] = -1;
+		dist = -mins[i];
+		b->sides[3 + i].planenum = FindFloatPlane(normal, dist);
+	}
+
+	CreateBrushWindings(b);
+
+	return b;
+}
+
+/**
+ * @brief Find the volume of a brush
+ * 
+ */
+vec_t BrushVolume(bspbrush_t *brush) {
+	int			i;
+	winding_t	*w;
+	vec3_t		corner;
+	vec_t		d, area, volume;
+	plane_t		*plane;
+
+	if (!brush) {
+		return 0;
+	}
+
+	// Grab the first valid point as the corner
+
+	w = NULL;
+	for (i = 0; i < brush->numsides; i++) {
+		w = brush->sides[i].winding;
+		if (w) {
+			break;
+		}
+	}
+	if (!w) {
+		return 0;
+	}
+	VectorCopy(w->p[0], corner);
+
+	// Do a tetrahedral 3D "fanning" sum
+
+	volume = 0;
+	for ( ; i < brush->numsides; i++) {
+		w = brush->sides[i].winding;
+		if (!w) {
+			continue;
+		}
+		plane = &mapplanes[brush->sides[i].planenum];
+		d = -(DotProduct(corner, plane->normal) - plane->dist);
+		area = WindingArea(w);
+		volume += d * area;
+	}
+
+	volume /= 3;
+	return volume;
+}
+
+
 
 /**
  * @brief Sets the mins/maxs on a bspbrush based on the windings
@@ -29,7 +111,49 @@ void BoundBrush(bspbrush_t *brush) {
 }
 
 /**
- * @brief Allocates memory to a new node
+ * @brief Generates and assigns windings for a brush
+ * 
+ */
+void CreateBrushWindings(bspbrush_t *brush) {
+	int			i, j;
+	winding_t	*w;
+	side_t		*side;
+	plane_t		*plane;
+
+	for (i = 0; i < brush->numsides; i++) {
+		side = &brush->sides[i];
+		plane = &mapplanes[side->planenum];
+		w = BaseWindingForPlane(plane->normal, plane->dist);
+		for (j = 0; j < brush->numsides && w; j++) {
+			if (i == j) {
+				continue;
+			}
+			if (brush->sides[j].bevel) {
+				continue;
+			}
+			plane = &mapplanes[brush->sides[j].planenum^1];
+			ChopWindingInPlace(&w, plane->normal, plane->dist, 0); //CLIP_EPSILON);
+		}
+
+		side->winding = w;
+	}
+
+	BoundBrush(brush);
+}
+
+tree_t *AllocTree (void) {
+	tree_t	*tree;
+
+	tree = (tree_t*)malloc(sizeof(*tree));
+	memset (tree, 0, sizeof(*tree));
+	ClearBounds (tree->mins, tree->maxs);
+
+
+	return tree;
+}
+
+/**
+ * @brief Allocates a blank node
  * 
  */
 node_t *AllocNode() {
@@ -47,7 +171,7 @@ node_t *AllocNode() {
 }
 
 /**
- * @brief Allocates memory to a new brush
+ * @brief Allocates a new brush with a set number of sides
  * 
  */
 bspbrush_t *AllocBrush(int numsides) {
@@ -551,6 +675,9 @@ side_t *SelectSplitSide(bspbrush_t *brushes, node_t *node) {
 		// If we found a good plane, don't bother trying any
 		// other passes
 		if (bestside) {
+			if (pass > 1) {
+				c_nonvis++;
+			}
 			if (pass > 0) {
 				node->detail_seperator = true;	// Not considered for VIS
 			}
@@ -824,6 +951,8 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	side_t			*bestside;
 	bspbrush_t	*children[2];
 
+	c_nodes++;
+
 	bestside = SelectSplitSide(brushes, node);
 
 	if (!bestside) {
@@ -853,4 +982,69 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	node->children[1] = BuildTree_r(node->children[1], children[1]);
 
 	return node;
+}
+
+/**
+ * Take the selection of brushes, and bsp them
+*/
+
+tree_t *BrushBSP (bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
+	node_t		*node;
+	bspbrush_t	*b;
+	int			c_faces, c_nonvisfaces;
+	int			c_brushes;
+	tree_t		*tree;
+	int			i;
+	vec_t		volume;
+	for (b=brushlist ; b ; b=b->next) {
+		c_brushes++;
+
+		volume = BrushVolume(b);
+		if (volume < microvolume) {
+			printf("WARNING: entity %i, brush %i: microbrush\n",
+				b->original->entitynum, b->original->brushnum);
+		}
+
+		for (i=0 ; i<b->numsides ; i++) {
+			if (b->sides[i].bevel) {
+				continue;
+			}
+			if (!b->sides[i].winding) {
+				continue;
+			}
+			if (b->sides[i].texinfo == TEXINFO_NODE) {
+				continue;
+			}
+			if (b->sides[i].visible) {
+				c_faces++;
+			}
+			else {
+				c_nonvisfaces++;
+			}
+				
+		}
+
+		AddPointToBounds(b->mins, tree->mins, tree->maxs);
+		AddPointToBounds(b->maxs, tree->mins, tree->maxs);
+	}
+
+	printf("%5i brushes\n", c_brushes);
+	printf("%5i visible faces\n", c_faces);
+	printf("%5i nonvisible faces\n", c_nonvisfaces);
+
+	c_nodes = 0;
+	c_nonvis = 0;
+
+	node = AllocNode ();
+
+	node->volume = BrushFromBounds(mins, maxs);
+
+	tree->headnode = node;
+
+	node = BuildTree_r(node, brushlist);
+	printf("%5i visible nodes\n", c_nodes/2 - c_nonvis);
+	printf("%5i nonvis nodes\n", c_nonvis);
+	printf("%5i leafs\n", (c_nodes+1)/2);
+
+	return tree;
 }
