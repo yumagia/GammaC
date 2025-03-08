@@ -5,19 +5,28 @@
 #include "bspfile.h"
 
 
-#define	MAX_BRUSH_SIDES	128
-#define	CLIP_EPSILON	0.1
+#define	MAX_BRUSH_SIDES		128
+#define	CLIP_EPSILON		0.1
 
-#define	BOGUS_RANGE	8192
+#define	BOGUS_RANGE			8192
 
 #define	TEXINFO_NODE		-1			// Side is already on a node
 
-typedef struct plane_s  {
+typedef struct plane_s {
 	vec3_t			normal;
 	vec_t			dist;			// The distance from normal vector
 	int		type;				// Denotes specialized cases	
 	struct plane_s		*hash_chain;
 } plane_t;
+
+typedef struct brush_texture_s {
+	vec_t	shift[2];
+	vec_t	rotate;
+	vec_t	scale[2];
+	char	name[32];
+	int		flags;
+	int		value;
+} brush_texture_t;
 
 typedef struct side_s {
 	int				planenum;
@@ -127,34 +136,68 @@ extern	vec3_t		map_mins, map_maxs;
 
 #define	MAX_MAP_SIDES		(MAX_MAP_BRUSHES*6)
 
-void		BoundBrush(bspbrush_t *brush);
+extern	vec_t		microvolume;
 
+/**=============================================
+ * map.cpp
+ * 
+ * =============================================
+ */
+
+void 	LoadMapFile (char *filename);
+int		FindFloatPlane(vec3_t normal, vec_t dist);
+
+/**=============================================
+ * brushbsp.cpp
+ * 
+ * =============================================
+ */
+
+ // Allocs
+tree_t		*AllocTree();
 node_t		*AllocNode();
 bspbrush_t	*AllocBrush(int numsides);
+
+// Frees
 void 		FreeBrush(bspbrush_t *brushes);
 void		FreeBrushList(bspbrush_t *brushes);
+
+// Other (brush) funcs
 bspbrush_t	*CopyBrush(bspbrush_t *brush);
+vec_t		BrushVolume(bspbrush_t *brush);
+void		BoundBrush(bspbrush_t *brush);
 
-node_t		*PointInLeaf(node_t *node, vec3_t point);
-int		BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane);
+// The tree func
+tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
 
-int		QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits);
-int		TestBrushToPlanenum(bspbrush_t *brush, int planenum,
-					int *numsplits, bool *hintsplit, int *epsilonbrush);
+/**=============================================
+ * vkfile.cpp
+ * 
+ * =============================================
+ */
 
-bool		WindingIsTiny(winding_t *w);
-bool		WindingIsHuge(winding_t *w);
+// Uniquely brushbsp stuff. Remove?
+// node_t		*PointInLeaf(node_t *node, vec3_t point);
+// int		BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane);
 
-void 		LeafNode (node_t *node, bspbrush_t *brushes);
+// int		QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits);
+// int		TestBrushToPlanenum(bspbrush_t *brush, int planenum,
+// 					int *numsplits, bool *hintsplit, int *epsilonbrush);
 
-void		CheckPlaneAgainstParents(int pnum, node_t *node);
-bool		CheckPlaneAgainstVolume(int pnum, node_t *node);
+// bool		WindingIsTiny(winding_t *w);
+// bool		WindingIsHuge(winding_t *w);
 
-side_t		*SelectSplitSide(bspbrush_t *brushes, node_t *node);
-int			BrushMostlyOnSide(bspbrush_t *brush, plane_t *plane);
-void		SplitBrush(bspbrush_t *brush, int planenum,
-				bspbrush_t **front, bspbrush_t **back);
-void		SplitBrushList(bspbrush_t *brushes, 
-				node_t *node, bspbrush_t **front, bspbrush_t **back);
+// void 		LeafNode(node_t *node, bspbrush_t *brushes);
 
-node_t		*BuildTree_r(node_t *node, bspbrush_t *brushes);
+// void		CheckPlaneAgainstParents(int pnum, node_t *node);
+// bool		CheckPlaneAgainstVolume(int pnum, node_t *node);
+
+// side_t		*SelectSplitSide(bspbrush_t *brushes, node_t *node);
+// int			BrushMostlyOnSide(bspbrush_t *brush, plane_t *plane);
+// void		SplitBrush(bspbrush_t *brush, int planenum,
+// 				bspbrush_t **front, bspbrush_t **back);
+// void		SplitBrushList(bspbrush_t *brushes, 
+// 				node_t *node, bspbrush_t **front, bspbrush_t **back);
+
+// node_t		*BuildTree_r(node_t *node, bspbrush_t *brushes);
+
