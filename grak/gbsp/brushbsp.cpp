@@ -987,8 +987,7 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 /**
  * Take the selection of brushes, and bsp them
 */
-
-tree_t *BrushBSP (bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
+tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
 	node_t		*node;
 	bspbrush_t	*b;
 	int			c_faces, c_nonvisfaces;
@@ -1035,7 +1034,7 @@ tree_t *BrushBSP (bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
 	c_nodes = 0;
 	c_nonvis = 0;
 
-	node = AllocNode ();
+	node = AllocNode();
 
 	node->volume = BrushFromBounds(mins, maxs);
 
