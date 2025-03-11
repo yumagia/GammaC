@@ -148,97 +148,96 @@ void SwapBSPFile(bool todisk) {
     // leafs
     //
 	for (i=0 ; i<numleafs ; i++) {
-		dleafs[i].contents = LittleLong (dleafs[i].contents);
-		dleafs[i].cluster = LittleShort (dleafs[i].cluster);
-		dleafs[i].area = LittleShort (dleafs[i].area);
+		dleafs[i].contents = LittleLong(dleafs[i].contents);
+		dleafs[i].cluster = LittleShort(dleafs[i].cluster);
+		dleafs[i].area = LittleShort(dleafs[i].area);
 		for (j=0 ; j<3 ; j++)
 		{
-			dleafs[i].mins[j] = LittleShort (dleafs[i].mins[j]);
-			dleafs[i].maxs[j] = LittleShort (dleafs[i].maxs[j]);
+			dleafs[i].mins[j] = LittleShort(dleafs[i].mins[j]);
+			dleafs[i].maxs[j] = LittleShort(dleafs[i].maxs[j]);
 		}
 
-		dleafs[i].firstleafface = LittleShort (dleafs[i].firstleafface);
-		dleafs[i].numleaffaces = LittleShort (dleafs[i].numleaffaces);
-		dleafs[i].firstleafbrush = LittleShort (dleafs[i].firstleafbrush);
-		dleafs[i].numleafbrushes = LittleShort (dleafs[i].numleafbrushes);
+		dleafs[i].firstleafface = LittleShort(dleafs[i].firstleafface);
+		dleafs[i].numleaffaces = LittleShort(dleafs[i].numleaffaces);
+		dleafs[i].firstleafbrush = LittleShort(dleafs[i].firstleafbrush);
+		dleafs[i].numleafbrushes = LittleShort(dleafs[i].numleafbrushes);
 	}
 
-//
-// leaffaces
-//
-	for (i=0 ; i<numleaffaces ; i++)
-		dleaffaces[i] = LittleShort (dleaffaces[i]);
-
-//
-// leafbrushes
-//
-	for (i=0 ; i<numleafbrushes ; i++)
-		dleafbrushes[i] = LittleShort (dleafbrushes[i]);
-
-//
-// surfedges
-//
-	for (i=0 ; i<numsurfedges ; i++)
-		dsurfedges[i] = LittleLong (dsurfedges[i]);
-
-//
-// edges
-//
-	for (i=0 ; i<numedges ; i++)
-	{
-		dedges[i].v[0] = LittleShort (dedges[i].v[0]);
-		dedges[i].v[1] = LittleShort (dedges[i].v[1]);
+	//
+	// leaffaces
+	//
+	for (i=0 ; i<numleaffaces ; i++) {
+		dleaffaces[i] = LittleShort(dleaffaces[i]);
 	}
 
-//
-// brushes
-//
-	for (i=0 ; i<numbrushes ; i++)
-	{
-		dbrushes[i].firstside = LittleLong (dbrushes[i].firstside);
-		dbrushes[i].numsides = LittleLong (dbrushes[i].numsides);
-		dbrushes[i].contents = LittleLong (dbrushes[i].contents);
+	//
+	// leafbrushes
+	//
+	for (i=0 ; i<numleafbrushes ; i++) {
+		dleafbrushes[i] = LittleShort(dleafbrushes[i]);
 	}
 
-//
-// areas
-//
-	for (i=0 ; i<numareas ; i++)
-	{
-		dareas[i].numareaportals = LittleLong (dareas[i].numareaportals);
-		dareas[i].firstareaportal = LittleLong (dareas[i].firstareaportal);
+	//
+	// surfedges
+	//
+	for (i=0 ; i<numsurfedges ; i++) {
+		dsurfedges[i] = LittleLong(dsurfedges[i]);
 	}
 
-//
-// areasportals
-//
-	for (i=0 ; i<numareaportals ; i++)
-	{
-		dareaportals[i].portalnum = LittleLong (dareaportals[i].portalnum);
-		dareaportals[i].otherarea = LittleLong (dareaportals[i].otherarea);
+	//
+	// edges
+	//
+	for (i=0 ; i<numedges ; i++) {
+		dedges[i].v[0] = LittleShort(dedges[i].v[0]);
+		dedges[i].v[1] = LittleShort(dedges[i].v[1]);
 	}
 
-//
-// brushsides
-//
-	for (i=0 ; i<numbrushsides ; i++)
-	{
-		dbrushsides[i].planenum = LittleShort (dbrushsides[i].planenum);
-		dbrushsides[i].texinfo = LittleShort (dbrushsides[i].texinfo);
+	//
+	// brushes
+	//
+	for (i=0 ; i<numbrushes ; i++) {
+		dbrushes[i].firstside = LittleLong(dbrushes[i].firstside);
+		dbrushes[i].numsides = LittleLong(dbrushes[i].numsides);
+		dbrushes[i].contents = LittleLong(dbrushes[i].contents);
 	}
 
-//
-// visibility
-//
-	if (todisk)
+	//
+	// areas
+	//
+	for (i=0 ; i<numareas ; i++) {
+		dareas[i].numareaportals = LittleLong(dareas[i].numareaportals);
+		dareas[i].firstareaportal = LittleLong(dareas[i].firstareaportal);
+	}
+
+	//
+	// areasportals
+	//
+	for (i=0 ; i<numareaportals ; i++) {
+		dareaportals[i].portalnum = LittleLong(dareaportals[i].portalnum);
+		dareaportals[i].otherarea = LittleLong(dareaportals[i].otherarea);
+	}
+
+	//
+	// brushsides
+	//
+	for (i=0 ; i<numbrushsides ; i++) {
+		dbrushsides[i].planenum = LittleShort(dbrushsides[i].planenum);
+		dbrushsides[i].texinfo = LittleShort(dbrushsides[i].texinfo);
+	}
+
+	//
+	// visibility
+	//
+	if (todisk) {
 		j = dvis->numclusters;
-	else
+	}
+	else {
 		j = LittleLong(dvis->numclusters);
-	dvis->numclusters = LittleLong (dvis->numclusters);
-	for (i=0 ; i<j ; i++)
-	{
-		dvis->bitofs[i][0] = LittleLong (dvis->bitofs[i][0]);
-		dvis->bitofs[i][1] = LittleLong (dvis->bitofs[i][1]);
+	}
+	dvis->numclusters = LittleLong(dvis->numclusters);
+	for (i=0 ; i<j ; i++) {
+		dvis->bitofs[i][0] = LittleLong(dvis->bitofs[i][0]);
+		dvis->bitofs[i][1] = LittleLong(dvis->bitofs[i][1]);
 	}
 }
 
@@ -301,8 +300,8 @@ void	LoadBSPFile(char *filename) {
 
 	free(header);		// everything has been copied out
 
-//
-// swap everything
-//
+	//
+	// swap everything
+	//
 	SwapBSPFile(false);
 }
