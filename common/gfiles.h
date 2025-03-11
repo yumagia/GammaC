@@ -73,6 +73,7 @@ typedef struct lump_t {
 
 typedef struct dheader_s {
 	int			version;
+	int			ident;
 	lump_t		lumps[HEADER_LUMPS];
 } dheader_t;
 
