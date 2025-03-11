@@ -2,7 +2,5 @@
 ## in the github repo
 
 build/
-CMakeLists.txt
 CMakePresets.json
 .vscode
-/main.cpp
