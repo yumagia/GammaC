@@ -14,8 +14,8 @@
 
 typedef struct plane_s {
 	vec3_t			normal;
-	vec_t			dist;			// The distance from normal vector
-	int		type;				// Denotes specialized cases	
+	vec_t			dist;				// The distance from normal vector
+	int		type;						// Denotes specialized cases	
 	struct plane_s		*hash_chain;
 } plane_t;
 

@@ -1,5 +1,6 @@
 #include "gbsp.h"
 
+#if (0)
 extern	float subdivide_size;
 
 char		source[1024];
@@ -124,3 +125,6 @@ void ProcessWorldModel(void) {
 	if (block_yh > 3) {
 		block_yh = 3;
 	}
+}
+
+#endif
