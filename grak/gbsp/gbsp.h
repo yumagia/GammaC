@@ -171,7 +171,7 @@ void		BoundBrush(bspbrush_t *brush);
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
 
 /**=============================================
- * vkfile.cpp
+ * vkdraw.cpp
  * 
  * =============================================
  */

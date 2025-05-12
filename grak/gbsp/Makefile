@@ -1,15 +1,15 @@
-IDIR = ../common
+IDIR 
 VK_SDK_PATH = C:\VulkanSDK\1.3.296.0
 CC = gcc
 CFLAGS = -I$(IDIR) -I$(VK_SDK_PATH)\include
 
 ODIR = obj
-LDIR = ../lib
+LDIR = ../common
 
 _DEPS = gbsp.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = gbspmake.o gbspfunc.o 
+_OBJ = main.o gbsp.o 
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

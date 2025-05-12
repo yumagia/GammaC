@@ -128,3 +128,8 @@ void ProcessWorldModel(void) {
 }
 
 #endif
+
+
+int main(int, char**) {
+    std::cout << "Hello, from GRAK!\n";
+}
