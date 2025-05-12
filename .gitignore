@@ -4,3 +4,4 @@
 build/
 CMakePresets.json
 .vscode
+*.exe
