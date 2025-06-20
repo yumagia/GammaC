@@ -1,4 +1,3 @@
-#include <iostream>
 #include "gbsp.h"
 
 int main(int, char**) {

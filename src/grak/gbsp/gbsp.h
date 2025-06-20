@@ -3,7 +3,7 @@
 #include "veclib.h"
 #include "polylib.h"
 #include "bspfile.h"
-
+#include <iostream>
 
 #define	MAX_BRUSH_SIDES		128
 #define	CLIP_EPSILON		0.1
@@ -72,7 +72,7 @@ typedef struct bspbrush_s {
 	int				testside;	// Used for split testing
 	mapbrush_t		*original;
 	int				numsides;
-	side_t			sides[6];
+	side_t			sides[];
 } bspbrush_t;
 
 typedef struct leafface_s {
@@ -165,7 +165,10 @@ void		FreeBrushList(bspbrush_t *brushes);
 // Other (brush) funcs
 bspbrush_t	*CopyBrush(bspbrush_t *brush);
 vec_t		BrushVolume(bspbrush_t *brush);
+void		CreateBrushWindings(bspbrush_t *brush);
 void		BoundBrush(bspbrush_t *brush);
+void SplitBrush(bspbrush_t *brush, int planenum,
+		bspbrush_t **front, bspbrush_t **back);
 
 // The tree func
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);

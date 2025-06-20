@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <stdarg.h>
+#include <cstddef>
 
 void    Error(char *error, ...);
 
