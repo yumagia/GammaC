@@ -31,4 +31,4 @@ void	FreeWinding(winding_t *w);
 
 void	ChopWindingInPlace (winding_t **w, vec3_t normal, vec_t dist, vec_t epsilon);
 
-void pwinding(winding_t *w);
+void	pwinding(winding_t *w);

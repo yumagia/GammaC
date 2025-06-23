@@ -1,3 +1,19 @@
+#include "cmdlib.h"
+
+void Error(char *error, ...) {
+	printf(error);
+
+	exit(1);
+}
+
+
+
+
+
+
+
+#if(0)
+
 #pragma once
 
 #include "cmdlib.h"
@@ -162,3 +178,5 @@ void    SaveFile(char *filename, void *buffer, int count)
  * 
  * =============================================================================
  */
+
+#endif

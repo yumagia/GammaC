@@ -1,6 +1,5 @@
 #include "gbsp.h"
 
-#if (0)
 extern	float subdivide_size;
 
 char		source[1024];
@@ -33,6 +32,7 @@ int			entity_num;
 
 node_t		*block_nodes[10][10];
 
+#if (0)
 
 /**
  * @brief Dice the tree, this is done before building it

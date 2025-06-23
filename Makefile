@@ -2,6 +2,7 @@ TARGET_EXEC := out
 
 BUILD_DIR := ./build
 SRC_DIRS := ./src
+CC = g++
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
