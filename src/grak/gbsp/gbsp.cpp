@@ -32,8 +32,6 @@ int			entity_num;
 
 node_t		*block_nodes[10][10];
 
-#if (0)
-
 /**
  * @brief Dice the tree, this is done before building it
  */
@@ -83,6 +81,8 @@ node_t	*BlockTree(int xl, int yl, int xh, int yh) {
 
 int			brush_start, brush_end;
 
+
+
 /**
  * @brief Process the world tree
  */
@@ -126,8 +126,6 @@ void ProcessWorldModel(void) {
 		block_yh = 3;
 	}
 }
-
-#endif
 
 
 int main(int, char**) {

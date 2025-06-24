@@ -2,7 +2,6 @@
 
 void Error(char *error, ...) {
 	printf(error);
-
 	exit(1);
 }
 
@@ -170,13 +169,5 @@ void    SaveFile(char *filename, void *buffer, int count)
 	SafeWrite(f, buffer, count);
 	fclose(f);
 }
-
-/**
- * =============================================================================
- * 
- * 		BYTE ORDER FUNCTIONS
- * 
- * =============================================================================
- */
 
 #endif

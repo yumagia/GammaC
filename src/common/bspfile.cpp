@@ -64,6 +64,8 @@ unsigned char	    dpop[256];
 
 dheader_t	*header;
 
+int			num_entities;
+entity_t	entities[MAX_MAP_ENTITIES];
 
 void	LoadBSPFile(char *filename) {
 	int			i;

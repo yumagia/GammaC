@@ -71,14 +71,6 @@ typedef struct entity_s {
 	epair_t			*epairs;
 } entity_t;
 
-typedef struct dpath_s {
-	float		origin[3];
-	float		angles[3];
-	int			next, prev;
-	int			flags;
-	float		speed;
-} dpath_t;
-
 extern	int			num_entities;
 extern	entity_t	entities[MAX_MAP_ENTITIES];
 
