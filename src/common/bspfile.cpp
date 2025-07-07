@@ -72,3 +72,7 @@ void	LoadBSPFile(char *filename) {
 
 
 }
+
+void	WriteBSPFile (char *filename) {
+
+}

@@ -5,53 +5,13 @@ void Error(char *error, ...) {
 	exit(1);
 }
 
-
-
-
-
-
-
-#if(0)
-
-#pragma once
-
-#include "cmdlib.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <direct.h>
-#include <windows.h>
-
-
-
-void Error(char *error, ...) {
-	va_list                 argptr;
-	char	                text[1024];
-	char	                text2[1024];
-	int		                err;
-
-	err = GetLastError();
-
-	va_start(argptr,error);
-	vsprintf(text, error,argptr);
-	va_end(argptr);
-
-	sprintf(text2, "%s\nGetLastError() = %i", text, err);
-        //MessageBox(NULL, text2, "Error", 0 /* MB_OK */);
-
-	exit(1);
-}
-
-/**
- * =============================================================================
+/**=============================================================================
  * 
  * 		MISC FUNCTIONS
  * 
  * =============================================================================
  */
 
-/**
- * @brief Like pretty much all of GBSP's functions, this one is directly from Quake
- */
 int Q_filelength(FILE *f) {
 	int		pos;
 	int		end;
@@ -168,6 +128,40 @@ void    SaveFile(char *filename, void *buffer, int count)
 	f = SafeOpenWrite(filename);
 	SafeWrite(f, buffer, count);
 	fclose(f);
+}
+
+
+
+
+
+#if(0)
+
+#pragma once
+
+#include "cmdlib.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <direct.h>
+#include <windows.h>
+
+
+
+void Error(char *error, ...) {
+	va_list                 argptr;
+	char	                text[1024];
+	char	                text2[1024];
+	int		                err;
+
+	err = GetLastError();
+
+	va_start(argptr,error);
+	vsprintf(text, error,argptr);
+	va_end(argptr);
+
+	sprintf(text2, "%s\nGetLastError() = %i", text, err);
+        //MessageBox(NULL, text2, "Error", 0 /* MB_OK */);
+
+	exit(1);
 }
 
 #endif
