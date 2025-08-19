@@ -4,6 +4,7 @@
 #include "polylib.h"
 #include "bspfile.h"
 #include <iostream>
+#include <vector>
 
 #define	MAX_BRUSH_SIDES		128
 #define	CLIP_EPSILON		0.1

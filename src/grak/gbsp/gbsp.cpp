@@ -7,7 +7,7 @@ char		name[1024];
 
 vec_t		microvolume = 1.0;
 bool		noprune;
-bool		glview;
+bool		vkview;
 bool		nodetail;
 bool		fulldetail;
 bool		onlyents;
@@ -125,9 +125,45 @@ void ProcessWorldModel(void) {
 	if (block_yh > 3) {
 		block_yh = 3;
 	}
+
+	tree = AllocTree();
+	tree->headnode = BlockTree(block_xl - 1, block_yl - 1, block_xh + 1, block_yh + 1);
+
+	tree->mins[0] = (block_xl) * 1024;
+	tree->mins[1] = (block_yl) * 1024;
+	tree->mins[2] = map_mins[2] - 8;
+
+	tree->maxs[0] = (block_xh + 1) * 1024;
+	tree->maxs[1] = (block_yh + 1) * 1024;
+	tree->maxs[2] = map_maxs[2] + 8;
 }
 
 
-int main(int, char**) {
-    std::cout << "Hello, from GRAK!\n";
+int main(int argc, char **argv) {
+	int		i;
+	char		path[1024];
+	double		start, end;
+	std::string s1 = "";
+
+    std::cout << "Running GBSP...\n";
+	for(i = 1; i < argc; i++) {
+
+		s1 = argv[i];
+
+		if(s1 == "-vkview") {
+			vkview = true;
+		}
+		else if (argv[i][0] == '-') {
+			Error("Unknown argument: %s\n", argv[i]);
+		}
+		else {
+			break;
+		}
+	}
+
+	if(i != argc - 1) {
+		Error("Usage: gbsp [arguments] mapfile\n");
+	}
+
+	//LoadMapFile(name);
 }

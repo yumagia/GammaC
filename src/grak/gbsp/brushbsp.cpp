@@ -477,6 +477,7 @@ bool WindingIsHuge(winding_t *w) {
 			}
 		}
 	}
+	return false;
 }
 
 /**

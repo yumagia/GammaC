@@ -1,4 +1,4 @@
-TARGET_EXEC := out
+TARGET_EXEC := grak
 
 BUILD_DIR := ./build
 SRC_DIRS := ./src

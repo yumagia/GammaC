@@ -1,5 +1,3 @@
-#pragma once
-
 #include "polylib.h"
 #include "veclib.h"
 #include "cmdlib.h"
