@@ -252,3 +252,205 @@ int PlaneFromPoints(int *p0, int *p1, int *p2) {
 	return contents;
 }
 
+void AddBrushBevels(mapbrush_t *b) {
+	int		axis, dir;
+	int		i, j, k, l, order;
+	side_t	sidetemp;
+	brush_texture_t	tdtemp;
+	side_t	*s, *s2;
+	vec3_t	normal;
+	float	dist;
+	winding_t	*w, *w2;
+	vec3_t	vec, vec2;
+	float	d;
+
+	// First, add the axial bevels
+	order = 0;
+	for(axis = 0; axis < 3; axis++) {
+		for(dir = -1; dir <= 1; dir+=2, order++) {
+			for(i = 0, s = b->original_sides; i < b->numsides; i++, s++) {
+				if(mapplanes[s->planenum].normal[axis] == dir) {
+					break;
+				}
+			}
+
+			if(i == b->numsides) {
+				if(nummapbrushsides == MAX_MAP_BRUSHSIDES) { 
+					Error("MAX_MAP_BRUSHSIDES");
+				}
+				nummapbrushsides++;
+				b->numsides++;
+				VectorClear(normal);
+				normal[axis] = dir;
+				if(dir == 1) {
+					dist = b->maxs[axis];
+				}
+				else {
+					dist = -b->mins[axis];
+				}
+				s->planenum = FindFloatPlane(normal, dist);
+				s->texinfo = b->original_sides[0].texinfo;
+				s->contents = b->original_sides[0].contents;
+				s->bevel = true;
+				c_boxbevels++;
+			}
+			// Swap the plane if it is not in the canonical order
+			if(i != order) {
+				sidetemp = b->original_sides[order];
+				b->original_sides[order] = b->original_sides[i];
+				b->original_sides[i] = sidetemp;
+
+				j = b->original_sides - brushsides;
+				tdtemp = side_brushtextures[j+order];
+				side_brushtextures[j+order] = side_brushtextures[j+i];
+				side_brushtextures[j+i] = tdtemp;
+			}
+		}
+	}
+
+	// Add the edge bevels now
+	if(b->numsides == 6) {
+		return;		// Purely Axial
+	}
+
+	// Test the non-axial plane edges
+	for(i = 6; i < b->numsides; i++) {
+		s = b->original_sides + i;
+		w = s->winding;
+		if(!w) {
+			continue;
+		}
+		for(j = 0; j < w->numpoints; j++) {
+			k = (j+1)%w->numpoints;
+			VectorSubtract(w->p[j], w->p[k], vec);
+			if(VectorNormalize(vec, vec) < 0.5) {
+				continue;
+			}
+			SnapVector(vec);
+			for(k = 0; k < 3; k++) {
+				if(vec[k] == -1 || vec[k] == 1) {
+					break;	//axial
+				}
+			}
+			if(k != 3) {
+				continue;	// Test only non-axial ones
+			}
+
+			// Try the six possible slanted axials from this edge
+			for(axis = 0; axis < 3; axis++) {
+				for(dir = -1; dir <= 1; dir+=2) {
+					// Construct a plane
+					VectorClear(vec2);
+					vec2[axis] = dir;
+					CrossProduct(vec, vec2, normal);
+					if(VectorNormalize(normal, normal) < 0.5) {
+						continue;
+					}
+					dist = DotProduct(w->p[j], normal);
+
+					// If all points on all sides are behind this
+					// plane, it is a proper edge bevel
+					for(k = 0; k < b->numsides; k++) {
+						// If this plane has already been used, skip it
+						if(PlaneEqual(&mapplanes[b->original_sides[k].planenum]
+						, normal, dist)) {
+							break;
+						}
+
+						w2 = b->original_sides[k].winding;
+						if(!w2) {
+							continue;
+						}
+						for(l = 0; l < w2->numpoints; l++) {
+							d = DotProduct(w2->p[l], normal) - dist;
+							if(d > 0.1) {
+								break; // Point is in front
+							}
+							if(l != w2->numpoints) {
+								break;
+							}
+						}
+
+						if(k != b->numsides) {
+							continue;	// It wasn't part of the outer hull
+						}
+						// Add this plane now
+						if(nummapbrushes == MAX_MAP_BRUSHSIDES) {
+							Error("MAX_MAP_BRUSHSIDES");
+						}
+						nummapbrushsides++;
+						s2 = &b->original_sides[b->numsides];
+						s2->planenum = FindFloatPlane(normal, dist);
+						s2->texinfo = b->original_sides[0].texinfo;
+						s2->contents = b->original_sides[0].contents;
+						s2->bevel = true;
+						c_edgebevels++;
+						b->numsides++;
+					}
+				}
+			}
+		}
+	}
+}
+
+bool MakeBrushWindings(mapbrush_t *ob) {
+	int			i, j;
+	winding_t	*w;
+	side_t		*side;
+	plane_t		*plane;
+
+	ClearBounds(ob->mins, ob->maxs);
+
+	for(i = 0; i < ob->numsides; i++) {
+		plane = &mapplanes[ob->original_sides[i].planenum];
+		w = BaseWindingForPlane(plane->normal, plane->dist);
+		for(j = 0; j < ob->numsides && w; j++) {
+			if(i == j) {
+				continue;
+			}
+			if(ob->original_sides[j].bevel) {
+				continue;
+			}
+			plane = &mapplanes[ob->original_sides[j].planenum^1];
+			ChopWindingInPlace(&w, plane->normal, plane->dist, 0);	//CLIP_EPSILON
+		}
+
+		side = &ob->original_sides[i];
+		side->winding = w;
+		if(w) {
+			side->visible = true;
+			for(j = 0; j < w->numpoints; j++) {
+				AddPointToBounds(w->p[j], ob->mins, ob->maxs);
+			}
+		}
+	}
+
+	for(i = 0; i < 3; i++) {
+		if(ob->mins[0] < -4096 || ob->maxs[0] > 4096) {
+			printf("entity %i, brush %i: no visible sies on brush\n", ob->entitynum, ob->brushnum);
+		}
+	}
+
+	return true;
+}
+
+void ParseBrush(entity_t *mapent) {
+	mapbrush_t		*b;
+	int			i, j, k;
+	int			mt;
+	side_t		*side, *s2;
+	int			planenum;
+	brush_texture_t td;
+	int			planepts[3][3];
+
+	if(nummapbrushes == MAX_MAP_BRUSHES) {
+		Error("nummapbrushes == MAX_MAP_BRUSHES");
+	}
+
+	b = &mapbrushes[nummapbrushes];
+	b->original_sides = &brushsides[nummapbrushsides];
+	b->entitynum = num_entities-1;
+	b->brushnum = nummapbrushes - mapent->firstbrush;
+
+
+}
