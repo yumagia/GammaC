@@ -454,3 +454,19 @@ void ParseBrush(entity_t *mapent) {
 
 
 }
+
+
+
+void LoadMapFile(char *filename) {
+	int		i;
+
+	std::cout << "LOADING MAP FILE...\n";
+
+	LoadScriptFile(filename);
+
+	nummapbrushsides = 0;
+	num_entities = 0;
+
+	//while(ParseMapEntity()) {
+	//}
+}

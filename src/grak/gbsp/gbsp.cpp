@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
 	double		start, end;
 	std::string s1 = "";
 
-    std::cout << "Running GBSP...\n";
+    std::cout << "RUNNING GBSP...\n";
 	for(i = 1; i < argc; i++) {
 
 		s1 = argv[i];
@@ -165,5 +165,5 @@ int main(int argc, char **argv) {
 		Error("Usage: gbsp [arguments] mapfile\n");
 	}
 
-	//LoadMapFile(name);
+	LoadMapFile(name);
 }
