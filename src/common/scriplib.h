@@ -1,4 +1,3 @@
-
 #define	MAXTOKEN	1024
 
 extern	char	token[MAXTOKEN];

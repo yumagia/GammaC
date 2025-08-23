@@ -165,5 +165,10 @@ int main(int argc, char **argv) {
 		Error("Usage: gbsp [arguments] mapfile\n");
 	}
 
+	std::cout << argv[i] << std::endl;
+	
+	//SetGdirFromPath(argv[i]);
+	SetGdirFromPath(argv[i]);
+
 	LoadMapFile(name);
 }

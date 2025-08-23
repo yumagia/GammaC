@@ -1,5 +1,6 @@
 
 #include "cmdlib.h"
+#include "scriplib.h"
 #include "veclib.h"
 #include "polylib.h"
 #include "bspfile.h"
