@@ -8,16 +8,12 @@ void Error(const char *error, ...) {
 	exit(1);
 }
 
-std::string gdir;
-std::string gamedir;
+std::string gdir = "";
+std::string gamedir = "";
 
 void SetGdirFromPath(fs::path inputpath) {
 	fs::path::iterator	c;
-	fs::path path = inputpath;
-
-	if(!(inputpath.is_absolute())) {
-		path = fs::current_path() / inputpath;
-	}
+	fs::path path = ExpandArg(inputpath);
 
 	while(!G_stringcasecomp(path.filename(), BASEDIRNAME)) {
 		path = path.parent_path();
@@ -25,7 +21,7 @@ void SetGdirFromPath(fs::path inputpath) {
 			Error("SetGdirFromPath: no %s in %s", BASEDIRNAME, path);
 		}
 	}
-	std::cout << path << std::endl;
+	std::cout << "Gamedir: " << path << std::endl;
 	gdir = path;
 	// for(c = path.end(); *c != path; c--) {
 	// 	if (*c == BASEDIRNAME) {
@@ -47,8 +43,24 @@ void SetGdirFromPath(fs::path inputpath) {
 
 }
 
-std::string ExpandPath(char *path) {
+std::string ExpandArg(fs::path inputpath) {
+	fs::path path = inputpath;
 
+	if(!(inputpath.is_absolute())) {
+		path = fs::current_path() / inputpath;
+	}
+
+	return path;
+}
+
+std::string ExpandPath(fs::path inputpath) {
+	if(gdir == "") {
+		Error("ExpandPath called without gdir assignment");
+	}
+	if(inputpath.is_absolute()) {
+		return inputpath;
+	}
+	return gdir / inputpath;
 }
 
 std::string G_stringtolower(std::string s) {

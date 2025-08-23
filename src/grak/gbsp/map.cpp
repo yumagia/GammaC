@@ -452,21 +452,37 @@ void ParseBrush(entity_t *mapent) {
 	b->entitynum = num_entities-1;
 	b->brushnum = nummapbrushes - mapent->firstbrush;
 
+	do {
+		if(!GetToken(true)) {
+			break;
+		}
+		if(token == "}") {
+			break;
+		}
+	} while(1);
+}
+
+bool	ParseMapEntity(void) {
+	entity_t	*mapent;
+	epair_t		*e;
+	side_t		*s;
+	int			i, j;
+	int			startbrush, startsides;
+	vec_t		newdist;
+	mapbrush_t	*b;
 
 }
 
-
-
-void LoadMapFile(char *filename) {
+void LoadMapFile(fs::path inputpath) {
 	int		i;
 
 	std::cout << "LOADING MAP FILE...\n";
 
-	LoadScriptFile(filename);
+	LoadScriptFile(inputpath);
 
 	nummapbrushsides = 0;
 	num_entities = 0;
 
-	//while(ParseMapEntity()) {
-	//}
+	while(ParseMapEntity()) {
+	}
 }

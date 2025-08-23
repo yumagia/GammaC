@@ -6,7 +6,7 @@ extern	int		grabbed;
 extern	int		scriptline;
 extern	bool	endofscript;
 
-void LoadScriptFile(char *filename);
+void LoadScriptFile(fs::path inputpath);
 void ParseFromMemory(char *buffer, int size);
 
 bool GetToken(bool crossline);

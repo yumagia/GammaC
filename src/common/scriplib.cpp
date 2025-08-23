@@ -8,7 +8,7 @@
  */
 
 typedef struct {
-	char	filename[1024];
+	std::string			filename;
 	char	*buffer,*script_p,*end_p;
 	int		line;
 } script_t;
@@ -22,19 +22,19 @@ char	token[MAXTOKEN];
 bool	endofscript;
 bool	tokenready;					// only true if UnGetToken was just called
 
-void AddScriptToStack(char *filename) {
+void AddScriptToStack(fs::path inputpath) {
 	int				size;
 
 	script++;
 	if(script == &scriptstack[MAX_INCLUDES]) {
 		Error("Script file exceeded MAX_INCLUDES");
 	}
-	std::string (script->filename) = ExpandPath(filename);
+	script->filename = ExpandPath(inputpath);
 }
 
-void LoadScriptFile(char *filename) {
+void LoadScriptFile(fs::path inputpath) {
 	script = scriptstack;
-	AddScriptToStack(filename);
+	AddScriptToStack(inputpath);
 
 	endofscript = false;
 	tokenready = false;
@@ -55,4 +55,46 @@ void ParseFromMemory(char *buffer, int size) {
 
 	endofscript = false;
 	tokenready = false;
+}
+
+void UnGetToken(void) {
+	tokenready = true;
+}
+
+bool EndOfScript(bool crossline) {
+	if(!crossline) {
+		Error("Line %i is incomplete\n",scriptline);
+	}
+	if(script->filename == "memory buffer") {
+		endofscript = true;
+		return false;
+	}
+
+	free(script->buffer);
+	if(script == scriptstack + 1) {
+		endofscript = true;
+		return false;
+	}
+	script--;
+	scriptline = script->line;
+	std::cout << "Returning to " << script->filename << std::endl;
+	return GetToken(crossline);
+}
+
+bool GetToken(bool crossline) {
+	char	*token_p;
+
+	if(tokenready) {				// It was already waiting perhaps
+		tokenready = false;
+		return true;
+	}
+
+	if(script->script_p >= script->end_p) {
+		return EndOfScript(crossline);
+	}
+
+	skipspace:
+		while(*script->script_p <= 32) {
+			
+		}
 }

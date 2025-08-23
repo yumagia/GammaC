@@ -21,7 +21,8 @@ void    Error(const char *error, ...);
 extern std::string gdir;
 extern std::string gamedir;
 void SetGdirFromPath(fs::path inputpath);
-std::string ExpandPath(char *path);
+std::string ExpandArg(fs::path inputpath);
+std::string ExpandPath(fs::path inputpath);
 
 std::string G_stringtolower(std::string s);
 bool G_stringcasecomp(std::string a, std::string b);

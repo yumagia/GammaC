@@ -170,5 +170,7 @@ int main(int argc, char **argv) {
 	//SetGdirFromPath(argv[i]);
 	SetGdirFromPath(argv[i]);
 
+	std::string name = ExpandArg(argv[i]);
+
 	LoadMapFile(name);
 }
