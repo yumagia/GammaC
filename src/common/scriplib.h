@@ -1,6 +1,6 @@
 #define	MAXTOKEN	1024
 
-extern	char	token[MAXTOKEN];
+extern	std::string		token;
 extern	char	*scriptbuffer,*script_p,*scriptend_p;
 extern	int		grabbed;
 extern	int		scriptline;

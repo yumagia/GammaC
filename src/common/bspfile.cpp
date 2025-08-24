@@ -1,4 +1,5 @@
 #include "cmdlib.h"
+#include "scriplib.h"
 #include "veclib.h"
 #include "bspfile.h"
 
@@ -66,6 +67,17 @@ dheader_t	*header;
 
 int			num_entities;
 entity_t	entities[MAX_MAP_ENTITIES];
+
+
+epair_t *ParseEpair(void) {
+	epair_t *e;
+
+	e = (epair_t*)calloc(sizeof(epair_t), 1);
+
+	if(token.length() >= MAX_KEY - 1) {
+		Error("ParseEpair: token too long");
+	}
+}
 
 void	LoadBSPFile(char *filename) {
 	int			i;

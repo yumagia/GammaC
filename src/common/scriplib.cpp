@@ -8,8 +8,9 @@
  */
 
 typedef struct {
-	std::string			filename;
-	char	*buffer,*script_p,*end_p;
+	std::string		filename;
+	std::string		buffer;
+	char	*script_p, *end_p;
 	int		line;
 } script_t;
 
@@ -18,7 +19,7 @@ script_t	scriptstack[MAX_INCLUDES];
 script_t	*script;
 int		scriptline;
 
-char	token[MAXTOKEN];
+std::string		token;
 bool	endofscript;
 bool	tokenready;					// only true if UnGetToken was just called
 
@@ -40,22 +41,22 @@ void LoadScriptFile(fs::path inputpath) {
 	tokenready = false;
 }
 
-void ParseFromMemory(char *buffer, int size) {
-	script = scriptstack;
-	script++;
-	if(script == &scriptstack[MAX_INCLUDES]) {
-		Error("script file exceeded MAX_INCLUDES");
-	}
-	std::string (script->filename) = "memory buffer";
+// void ParseFromMemory(char *buffer, int size) {
+// 	script = scriptstack;
+// 	script++;
+// 	if(script == &scriptstack[MAX_INCLUDES]) {
+// 		Error("script file exceeded MAX_INCLUDES");
+// 	}
+// 	std::string (script->filename) = "memory buffer";
 
-	script->buffer = buffer;
-	script->line = 1;
-	script->script_p = script->buffer;
-	script->end_p = script->buffer + size;
+// 	script->buffer = buffer;
+// 	script->line = 1;
+// 	script->script_p = script->buffer;
+// 	script->end_p = script->buffer + size;
 
-	endofscript = false;
-	tokenready = false;
-}
+// 	endofscript = false;
+// 	tokenready = false;
+// }
 
 void UnGetToken(void) {
 	tokenready = true;
@@ -70,7 +71,6 @@ bool EndOfScript(bool crossline) {
 		return false;
 	}
 
-	free(script->buffer);
 	if(script == scriptstack + 1) {
 		endofscript = true;
 		return false;
@@ -82,7 +82,8 @@ bool EndOfScript(bool crossline) {
 }
 
 bool GetToken(bool crossline) {
-	char	*token_p;
+	std::string temptoken;
+
 
 	if(tokenready) {				// It was already waiting perhaps
 		tokenready = false;
@@ -138,16 +139,16 @@ bool GetToken(bool crossline) {
 		}
 
 		// Copy token
-		token_p = token;
+		temptoken = token;
 
 		if(*script->script_p == '"') {		// Quoted token
 			script->script_p++;
 			while(*script->script_p != '"') {
-				*token_p++ = *script->script_p++;
+				temptoken += *script->script_p++;
 				if(script->script_p == script->end_p) {
 					break;
 				}
-				if(token_p == &token[MAXTOKEN]) {
+				if(temptoken.length() >= MAXTOKEN) {
 					Error("Token too large on line %i\n",scriptline);
 				}
 			}
@@ -155,19 +156,17 @@ bool GetToken(bool crossline) {
 		}
 		else {								// Regular token
 			while(*script->script_p > 32 && *script->script_p != ';') {
-				*token_p++ = *script->script_p++;
+				temptoken += *script->script_p++;
 				if(script->script_p == script->end_p) {
 					break;
 				}
-				if(token_p == &token[MAXTOKEN]) {
+				if(temptoken.length() >= MAXTOKEN) {
 					Error("Token too large on line %i\n",scriptline);
 				}
 			}
 		}
 
-		*token_p = 0;
-
-		if(!(token == "$include")) {
+		if(token == "$include") {
 			GetToken(false);
 			AddScriptToStack(token);
 			return GetToken(crossline);

@@ -146,7 +146,7 @@ extern	vec_t		microvolume;
  * =============================================
  */
 
-void 	LoadMapFile (fs::path inputpath);
+void 	LoadMapFile(fs::path inputpath);
 int		FindFloatPlane(vec3_t normal, vec_t dist);
 
 /**=============================================

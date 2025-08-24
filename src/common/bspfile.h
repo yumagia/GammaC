@@ -74,5 +74,11 @@ typedef struct entity_s {
 extern	int			num_entities;
 extern	entity_t	entities[MAX_MAP_ENTITIES];
 
+void	ParseEntities(void);
+void	UnparseEntities(void);
+
+epair_t *ParseEpair(void);
+
+
 void	LoadBSPFile(char *filename);
 void	WriteBSPFile(char *filename);

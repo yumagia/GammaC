@@ -87,7 +87,8 @@ int LoadFile(char *filename, void **bufferptr) {
 	if(file.is_open()) {
 		std::streampos fileSize = file.tellg();
 		length = static_cast<int>(fileSize);
-	} else {
+	}
+	else {
 		Error("Error opening file.");
 	}
 

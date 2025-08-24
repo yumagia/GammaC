@@ -161,8 +161,7 @@ node_t *AllocNode() {
 
 	node_t *node;
 
-	node = (node_t*)malloc(sizeof(*node));
-	memset(node, 0, sizeof(*node));
+	node = (node_t*)calloc(sizeof(node_t), 1);
 	node->id = s_NodeCount;
 
 	s_NodeCount++;

@@ -452,14 +452,9 @@ void ParseBrush(entity_t *mapent) {
 	b->entitynum = num_entities-1;
 	b->brushnum = nummapbrushes - mapent->firstbrush;
 
-	do {
-		if(!GetToken(true)) {
-			break;
-		}
-		if(token == "}") {
-			break;
-		}
-	} while(1);
+
+
+	
 }
 
 bool	ParseMapEntity(void) {
@@ -470,6 +465,45 @@ bool	ParseMapEntity(void) {
 	int			startbrush, startsides;
 	vec_t		newdist;
 	mapbrush_t	*b;
+
+	if(!GetToken(true)) {
+		return false;
+	}
+
+	if(token == "{") {
+		Error("ParseEntity: { not found");
+	}
+
+	if(num_entities == MAX_MAP_ENTITIES) {
+		Error("num_entities == MAX_MAP_ENTITIES");
+	}
+
+	startbrush = nummapbrushes;
+	startsides = nummapbrushsides;
+
+	mapent = &entities[num_entities];
+	num_entities++;
+	memset(mapent, 0, sizeof(entity_t));
+	mapent->firstbrush = nummapbrushes;
+	mapent->numbrushes = 0;
+
+	do {
+		if(!GetToken(true)) {
+			Error("ParseEntity: EOF without closing brace");
+		}
+		if(token == "}") {
+			break;
+		}
+		if(token == "{") {
+			ParseBrush(mapent);
+		}
+		else {
+			e = ParseEpair();
+			e->next = mapent->epairs;
+			mapent->epairs = e;
+		}
+	} while(1);
+
 
 }
 
@@ -486,3 +520,4 @@ void LoadMapFile(fs::path inputpath) {
 	while(ParseMapEntity()) {
 	}
 }
+
