@@ -521,5 +521,22 @@ void LoadMapFile(fs::path inputpath) {
 	}
 
 	ClearBounds(map_mins, map_maxs);
+	for(i = 0; i < entities[0].numbrushes; i++) {
+		if(mapbrushes[i].mins[0] > 4096) {
+			continue;		//no valid points
+		}
+		AddPointToBounds(mapbrushes[i].mins, map_mins, map_maxs);
+		AddPointToBounds(mapbrushes[i].maxs, map_mins, map_maxs);
+	}
+
+	std::cout << nummapbrushes << " brushes" << std::endl;
+	std::cout << c_clipbrushes << " clipbrushes" << std::endl;
+	std::cout << nummapbrushsides << " total sides" << std::endl;
+	std::cout << c_boxbevels << " boxbevels" << std::endl;
+	std::cout << c_edgebevels << " edgebevels" << std::endl;
+	std::cout << num_entities << " entities" << std::endl;
+	std::cout << nummapplanes << " planes" << std::endl;
+	std::cout << c_areaportals << " areaportals" << std::endl;
+	std::cout << "Map size: " << map_mins[0] << ", " << map_mins[1] << ", " << map_mins[2] << " to " << map_maxs[0] << ", " << map_maxs[1] << ", " << map_maxs[2] << std::endl;
 }
 
