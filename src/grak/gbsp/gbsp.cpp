@@ -173,5 +173,8 @@ int main(int argc, char **argv) {
 	DefaultExtension(name, ".map");
 
 	LoadMapFile(name);
-	
+	SetModelNumbers();
+	SetLightStyles();
+
+
 }

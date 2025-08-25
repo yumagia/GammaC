@@ -58,6 +58,9 @@ extern	dbrushside_t	dbrushsides[MAX_MAP_BRUSHSIDES];
 
 extern	unsigned char		dpop[256];
 
+void	LoadBSPFile(char *filename);
+void	WriteBSPFile(char *filename);
+
 typedef struct epair_s {
 	struct epair_s	*next;
 	std::string		key;
@@ -77,8 +80,12 @@ extern	entity_t	entities[MAX_MAP_ENTITIES];
 void	ParseEntities(void);
 void	UnparseEntities(void);
 
+void	SetKeyValue(entity_t *ent, std::string key, std::string val);
+std::string		ValueForKey(entity_t *ent, std::string key);
+
+vec_t	FloatForKey(entity_t *ent, std::string key);
+void	GetVectorForKey(entity_t *ent, std::string key, vec3_t vec);
+
 epair_t *ParseEpair(void);
 
-
-void	LoadBSPFile(char *filename);
-void	WriteBSPFile(char *filename);
+void PrintEntity(entity_t *ent);

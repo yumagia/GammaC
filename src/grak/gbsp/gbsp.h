@@ -175,6 +175,17 @@ void SplitBrush(bspbrush_t *brush, int planenum,
 // The tree func
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
 
+
+/**=============================================
+ * writebsp.cpp
+ * 
+ * =============================================
+ */
+
+void SetModelNumbers (void);
+void SetLightStyles (void);
+
+
 /**=============================================
  * vkdraw.cpp
  * 
