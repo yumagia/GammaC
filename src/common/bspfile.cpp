@@ -68,6 +68,23 @@ dheader_t	*header;
 int			num_entities;
 entity_t	entities[MAX_MAP_ENTITIES];
 
+
+void	LoadBSPFile(char *filename) {
+	int			i;
+
+
+}
+
+void	WriteBSPFile (char *filename) {
+
+}
+
+/**=============================================
+ * PARSING FUNCTIONS
+ * 
+ * =============================================
+ */
+
 void StripTrailing(std::string e) {
 	while(!e.empty() && std::isspace(static_cast<unsigned char>(e.back()))) {
 		e.pop_back();
@@ -178,12 +195,57 @@ void PrintEntity(entity_t *ent) {
 	std::cout << "------- entity " << ent << " -------\n" << std::endl;
 }
 
-void	LoadBSPFile(char *filename) {
-	int			i;
+void	SetKeyValue(entity_t *ent, std::string key, std::string val) {
+	epair_t *ep;
 
+	for(ep = ent->epairs; ep; ep = ep->next) {
+		if(ep->key.find(key) != std::string::npos) {
+			ep->val = val;
+			return;
+		}
+	}
 
+	ep = (epair_t*)malloc(sizeof(*ep));
+	ep->next = ent->epairs;
+	ent->epairs = ep;
+	ep->key = key;
+	ep->val = val;
 }
 
-void	WriteBSPFile (char *filename) {
+std::string		ValueForKey(entity_t *ent, std::string key) {
+	epair_t *ep;
 
+	for(ep = ent->epairs; ep; ep = ep->next) {
+		if(ep->key.find(key) != std::string::npos) {
+			return ep->val;
+		}
+	}
+	return "";
 }
+
+vec_t	FloatForKey(entity_t *ent, std::string key) {
+	std::string k;
+
+	k = ValueForKey(ent, key);
+	return stof(k);
+}
+
+void	GetVectorForKey(entity_t *ent, std::string key, vec3_t vec) {
+	std::string k;
+	double v1, v2, v3;
+
+	k = ValueForKey(ent, key);
+	std::istringstream iss(k);
+
+	v1 = v2 = v3 = 0;
+
+	if(iss >> v1 >> v2 >>v3) {
+		Error("Error: Malformed vec_t");
+	}
+	iss >> v1 >> v2 >>v3;
+
+	vec[0] = static_cast<vec_t>(v1);
+	vec[1] = static_cast<vec_t>(v2);
+	vec[2] = static_cast<vec_t>(v3);
+}
+
