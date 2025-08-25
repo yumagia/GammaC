@@ -141,6 +141,25 @@ void CreateBrushWindings(bspbrush_t *brush) {
 	BoundBrush(brush);
 }
 
+/**
+ * @brief Count the brushes
+ * 
+ */
+int CountBrushList(bspbrush_t *brushes) {
+	int	c;
+
+	c = 0;
+	for(; brushes; brushes = brushes->next) {
+		c++;
+	}
+	
+	return c;
+}
+
+/**
+ * @brief Allocates a tree
+ * 
+ */
 tree_t *AllocTree (void) {
 	tree_t	*tree;
 

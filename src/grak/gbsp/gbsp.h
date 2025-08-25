@@ -177,6 +177,7 @@ void		CreateBrushWindings(bspbrush_t *brush);
 void		BoundBrush(bspbrush_t *brush);
 void SplitBrush(bspbrush_t *brush, int planenum,
 		bspbrush_t **front, bspbrush_t **back);
+int CountBrushList(bspbrush_t *brushes);
 
 // The tree func
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
