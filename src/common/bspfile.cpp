@@ -16,7 +16,7 @@ int			lightdatasize;
 unsigned char	    dlightdata[MAX_MAP_LIGHTING];
 
 int			entdatasize;
-char		dentdata[MAX_MAP_ENTSTRING];
+std::string			dentdata;
 
 int			numleafs;
 dleaf_t		dleafs[MAX_MAP_LEAFS];
@@ -68,6 +68,11 @@ dheader_t	*header;
 int			num_entities;
 entity_t	entities[MAX_MAP_ENTITIES];
 
+void StripTrailing(std::string e) {
+	while(!e.empty() && std::isspace(static_cast<unsigned char>(e.back()))) {
+		e.pop_back();
+	}
+}
 
 epair_t *ParseEpair(void) {
 	epair_t *e;
@@ -75,8 +80,102 @@ epair_t *ParseEpair(void) {
 	e = (epair_t*)calloc(sizeof(epair_t), 1);
 
 	if(token.length() >= MAX_KEY - 1) {
-		Error("ParseEpair: token too long");
+		Error("ParseEpair: epair key too long");
 	}
+	e->key = token;
+	GetToken(false);
+	if(token.length() >= MAX_VALUE - 1) {
+		Error("ParseEpair: epair val too long");
+	}
+	e->val = token;
+
+	StripTrailing(e->key);
+	StripTrailing(e->val);
+
+	return e;
+}
+
+bool	ParseEntity(void) {
+	epair_t		*e;
+	entity_t	*mapent;
+
+	if(!GetToken(true)) {
+		return false;
+	}
+
+	if(token.find("{") == std::string::npos) {
+		Error("ParseEntity: { not found");
+	}
+
+	if(num_entities == MAX_MAP_ENTITIES) {
+		Error("num_entities == MAX_MAP_ENTITIES");
+	}
+
+	mapent = &entities[num_entities];
+	num_entities++;
+
+	do {
+		if(!GetToken(true)) {
+			Error("ParseEntity: EOF without closing brace");
+		}
+		if(token.find("}") != std::string::npos) {
+			break;
+		}
+		e = ParseEpair();
+		e->next = mapent->epairs;
+		mapent->epairs = e;
+	} while(1);
+
+	return true;
+}
+
+void ParseEntities(void) {
+	num_entities = 0;
+	ParseFromMemory(dentdata, entdatasize);
+
+	while(ParseEntity()) {
+	}
+}
+
+void UnparseEntities(void) {
+	epair_t		*ep;
+	std::string	line;
+	int			i;
+	std::string	key, val;
+
+	dentdata = "";
+
+
+	for(i = 0; i < num_entities; i++) {
+		ep = entities[i].epairs;
+		if(!ep) {
+			continue;
+		}
+
+		dentdata += "{\n";
+
+		for(; ep; ep->next) {
+			key = ep->key;
+			val = ep->val;
+
+			StripTrailing(key);
+			StripTrailing(val);
+
+			dentdata += "\"" + key + "\" \"" + val + "\"\n";
+		}
+
+		dentdata += "}\n";
+	}
+
+	if(dentdata.size() >= MAX_MAP_ENTSTRING) {
+		Error("Entity text too long");
+	}
+}
+
+void PrintEntity(entity_t *ent) {
+	epair_t *ep;
+
+	std::cout << "------- entity " << ent << " -------\n" << std::endl;
 }
 
 void	LoadBSPFile(char *filename) {

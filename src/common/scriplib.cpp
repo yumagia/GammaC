@@ -9,8 +9,9 @@
 
 typedef struct {
 	std::string		filename;
-	std::string		buffer;
-	char	*script_p, *end_p;
+	std::string buffer;
+	const char	*buffer_p = NULL;
+	const char	*script_p, *end_p = NULL;
 	int		line;
 } script_t;
 
@@ -41,22 +42,24 @@ void LoadScriptFile(fs::path inputpath) {
 	tokenready = false;
 }
 
-// void ParseFromMemory(char *buffer, int size) {
-// 	script = scriptstack;
-// 	script++;
-// 	if(script == &scriptstack[MAX_INCLUDES]) {
-// 		Error("script file exceeded MAX_INCLUDES");
-// 	}
-// 	std::string (script->filename) = "memory buffer";
+void ParseFromMemory(const std::string& buffer, int size) {
+	script = scriptstack;
+	script++;
+	if(script == &scriptstack[MAX_INCLUDES]) {
+		Error("script file exceeded MAX_INCLUDES");
+	}
+	script->filename = "memory buffer";
 
-// 	script->buffer = buffer;
-// 	script->line = 1;
-// 	script->script_p = script->buffer;
-// 	script->end_p = script->buffer + size;
+	script->buffer = buffer;
 
-// 	endofscript = false;
-// 	tokenready = false;
-// }
+	script->line = 1;
+	script->buffer_p = script->buffer.c_str();
+	script->script_p = script->buffer_p;
+	script->end_p = script->buffer_p + script->buffer.size();
+
+	endofscript = false;
+	tokenready = false;
+}
 
 void UnGetToken(void) {
 	tokenready = true;
@@ -83,7 +86,6 @@ bool EndOfScript(bool crossline) {
 
 bool GetToken(bool crossline) {
 	std::string temptoken;
-
 
 	if(tokenready) {				// It was already waiting perhaps
 		tokenready = false;
@@ -176,7 +178,7 @@ bool GetToken(bool crossline) {
 }
 
 bool TokenAvailable(void) {
-	char	*search_p;
+	const char	*search_p;
 
 	search_p = script->script_p;
 

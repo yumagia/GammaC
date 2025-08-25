@@ -7,7 +7,7 @@ extern	int		scriptline;
 extern	bool	endofscript;
 
 void LoadScriptFile(fs::path inputpath);
-void ParseFromMemory(char *buffer, int size);
+void ParseFromMemory(const std::string& buffer, int size);
 
 bool GetToken(bool crossline);
 void UnGetToken(void);

@@ -12,7 +12,7 @@ extern	int			lightdatasize;
 extern	unsigned char		dlightdata[MAX_MAP_LIGHTING];
 
 extern	int			entdatasize;
-extern	char		dentdata[MAX_MAP_ENTSTRING];
+extern	std::string			dentdata;
 
 extern	int			numleafs;
 extern	dleaf_t		dleafs[MAX_MAP_LEAFS];
@@ -60,8 +60,8 @@ extern	unsigned char		dpop[256];
 
 typedef struct epair_s {
 	struct epair_s	*next;
-	char			*key;
-	char			*val;
+	std::string		key;
+	std::string		val;
 } epair_t;
 
 typedef struct entity_s {

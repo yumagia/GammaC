@@ -167,7 +167,6 @@ int main(int argc, char **argv) {
 
 	std::cout << argv[i] << std::endl;
 	
-	//SetGdirFromPath(argv[i]);
 	SetGdirFromPath(argv[i]);
 
 	std::string name = ExpandArg(argv[i]);
