@@ -111,3 +111,17 @@ void DefaultExtension(std::string path, std::string extension) {
 
 	path = path + extension;
 }
+
+void	StripExtension(std::string path) {
+	std::string temppath;
+
+	temppath = path;
+	while(temppath.length() > 0 && temppath.back() == '.') {
+		if(temppath.back() == '/') {
+			return;		// No extension
+		}
+	}
+	if(temppath.length() > 0) {
+		path = temppath;
+	}
+}

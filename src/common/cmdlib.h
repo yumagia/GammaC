@@ -28,4 +28,5 @@ std::string G_stringtolower(std::string s);
 bool G_stringcasecomp(std::string a, std::string b);
 
 void DefaultExtension(std::string path, std::string extension);
+void	StripExtension(std::string path);
 int LoadFile(char *filename, void **bufferptr);

@@ -2,8 +2,8 @@
 
 extern	float subdivide_size;
 
-char		source[1024];
-char		name[1024];
+std::string		source;
+std::string		name;
 
 vec_t		microvolume = 1.0;
 bool		noprune;
@@ -138,6 +138,45 @@ void ProcessWorldModel(void) {
 	tree->maxs[2] = map_maxs[2] + 8;
 }
 
+void ProcessSubModel(void) {
+	entity_t	*e;
+	int			start, end;
+	tree_t		*tree;
+	bspbrush_t	*list;
+	vec3_t		mins, maxs;
+
+	e = &entities[entity_num];
+
+	start = e->firstbrush;
+	end = start + e->numbrushes;
+
+	mins[0] = mins[1] = mins[2] = -4096;
+	maxs[0] = maxs[1] = maxs[2] = 4096;
+	//list = MakeBspBrushList(start, end, mins, maxs);
+	//list = ChopBrushes(list);
+}
+
+void ProcessModels(void) {
+	BeginBSPFile();
+
+	for(entity_num = 0; entity_num < num_entities; entity_num++) {
+		if(!entities[entity_num].numbrushes) {
+			continue;
+		}
+
+		std::cout << "############### model " << nummodels << " ###############" << std::endl;
+		BeginModel();
+		if(entity_num == 0) {
+			ProcessWorldModel();
+		}
+		else {
+			ProcessSubModel();
+		}
+		EndModel();
+	}
+
+	EndBSPFile();
+}
 
 int main(int argc, char **argv) {
 	int		i;
@@ -169,12 +208,15 @@ int main(int argc, char **argv) {
 	
 	SetGdirFromPath(argv[i]);
 
-	std::string name = ExpandArg(argv[i]);
+	source = ExpandArg(argv[i]);
+	StripExtension(source);
+
+	name = ExpandArg(argv[i]);
 	DefaultExtension(name, ".map");
 
 	LoadMapFile(name);
 	SetModelNumbers();
 	SetLightStyles();
 
-
+	ProcessModels();
 }

@@ -127,6 +127,7 @@ typedef struct tree_s {
 
 } tree_t;
 
+extern	int			entity_num;
 
 extern	plane_t		mapplanes[MAX_MAP_PLANES];
 extern	int			nummapplanes;
@@ -139,6 +140,11 @@ extern	vec3_t		map_mins, map_maxs;
 #define	MAX_MAP_SIDES		(MAX_MAP_BRUSHES*6)
 
 extern	vec_t		microvolume;
+
+extern	int			nummapbrushsides;
+extern	side_t		brushsides[MAX_MAP_SIDES];
+
+extern	std::string		source;
 
 /**=============================================
  * map.cpp
@@ -182,9 +188,14 @@ tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
  * =============================================
  */
 
-void SetModelNumbers (void);
-void SetLightStyles (void);
+void SetModelNumbers(void);
+void SetLightStyles(void);
 
+void BeginBSPFile(void);
+void WriteBSP(node_t *headnode);
+void EndBSPFile(void);
+void BeginModel(void);
+void EndModel(void);
 
 /**=============================================
  * vkdraw.cpp

@@ -59,7 +59,7 @@ extern	dbrushside_t	dbrushsides[MAX_MAP_BRUSHSIDES];
 extern	unsigned char		dpop[256];
 
 void	LoadBSPFile(char *filename);
-void	WriteBSPFile(char *filename);
+void	WriteBSPFile(std::string filename);
 
 typedef struct epair_s {
 	struct epair_s	*next;
