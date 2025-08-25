@@ -170,6 +170,8 @@ int main(int argc, char **argv) {
 	SetGdirFromPath(argv[i]);
 
 	std::string name = ExpandArg(argv[i]);
+	DefaultExtension(name, ".map");
 
 	LoadMapFile(name);
+	
 }

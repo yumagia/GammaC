@@ -27,4 +27,5 @@ std::string ExpandPath(fs::path inputpath);
 std::string G_stringtolower(std::string s);
 bool G_stringcasecomp(std::string a, std::string b);
 
+void DefaultExtension(std::string path, std::string extension);
 int LoadFile(char *filename, void **bufferptr);

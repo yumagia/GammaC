@@ -519,5 +519,7 @@ void LoadMapFile(fs::path inputpath) {
 
 	while(ParseMapEntity()) {
 	}
+
+	ClearBounds(map_mins, map_maxs);
 }
 
