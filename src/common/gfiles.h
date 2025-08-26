@@ -7,10 +7,9 @@
  * =============================================================================
  */
 
-#define IDBSPHEADER		(('P'<<24)+('S'<<16)+('B'<<8)+'I')
-				// little-endian "IBSP"
+#define IDBSPHEADER			"IBSP"
 
-#define BSPVERSION	1
+#define BSPVERSION			1
 
 // Upper design bounds
 #define	MAX_MAP_MODELS		1024
@@ -72,7 +71,7 @@ typedef struct lump_t {
 
 typedef struct dheader_s {
 	int			version;
-	int			ident;
+	char		ident[4];
 	lump_t		lumps[HEADER_LUMPS];
 } dheader_t;
 

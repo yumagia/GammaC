@@ -75,9 +75,68 @@ void	LoadBSPFile(char *filename) {
 
 }
 
-void	WriteBSPFile(std::string filename) {
+std::ofstream	wadfile;
+dheader_t		outheader;
 
+void AddLump(int lumpnum, void *data, int len) {
+	lump_t *lump;
+
+	lump = &header->lumps[lumpnum];
+
+	lump->fileofs = wadfile.tellp();
+	lump->filelen = len;
+	wadfile.write(reinterpret_cast<const char*>(&data), (len+3)&~3);
 }
+
+void	WriteBSPFile(std::string filename) {
+	header = &outheader;
+	memset(header, 0, sizeof(dheader_t));
+
+	strncpy(header->ident, IDBSPHEADER, 4);
+	header->version = BSPVERSION;
+
+	wadfile.open(filename, std::ios::out);
+	if(!wadfile.is_open()) {
+		Error("Error opening %s", filename);
+	}
+	else {
+		wadfile.write(reinterpret_cast<const char*>(&header), sizeof(dheader_t));
+		AddLump(LUMP_PLANES, dplanes, numplanes*sizeof(dplane_t));
+		AddLump(LUMP_LEAFS, dleafs, numleafs*sizeof(dleaf_t));
+		AddLump(LUMP_VERTEXES, dvertexes, numvertexes*sizeof(dvertex_t));
+		AddLump(LUMP_NODES, dnodes, numnodes*sizeof(dnode_t));
+		AddLump(LUMP_TEXINFO, texinfo, numtexinfo*sizeof(texinfo_t));
+		AddLump(LUMP_FACES, dfaces, numfaces*sizeof(dface_t));
+		AddLump(LUMP_BRUSHES, dbrushes, numbrushes*sizeof(dbrush_t));
+		AddLump(LUMP_BRUSHSIDES, dbrushsides, numbrushsides*sizeof(dbrushside_t));
+		AddLump(LUMP_LEAFFACES, dleaffaces, numleaffaces*sizeof(dleaffaces[0]));
+		AddLump(LUMP_LEAFBRUSHES, dleafbrushes, numleafbrushes*sizeof(dleafbrushes[0]));
+		AddLump(LUMP_SURFEDGES, dsurfedges, numsurfedges*sizeof(dsurfedges[0]));
+		AddLump(LUMP_EDGES, dedges, numedges*sizeof(dedge_t));
+		AddLump(LUMP_MODELS, dmodels, nummodels*sizeof(dmodel_t));
+		AddLump(LUMP_AREAS, dareas, numareas*sizeof(darea_t));
+		AddLump(LUMP_AREAPORTALS, dareaportals, numareaportals*sizeof(dareaportal_t));
+
+		AddLump(LUMP_LIGHTING, dlightdata, lightdatasize);
+		AddLump(LUMP_VISIBILITY, dvisdata, visdatasize);
+		AddLump(LUMP_ENTITIES, dentdata.data(), entdatasize);
+		AddLump(LUMP_POP, dpop, sizeof(dpop));
+
+		wadfile.seekp(0, std::ios_base::beg);
+		wadfile.write(reinterpret_cast<const char*>(&header), sizeof(dheader_t));
+		wadfile.close();
+	}
+}
+
+// void PrintBSPFileSizes(void) {
+// 	if(!num_entities) {
+// 		ParseEntities();
+// 	}
+
+// 	std::cout << nummodels << " models		" << (int)(nummodels*sizeof(dmodel_t)) << std::endl;
+// 	std::cout << numbrushes << " brushes		" << (int)(numbrushes*sizeof(dbrush_t)) << std::endl;
+// 	std::cout << numbrushsides << " brushsides		" << (int)(nummodels*sizeof(dbrushside_t)) << std::endl;
+// }
 
 /**=============================================
  * PARSING FUNCTIONS

@@ -95,7 +95,7 @@ int LoadFile(char *filename, void **bufferptr) {
 	return length;
 }
 
-void DefaultExtension(std::string path, std::string extension) {
+void DefaultExtension(std::string& path, std::string extension) {
 	std::string src;
 	std::string b;
 
@@ -109,7 +109,7 @@ void DefaultExtension(std::string path, std::string extension) {
 		src.pop_back();
 	}
 
-	path = path + extension;
+	path += extension;
 }
 
 void	StripExtension(std::string path) {
