@@ -154,6 +154,10 @@ void ProcessSubModel(void) {
 	maxs[0] = maxs[1] = maxs[2] = 4096;
 	list = MakeBspBrushList(start, end, mins, maxs);
 	list = ChopBrushes(list);
+	tree = BrushBSP(list, mins, maxs);
+
+	WriteBSP(tree->headnode);
+
 }
 
 void ProcessModels(void) {

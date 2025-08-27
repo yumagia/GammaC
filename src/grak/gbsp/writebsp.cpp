@@ -8,6 +8,20 @@ int		c_facenodes;
 int		planeused[MAX_MAP_PLANES];
 
 
+void WriteBSP(node_t *headnode) {
+	int		oldfaces;
+
+	c_nofaces = 0;
+	c_facenodes = 0;
+
+	std::cout << "--- WriteBSP ---" << std::endl;
+
+	oldfaces = numfaces;
+
+	std::cout << c_facenodes << " nodes with faces" << std::endl;
+	std::cout << c_nofaces << " nodes without faces" << std::endl;
+	std::cout << numfaces - oldfaces << " faces" << std::endl;
+}
 
 /**=============================================
  * 

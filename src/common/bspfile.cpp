@@ -221,16 +221,15 @@ void UnparseEntities(void) {
 
 	dentdata = "";
 
-
 	for(i = 0; i < num_entities; i++) {
 		ep = entities[i].epairs;
 		if(!ep) {
-			continue;
+			continue;		// Ent got removed
 		}
 
 		dentdata += "{\n";
 
-		for(; ep; ep->next) {
+		for(ep = entities[i].epairs; ep; ep = ep->next) {
 			key = ep->key;
 			val = ep->val;
 
@@ -239,7 +238,6 @@ void UnparseEntities(void) {
 
 			dentdata += "\"" + key + "\" \"" + val + "\"\n";
 		}
-
 		dentdata += "}\n";
 	}
 
