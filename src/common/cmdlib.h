@@ -29,4 +29,4 @@ bool G_stringcasecomp(std::string a, std::string b);
 
 void DefaultExtension(std::string& path, std::string extension);
 void	StripExtension(std::string path);
-int LoadFile(char *filename, void **bufferptr);
+int LoadFile(std::string filename, std::string &buffer);

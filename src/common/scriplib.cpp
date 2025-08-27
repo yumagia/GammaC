@@ -18,7 +18,7 @@ typedef struct {
 #define MAX_INCLUDES	8
 script_t	scriptstack[MAX_INCLUDES];
 script_t	*script;
-int		scriptline;
+int			scriptline;
 
 std::string		token;
 bool	endofscript;
@@ -32,6 +32,17 @@ void AddScriptToStack(fs::path inputpath) {
 		Error("Script file exceeded MAX_INCLUDES");
 	}
 	script->filename = ExpandPath(inputpath);
+
+	size = LoadFile(script->filename, script->buffer);
+	
+
+	std::cout << "Entering " << script->filename << std::endl;
+
+	script->line = 1;
+	scriptline = 1;
+
+	script->script_p = script->buffer.data();
+	script->end_p = script->script_p + script->buffer.size();
 }
 
 void LoadScriptFile(fs::path inputpath) {
@@ -69,6 +80,7 @@ bool EndOfScript(bool crossline) {
 	if(!crossline) {
 		Error("Line %i is incomplete\n",scriptline);
 	}
+
 	if(script->filename == "memory buffer") {
 		endofscript = true;
 		return false;
@@ -78,6 +90,7 @@ bool EndOfScript(bool crossline) {
 		endofscript = true;
 		return false;
 	}
+
 	script--;
 	scriptline = script->line;
 	std::cout << "Returning to " << script->filename << std::endl;
@@ -85,8 +98,6 @@ bool EndOfScript(bool crossline) {
 }
 
 bool GetToken(bool crossline) {
-	std::string temptoken;
-
 	if(tokenready) {				// It was already waiting perhaps
 		tokenready = false;
 		return true;
@@ -97,10 +108,7 @@ bool GetToken(bool crossline) {
 	}
 
 	skipspace:
-		while(*script->script_p <= 32) {
-			if(script->script_p >= script->end_p) {
-				return EndOfScript(crossline);
-			}
+		while(script->script_p < script->end_p && static_cast<unsigned char>(*script->script_p) <= 32) {
 			if(*script->script_p++ == '\n') {
 				if(!crossline) {
 					Error("Line %i is incomplete\n",scriptline);
@@ -112,7 +120,7 @@ bool GetToken(bool crossline) {
 		if(script->script_p >= script->end_p) {
 			return EndOfScript(crossline);
 		}
-
+		
 		// Comments (; # //)
 		if(*script->script_p == ';' || *script->script_p == '#'
 			|| (script->script_p[0] == '/' && script->script_p[1] == '/')) {
@@ -123,8 +131,8 @@ bool GetToken(bool crossline) {
 				if(script->script_p >= script->end_p) {
 					return EndOfScript(crossline);
 				}
-			goto skipspace;
 			}
+			goto skipspace;
 		}
 
 		// Comments (/* */)
@@ -140,17 +148,16 @@ bool GetToken(bool crossline) {
 			goto skipspace;
 		}
 
-		// Copy token
-		temptoken = token;
-
+		// Set Token
+		token.clear();
 		if(*script->script_p == '"') {		// Quoted token
 			script->script_p++;
 			while(*script->script_p != '"') {
-				temptoken += *script->script_p++;
+				token += *script->script_p++;
 				if(script->script_p == script->end_p) {
 					break;
 				}
-				if(temptoken.length() >= MAXTOKEN) {
+				if(token.length() >= MAXTOKEN) {
 					Error("Token too large on line %i\n",scriptline);
 				}
 			}
@@ -158,11 +165,11 @@ bool GetToken(bool crossline) {
 		}
 		else {								// Regular token
 			while(*script->script_p > 32 && *script->script_p != ';') {
-				temptoken += *script->script_p++;
+				token += *script->script_p++;
 				if(script->script_p == script->end_p) {
 					break;
 				}
-				if(temptoken.length() >= MAXTOKEN) {
+				if(token.length() >= MAXTOKEN) {
 					Error("Token too large on line %i\n",scriptline);
 				}
 			}

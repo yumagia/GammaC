@@ -153,7 +153,7 @@ void StripTrailing(std::string e) {
 epair_t *ParseEpair(void) {
 	epair_t *e;
 
-	e = (epair_t*)calloc(sizeof(epair_t), 1);
+	e = new epair_t();
 
 	if(token.length() >= MAX_KEY - 1) {
 		Error("ParseEpair: epair key too long");

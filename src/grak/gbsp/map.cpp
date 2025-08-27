@@ -452,9 +452,173 @@ void ParseBrush(entity_t *mapent) {
 	b->entitynum = num_entities-1;
 	b->brushnum = nummapbrushes - mapent->firstbrush;
 
+	do {
+		if(!GetToken(true)) {
+			break;
+		}
+		if(token == "}") {
+			break;
+		}
 
+		if(nummapbrushsides == MAX_MAP_BRUSHSIDES) {
+			Error("MAX_MAP_BRUSHSIDES");
+		}
+		side = &brushsides[nummapbrushsides];
 
-	
+		for(i = 0; i < 3; i++) {
+			if(i != 0) {
+				GetToken(true);
+			}
+			if(token != "(") {
+				Error("parsing brush");
+			}
+			
+			for(j = 0; j < 3; j++) {
+				GetToken(false);
+				planepts[i][j] = stoi(token);
+			}
+			
+			GetToken(false);
+			if (token != ")") {
+				Error("parsing brush");
+			}
+		}
+
+		GetToken(false);
+		td.name = token;
+
+		GetToken(false);
+		td.shift[0] = stoi(token);
+		GetToken(false);
+		td.shift[1] = stoi(token);
+		GetToken(false);
+		td.rotate = stoi(token);
+		GetToken(false);
+		td.scale[0] = stoi(token);
+		GetToken(false);
+		td.scale[1] = stoi(token);
+
+		//mt = FindMiptex(td.name);
+		//td.flags = textureref[mt].flags;
+		//td.value = textureref[mt].value;
+		//side->contents = textureref[mt].contents;
+		//side->surf = td.flags = textureref[mt].flags;
+
+		if(TokenAvailable()) {
+			GetToken(false);
+			side->contents = stoi(token);
+			GetToken(false);
+			side->surf = td.flags = stoi(token);
+			GetToken(false);
+			td.value = stoi(token);
+		}
+
+		// Translucent objects are automatically classified as detail
+		if(side->surf & (SURF_TRANS33|SURF_TRANS66)) {
+			side->contents |= CONTENTS_DETAIL;
+		}
+		if(side->surf & (CONTENTS_PLAYERCLIP|CONTENTS_NPCCLIP)) {
+			side->contents |= CONTENTS_DETAIL;
+		}
+		//if(fulldetail) {
+		//	side->contents &= ~CONTENTS_DETAIL;
+		//}
+		if(!(side->contents & ((LAST_VISIBLE_CONTENTS-1) 
+			| CONTENTS_PLAYERCLIP|CONTENTS_NPCCLIP|CONTENTS_MIST))) {
+			side->contents |= CONTENTS_SOLID;
+		}
+
+		if(side->surf & (SURF_HINT|SURF_SKIP)) {
+			side->contents = 0;
+			side->surf &= ~CONTENTS_DETAIL;
+		}
+
+		planenum = PlaneFromPoints(planepts[0], planepts[1], planepts[2]);
+		if(planenum == -1) {
+			std::cout << "Entity " << b->entitynum << ", Brush " 
+				<< b->brushnum << ": plane with no normal" << std::endl;
+			continue;
+		}
+
+		for(k = 0; k < b->numsides; k++) {
+			s2 = b->original_sides + k;
+			if(s2->planenum == planenum) {
+				std::cout << "Entity " << b->entitynum << ", Brush " 
+					<< b->brushnum << ": duplicate plane" << std::endl;
+				break;
+			}
+			if(s2->planenum == (planenum^1)) {
+				std::cout << "Entity " << b->entitynum << ", Brush " 
+					<< b->brushnum << ": mirrored plane" << std::endl;
+				break;
+			}
+		}
+		if(k != b->numsides) {
+			continue;
+		}
+
+		side = b->original_sides + b->numsides;
+		side->planenum = planenum;
+		//side->texinfo = TexinfoForBrushTexture(&mapplanes[planenum],
+		//	&td, vec3_origin);
+		
+		// Save the td off in case there is an origin brush and we
+		// have to recalculate the texinfo
+		//side_brushtextures[nummapbrushsides] = td;
+
+		nummapbrushsides++;
+		b->numsides++;
+	} while (1);
+
+	b->contents = BrushContents(b);
+
+	//if(nodetail && (b->contents & CONTENTS_DETAIL)) {
+	//	b->numsides = 0;
+	//	return;
+	//}
+
+	//if(nowater && (b->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))) {
+	//	b->numsides = 0;
+	//	return;
+	//}
+
+	MakeBrushWindings(b);
+
+	if(b->contents & (CONTENTS_PLAYERCLIP|CONTENTS_NPCCLIP)) {
+		c_clipbrushes++;
+		for(i = 0; i < b->numsides; i++) {
+			b->original_sides[i].texinfo = TEXINFO_NODE;
+		}
+	}
+
+	if(b->contents & CONTENTS_ORIGIN) {
+		std::string		string;
+		vec3_t			origin;
+
+		if(num_entities == 1) {
+			Error("Entity %i, Brush %i: origin brushes not allowed in world"
+				, b->entitynum, b->brushnum);
+		}
+
+		VectorAdd(b->mins, b->maxs, origin);
+		VectorScale(origin, 0.5, origin);
+		string = (int)origin[0] + " ";
+		string += (int)origin[1] + " ";
+		string += (int)origin[2];
+		SetKeyValue(&entities[b->entitynum], "origin", string);
+
+		VectorCopy(origin, entities[b->entitynum].origin);
+
+		// Don't keep this brush
+		b->numsides = 0;
+
+		return;
+	}
+
+	AddBrushBevels(b);
+
+	nummapbrushes++;
+	mapent->numbrushes++;
 }
 
 bool	ParseMapEntity(void) {
@@ -469,8 +633,7 @@ bool	ParseMapEntity(void) {
 	if(!GetToken(true)) {
 		return false;
 	}
-
-	if(token == "{") {
+	if(token != "{") {
 		Error("ParseEntity: { not found");
 	}
 
@@ -504,7 +667,25 @@ bool	ParseMapEntity(void) {
 		}
 	} while(1);
 
+	// Offest all planes and texinfo by the origin brush, if it exists
+	GetVectorForKey(mapent, "origin", mapent->origin);
+	if (mapent->origin[0] || mapent->origin[1] || mapent->origin[2]) {
+		for(i = 0; i < mapent->numbrushes; i++) {
+			b = &mapbrushes[mapent->firstbrush + i];
+			for(j = 0; j < b->numsides; j++) {
+				s = &b->original_sides[j];
+				newdist = mapplanes[s->planenum].dist -
+					DotProduct(mapplanes[s->planenum].normal, mapent->origin);
+				s->planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
+				//s->texinfo = TexinfoForBrushTexture(&mapplanes[s->planenum],
+				//	&side_brushtextures[s-brushsides], mapent->origin);
+			}
+			MakeBrushWindings(b);
+		}
+	}
 
+
+	return true;
 }
 
 void LoadMapFile(fs::path inputpath) {

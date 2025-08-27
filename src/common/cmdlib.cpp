@@ -80,18 +80,28 @@ bool G_stringcasecomp(std::string a, std::string b) {
  * =============================================================================
  */
 
-int LoadFile(char *filename, void **bufferptr) {
+int LoadFile(std::string filename, std::string &buffer) {
+	std::ifstream file;
 	int		length;
-	std::ifstream file(filename);
+	std::string content;
+	std::stringstream sstreambuffer;
 
-	if(file.is_open()) {
-		std::streampos fileSize = file.tellg();
-		length = static_cast<int>(fileSize);
-	}
-	else {
+	file.open(filename, std::ios::in);
+
+	if(!file) {
 		Error("Error opening file.");
 	}
+	
+	length = 0;
+	while(std::getline(file, content)) {
+		length++;
+	}
+	file.clear();
+	file.seekg(0, std::ios::beg);
 
+	sstreambuffer.str("");
+	sstreambuffer << file.rdbuf();
+	buffer = sstreambuffer.str();
 	return length;
 }
 

@@ -25,7 +25,7 @@ typedef struct brush_texture_s {
 	vec_t	shift[2];
 	vec_t	rotate;
 	vec_t	scale[2];
-	char	name[32];
+	std::string		name;
 	int		flags;
 	int		value;
 } brush_texture_t;
@@ -154,6 +154,21 @@ extern	std::string		source;
 
 void 	LoadMapFile(fs::path inputpath);
 int		FindFloatPlane(vec3_t normal, vec_t dist);
+
+/**=============================================
+ * csg.cpp
+ * 
+ * =============================================
+ */
+
+bspbrush_t *MakeBspBrushList (int startbrush, int endbrush,
+		vec3_t clipmins, vec3_t clipmaxs);
+bspbrush_t *ChopBrushes (bspbrush_t *head);
+bspbrush_t *InitialBrushList (bspbrush_t *list);
+bspbrush_t *OptimizedBrushList (bspbrush_t *list);
+
+void WriteBrushMap (char *name, bspbrush_t *list);
+
 
 /**=============================================
  * brushbsp.cpp
