@@ -72,6 +72,10 @@ typedef struct entity_s {
 	int				firstbrush;
 	int				numbrushes;
 	epair_t			*epairs;
+
+	// Only valid for func_areaportals
+	int			areaportalnum;
+	int			portalareas[2];
 } entity_t;
 
 extern	int			num_entities;

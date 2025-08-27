@@ -621,6 +621,45 @@ void ParseBrush(entity_t *mapent) {
 	mapent->numbrushes++;
 }
 
+void MoveBrushesToWorld(entity_t *mapent) {
+	int			newbrushes;
+	int			worldbrushes;
+	mapbrush_t temp[MAX_MAP_BRUSHES];
+	int			i;
+
+	// this is pretty gross, because the brushes are expected to be
+	// in linear order for each entity - Jawn Carmack
+	
+	// fr tho he right
+
+	newbrushes = mapent->numbrushes;
+	worldbrushes = entities[0].numbrushes;
+
+	std::copy(
+		mapbrushes + mapent->firstbrush, 
+		mapbrushes + mapent->firstbrush + newbrushes, 
+		temp
+	);
+	std::move_backward(
+		mapbrushes + worldbrushes, 
+		mapbrushes + nummapbrushes, 
+		mapbrushes + nummapbrushes + newbrushes
+	);
+	std::copy(
+		temp,
+		temp + newbrushes,
+		mapbrushes + worldbrushes
+	);
+
+	entities[0].numbrushes += newbrushes;
+	for(int i = 1; i < num_entities; i++) {
+		entities[i].firstbrush += newbrushes;
+	}
+
+	mapent->numbrushes = 0;
+	nummapbrushes += newbrushes;
+}
+
 bool	ParseMapEntity(void) {
 	entity_t	*mapent;
 	epair_t		*e;
@@ -684,6 +723,33 @@ bool	ParseMapEntity(void) {
 		}
 	}
 
+	// Group Entities are for editor convenience
+	// So all these brushes will be tossed into the world entity
+	if(ValueForKey(mapent, "classname") == "func_group") {
+		MoveBrushesToWorld(mapent);
+		mapent->numbrushes = 0;
+		return true;
+	}
+
+	// Areaportal entities will move their brushes without
+	// eliminating the entity
+	if(ValueForKey(mapent, "classname") == "func_areaportal") {
+		std::string		string;
+
+		if(mapent->numbrushes != 1) {
+			Error("Entity %i: func_areaportal can only be a single brush", num_entities - 1);
+		}
+
+		b = &mapbrushes[nummapbrushes - 1];
+		b->contents = CONTENTS_AREAPORTAL;
+		c_areaportals++;
+		mapent->areaportalnum = c_areaportals;
+		// Set the portal number as "style"
+		string = c_areaportals;
+		SetKeyValue(mapent, "style", string);
+		MoveBrushesToWorld(mapent);
+		return true;
+	}
 
 	return true;
 }

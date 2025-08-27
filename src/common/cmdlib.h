@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <ctype.h>
-#include <algorithm>
 #include <time.h>
 #include <stdarg.h>
 #include <cstddef>
+
+#include <algorithm>
 #include <exception>
 #include <iostream>
 #include <fstream>
