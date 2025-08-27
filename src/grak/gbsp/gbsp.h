@@ -90,7 +90,7 @@ typedef struct node_s {
 	// leaves and internal nodes
 	int				planenum;	// -1 = Leaf node
 	struct node_s		*parent;
-	vec3_t			minb, maxb;		// Valid post-portalization
+	vec3_t			mins, maxs;		// Valid post-portalization
 	bspbrush_t		*volume;		// A single bounding box for every node, leafs too
 	// non-leaf nodes only
 	bool			detail_seperator;	// A detail brush caused the split
@@ -110,7 +110,7 @@ typedef struct node_s {
 
 typedef struct portal_s {
 	int				id;
-	plane_t			*plane;	
+	plane_t			plane;	
 	node_t			*onnode;		// NULL = The outside box
 	node_t			*nodes[2];		// [0] = Front
 	struct portal_s		*next[2];
@@ -122,7 +122,7 @@ typedef struct portal_s {
 
 typedef struct tree_s {
 	node_t			*headnode;
-	node_t			*outside_node;
+	node_t			outside_node;
 	vec3_t			mins, maxs;
 
 } tree_t;
@@ -197,6 +197,28 @@ int CountBrushList(bspbrush_t *brushes);
 // The tree func
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
 
+/**=============================================
+ * portals.cpp
+ * 
+ * =============================================
+ */
+
+int VisibleContents(int contents);
+
+void MakeHeadnodePortals(tree_t *tree);
+void MakeNodePortal(node_t *node);
+void SplitNodePortals(node_t *node);
+
+bool	Portal_VisFlood(portal_t *p);
+
+bool FloodEntities(tree_t *tree);
+void FillOutside(node_t *headnode);
+void FloodAreas(tree_t *tree);
+void MarkVisibleSides(tree_t *tree, int start, int end);
+void FreePortal(portal_t *p);
+void EmitAreaPortals(node_t *headnode);
+
+void MakeTreePortals(tree_t *tree);
 
 /**=============================================
  * writebsp.cpp
