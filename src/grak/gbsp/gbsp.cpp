@@ -126,6 +126,7 @@ void ProcessWorldModel(void) {
 	bool		leaked;
 	bool		optimize;
 	int			i;
+	int			pass;
 
 	e = &entities[entity_num];
 
@@ -162,7 +163,8 @@ void ProcessWorldModel(void) {
 		block_yh = 3;
 	}
 
-	for(optimize = false; optimize <= true; optimize = !optimize) {
+	optimize = false;
+	for(pass = 0; pass < 2; pass++) {
 		std::cout << "--------------------------------------------" << std::endl;
 
 		for(i = 0; i <= (block_xh - block_xl + 1)*(block_yh - block_yl + 1); i++) {
@@ -185,6 +187,9 @@ void ProcessWorldModel(void) {
 		tree->maxs[2] = map_maxs[2] + 8;
 
 		MakeTreePortals(tree);
+
+		//MarkVisibleSides(tree, brush_start, brush_end);
+		optimize = !optimize;
 	}
 }
 
