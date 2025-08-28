@@ -80,7 +80,41 @@ node_t	*BlockTree(int xl, int yl, int xh, int yh) {
 }
 
 int			brush_start, brush_end;
+void ProcessBlock_Thread(int blocknum) {
+	int		xblock, yblock;
+	vec3_t		mins, maxs;
+	bspbrush_t	*brushes;
+	tree_t		*tree;
+	node_t		*node;
 
+	yblock = block_yl + blocknum / (block_xh - block_xl + 1);
+	xblock = block_xl + blocknum % (block_xh - block_xl + 1);
+
+	std::cout << "############### block " << xblock << " " << yblock << " ###############" << std::endl;
+
+	mins[0] = xblock * 1024;
+	mins[1] = yblock * 1024;
+	mins[2] = -4096;
+	maxs[0] = (xblock + 1) * 1024;
+	maxs[1] = (yblock + 1) * 1024;
+	maxs[2] = 4096;
+
+	// The makelist and chopbrushes could be cached between the passes...
+	brushes = MakeBspBrushList(brush_start, brush_end, mins, maxs);
+	if(!brushes) {
+		node = AllocNode();
+		node->planenum = PLANENUM_LEAF;
+		node->contents = CONTENTS_SOLID;
+		block_nodes[xblock + 5][yblock + 5] = node;
+		return;
+	}
+
+	brushes = ChopBrushes(brushes);
+
+	tree = BrushBSP(brushes, mins, maxs);
+
+	block_nodes[xblock + 5][yblock + 5] = tree->headnode;
+}
 
 
 /**
@@ -90,6 +124,8 @@ void ProcessWorldModel(void) {
 	entity_t	*e;
 	tree_t		*tree;
 	bool		leaked;
+	bool		optimize;
+	int			i;
 
 	e = &entities[entity_num];
 
@@ -100,42 +136,56 @@ void ProcessWorldModel(void) {
 	//
 	// perform per-block operations
 	//
-	if (block_xh * 1024 > map_maxs[0]) {
+	if(block_xh * 1024 > map_maxs[0]) {
 		block_xh = floor(map_maxs[0]/1024.0);
 	}
-	if ( (block_xl+1) * 1024 < map_mins[0]) {
+	if((block_xl + 1) * 1024 < map_mins[0]) {
 		block_xl = floor(map_mins[0]/1024.0);
 	}
-	if (block_yh * 1024 > map_maxs[1]) {
+	if(block_yh * 1024 > map_maxs[1]) {
 		block_yh = floor(map_maxs[1]/1024.0);
 	}
-	if ( (block_yl+1) * 1024 < map_mins[1]) {
+	if((block_yl + 1) * 1024 < map_mins[1]) {
 		block_yl = floor(map_mins[1]/1024.0);
 	}
 
-	if (block_xl <-4) {
+	if(block_xl <-4) {
 		block_xl = -4;
 	}
-	if (block_yl <-4) {
+	if(block_yl <-4) {
 		block_yl = -4;
 	}
-	if (block_xh > 3) {
+	if(block_xh > 3) {
 		block_xh = 3;
 	}
-	if (block_yh > 3) {
+	if(block_yh > 3) {
 		block_yh = 3;
 	}
 
-	tree = AllocTree();
-	tree->headnode = BlockTree(block_xl - 1, block_yl - 1, block_xh + 1, block_yh + 1);
+	for(optimize = false; optimize <= true; optimize = !optimize) {
+		std::cout << "--------------------------------------------" << std::endl;
 
-	tree->mins[0] = (block_xl) * 1024;
-	tree->mins[1] = (block_yl) * 1024;
-	tree->mins[2] = map_mins[2] - 8;
+		for(i = 0; i <= (block_xh - block_xl + 1)*(block_yh - block_yl + 1); i++) {
+			ProcessBlock_Thread(i);
+		}
+		//RunThreadsOnIndividual(block_xh - block_xl + 1)*(block_yh - block_yl + 1),
+		//	!verbose, ProcessBlock_Thread);
 
-	tree->maxs[0] = (block_xh + 1) * 1024;
-	tree->maxs[1] = (block_yh + 1) * 1024;
-	tree->maxs[2] = map_maxs[2] + 8;
+		std::cout << "--------------------------------------------" << std::endl;
+
+		tree = AllocTree();
+		tree->headnode = BlockTree(block_xl - 1, block_yl - 1, block_xh + 1, block_yh + 1);
+
+		tree->mins[0] = (block_xl) * 1024;
+		tree->mins[1] = (block_yl) * 1024;
+		tree->mins[2] = map_mins[2] - 8;
+
+		tree->maxs[0] = (block_xh + 1) * 1024;
+		tree->maxs[1] = (block_yh + 1) * 1024;
+		tree->maxs[2] = map_maxs[2] + 8;
+
+		MakeTreePortals(tree);
+	}
 }
 
 void ProcessSubModel(void) {

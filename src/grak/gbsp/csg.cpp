@@ -195,7 +195,7 @@ bspbrush_t *MakeBspBrushList(int startbrush, int endbrush,
 
 	for(i = 0; i < 2; i++) {
 		VectorClear(normal);
-		normal[i];
+		normal[i] = 1;
 		dist = clipmaxs[i];
 		maxplanenums[i] = FindFloatPlane(normal, dist);
 		dist = clipmins[i];
@@ -373,6 +373,7 @@ bspbrush_t *ChopBrushes(bspbrush_t *head) {
 	keep = NULL;
 
 	newlist:
+		// Find the tail
 		if(!head) {
 			return NULL;
 		}

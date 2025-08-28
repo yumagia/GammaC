@@ -74,7 +74,7 @@ typedef struct bspbrush_s {
 	int				testside;	// Used for split testing
 	mapbrush_t		*original;
 	int				numsides;
-	side_t			sides[];
+	side_t			sides[6];
 } bspbrush_t;
 
 typedef struct leafface_s {

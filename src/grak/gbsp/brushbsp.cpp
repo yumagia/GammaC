@@ -3,6 +3,7 @@
 
 int		c_nodes;
 int		c_nonvis;
+int		c_active_brushes;
 
 // Use a reasonable epsilon to spare a marginally 
 // poking brush from a chop
@@ -199,6 +200,7 @@ bspbrush_t *AllocBrush(int numsides) {
 
 	bb = (bspbrush_t*)calloc(sizeof(bspbrush_t) + numsides * sizeof(side_t), 1);
 	bb->id = s_BrushId++;
+	c_active_brushes++;
 	return bb;
 }
 
@@ -212,8 +214,9 @@ void FreeBrush(bspbrush_t *brush) {
 		if (brush->sides[i].winding) {
 			FreeWinding(brush->sides[i].winding);
 		}
-	free(brush);
 	}
+	free(brush);
+	c_active_brushes--;
 }
 
 /**
@@ -226,7 +229,7 @@ void FreeBrushList(bspbrush_t *brushes) {
 	for ( ; brushes; brushes = next) {
 		next = brushes->next;
 
-		FreeBrush(next);
+		FreeBrush(brushes);
 	}
 }
 
@@ -588,36 +591,40 @@ side_t *SelectSplitSide(bspbrush_t *brushes, node_t *node) {
 	// passes will be tried.
 
 	numpasses = 4;
-
-	for (pass = 0; pass < numpasses; pass++) {
-		for (brush = brushes; brush; brush = brush->next) {
-			if ( (pass & 1) && !(brush->original->contents & CONTENTS_DETAIL) ) {
+	for(pass = 0; pass < numpasses; pass++) {
+		for(brush = brushes; brush; brush = brush->next) {
+			if((pass & 1) && !(brush->original->contents & CONTENTS_DETAIL)) {
 				continue;
 			}
-			if ( !(pass & 1) && (brush->original->contents & CONTENTS_DETAIL) ) {
+			if(!(pass & 1) && (brush->original->contents & CONTENTS_DETAIL)) {
 				continue;
 			}
-			for (i = 0; i < brush->numsides; i++) {
-				side = brush -> sides + i;
-				if (side->bevel)
+			for(i = 0; i < brush->numsides; i++) {
+				side = brush->sides + i;
+				if(side->bevel) {
 					continue;	// Never use a bevel as a spliter
-				if (!side->winding)
+				}
+				if(!side->winding) {
 					continue;	// Nothing visible, so it can't split
-				if (side->texinfo == TEXINFO_NODE)
+				}
+				if(side->texinfo == TEXINFO_NODE) {
 					continue;	// Already a node splitter
-				if (side->tested)
+				}
+				if(side->tested) {
 					continue;	// We already have metrics for this plane
-				if (side->surf & SURF_SKIP)
+				}
+				if(side->surf & SURF_SKIP) {
 					continue;	// Skip surfaces are never chosen
-				if ( side->visible ^ (pass<2) )
+				}
+				if(side->visible ^ (pass < 2)) {
 					continue;	// Only check visible faces on first pass
+				}
 
 				pnum = side->planenum;
 				pnum &= ~1;		// Always use positive-facing
 
-				CheckPlaneAgainstParents (pnum, node);
-
-				if (!CheckPlaneAgainstVolume (pnum, node)) {
+				CheckPlaneAgainstParents(pnum, node);
+				if(!CheckPlaneAgainstVolume(pnum, node)) {
 					continue;	// would produce a tiny volume
 				}
 
@@ -629,32 +636,31 @@ side_t *SelectSplitSide(bspbrush_t *brushes, node_t *node) {
 				splits = 0;
 				epsilonbrush = 0;
 				
-				for (test = brushes ; test ; test=test->next) {
+				for(test = brushes; test; test = test->next) {
 					s = TestBrushToPlanenum(test, pnum, &bsplits, &hintsplit, &epsilonbrush);
 
 					splits += bsplits;
-					if (bsplits && (s&PSIDE_FACING)) {
+					if(bsplits && (s&PSIDE_FACING)) {
 						Error("PSIDE_FACING with splits");
 					}
-
 					test->testside = s;
 					// If the brush shares this face, don't bother
 					// with testing that facenum as a splitter again
-					if (s & PSIDE_FACING) {
+					if(s & PSIDE_FACING) {
 						facing++;
-						for (j=0; j < test->numsides; j++) {
-							if ((test->sides[j].planenum&~1) == pnum) {
+						for(j = 0; j < test->numsides; j++) {
+							if((test->sides[j].planenum&~1) == pnum) {
 								test->sides[j].tested = true;
 							}
 						}
 					}
-					if (s & PSIDE_FRONT) {
+					if(s & PSIDE_FRONT) {
 						front++;
 					}
-					if (s & PSIDE_BACK) {
+					if(s & PSIDE_BACK) {
 						back++;
 					}
-					if (s == PSIDE_BOTH) {
+					if(s == PSIDE_BOTH) {
 						both++;
 					}
 				}
@@ -665,13 +671,15 @@ side_t *SelectSplitSide(bspbrush_t *brushes, node_t *node) {
 				value =  5*facing - 5*splits - abs(front-back);
 				// value =  -5*splits;
 				// value =  5*facing - 5*splits;
-				if (mapplanes[pnum].type < 3)
+				if(mapplanes[pnum].type < 3) {
 					value+=5;		// Axial is better
+				}
 				value -= epsilonbrush*1000;	// Avoid!
 
 				// Never split a hint side except with another hint
-				if (hintsplit && !(side->surf & SURF_HINT) )
+				if(hintsplit && !(side->surf & SURF_HINT)) {
 					value = -9999999;
+				}
 
 				// Save off the side test so we don't need
 				// to recalculate it when we actually seperate
@@ -829,7 +837,7 @@ void SplitBrush(bspbrush_t *brush, int planenum,
 			continue;
 		}
 		ClipWindingEpsilon(w, plane->normal, plane->dist,
-			PLANESIDE_EPSILON, &cw[0], &cw[1]);
+			0, &cw[0], &cw[1]);
 		
 		for (j=0 ; j<2 ; j++) {
 			if (!cw[j]) {
@@ -842,7 +850,6 @@ void SplitBrush(bspbrush_t *brush, int planenum,
 			cs->winding = cw[j];
 			cs->tested = false;
 		}
-
 	}
 
 	// See if we have valid polygons on both sides
@@ -970,7 +977,6 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	c_nodes++;
 
 	bestside = SelectSplitSide(brushes, node);
-
 	if (!bestside) {
 		//We add a leaf
 		node->side = NULL;
@@ -982,6 +988,7 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 	node->planenum = bestside->planenum & ~1;
 	
 	SplitBrushList(brushes, node, &children[0], &children[1]);
+	FreeBrushList(brushes);
 
 	newnode = AllocNode();
 	newnode->parent = node;
@@ -992,7 +999,6 @@ node_t *BuildTree_r(node_t *node, bspbrush_t *brushes) {
 
 	SplitBrush(node->volume, node->planenum, &node->children[0]->volume,
 		&node->children[1]->volume);
-
 	// Recurse onto children
 	node->children[0] = BuildTree_r(node->children[0], children[0]);
 	node->children[1] = BuildTree_r(node->children[1], children[1]);
@@ -1011,7 +1017,16 @@ tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
 	tree_t		*tree;
 	int			i;
 	vec_t		volume;
-	for (b=brushlist ; b ; b=b->next) {
+
+	std::cout << "--- BrushBSP ---" << std::endl;
+
+	tree = AllocTree();
+
+	c_faces = 0;
+	c_nonvisfaces = 0;
+	c_brushes = 0;
+
+	for(b = brushlist; b; b = b->next) {
 		c_brushes++;
 
 		volume = BrushVolume(b);
@@ -1043,9 +1058,10 @@ tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
 		AddPointToBounds(b->maxs, tree->mins, tree->maxs);
 	}
 
-	printf("%5i brushes\n", c_brushes);
-	printf("%5i visible faces\n", c_faces);
-	printf("%5i nonvisible faces\n", c_nonvisfaces);
+
+	std::cout << c_brushes << " brushes" << std::endl;
+	std::cout << c_faces << " visible faces" << std::endl;
+	std::cout << c_nonvisfaces << " nonvisible faces" << std::endl;
 
 	c_nodes = 0;
 	c_nonvis = 0;
@@ -1057,9 +1073,10 @@ tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs) {
 	tree->headnode = node;
 
 	node = BuildTree_r(node, brushlist);
-	printf("%5i visible nodes\n", c_nodes/2 - c_nonvis);
-	printf("%5i nonvis nodes\n", c_nonvis);
-	printf("%5i leafs\n", (c_nodes+1)/2);
+
+	std::cout << c_nodes/2 - c_nonvis << " visible nodes" << std::endl;
+	std::cout << c_nonvis << " nonvis nodes" << std::endl;
+	std::cout << (c_nodes + 1)/2 << " leafs" << std::endl;
 
 	return tree;
 }
