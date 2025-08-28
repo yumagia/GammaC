@@ -102,7 +102,7 @@ typedef struct node_s {
 	leafface_t		*leaffacelist;
 	int				contents;	// OR of all brush contents
 	int				occupied;	// >= 1 means it can reach an entity
-	entity_t		*occupantlist;		// For flood testing
+	entity_t		*occupant;		// For flood testing
 	int				cluster;	// Used for VIS
 	int				area;		// For areaportals
 	struct portal_s		*portals;		// Also on nodes during BSP, but are pushed down on VIS
@@ -161,13 +161,13 @@ int		FindFloatPlane(vec3_t normal, vec_t dist);
  * =============================================
  */
 
-bspbrush_t *MakeBspBrushList (int startbrush, int endbrush,
+bspbrush_t *MakeBspBrushList(int startbrush, int endbrush,
 		vec3_t clipmins, vec3_t clipmaxs);
-bspbrush_t *ChopBrushes (bspbrush_t *head);
-bspbrush_t *InitialBrushList (bspbrush_t *list);
-bspbrush_t *OptimizedBrushList (bspbrush_t *list);
+bspbrush_t *ChopBrushes(bspbrush_t *head);
+bspbrush_t *InitialBrushList(bspbrush_t *list);
+bspbrush_t *OptimizedBrushList(bspbrush_t *list);
 
-void WriteBrushMap (char *name, bspbrush_t *list);
+void WriteBrushMap(char *name, bspbrush_t *list);
 
 
 /**=============================================
@@ -196,6 +196,9 @@ int CountBrushList(bspbrush_t *brushes);
 
 // The tree func
 tree_t *BrushBSP(bspbrush_t *brushlist, vec3_t mins, vec3_t maxs);
+
+// PointInLeaf
+node_t		*PointInLeaf(node_t *node, vec3_t point);
 
 /**=============================================
  * portals.cpp
@@ -242,7 +245,6 @@ void EndModel(void);
  */
 
 // Uniquely brushbsp stuff. Remove?
-// node_t		*PointInLeaf(node_t *node, vec3_t point);
 // int		BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane);
 
 // int		QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits);

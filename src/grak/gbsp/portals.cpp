@@ -444,3 +444,394 @@ void MakeTreePortals(tree_t *tree) {
 	MakeHeadnodePortals(tree); 
 	MakeTreePortals_r(tree->headnode);
 }
+
+/**=============================================
+ * FLOOD ENTITIES
+ * 
+ * =============================================
+ */
+
+void FloodPortals_r(node_t *node, int dist) {
+	portal_t	*p;
+	int			s;
+
+	node->occupied = dist;
+	for(p = node->portals; p; p = p->next[s]) {
+		s = (p->nodes[1] == node);
+
+		if(p->nodes[!s]->occupied) {
+			continue;
+		}
+
+		if(!Portal_EntityFlood(p, s)) {
+			continue;
+		}
+
+		FloodPortals_r(p->nodes[!s], dist + 1);
+	}
+}
+
+bool PlaceOccupant(node_t *headnode, vec3_t origin, entity_t *occupant) {
+	node_t	*node;
+	vec_t	d;
+	plane_t	*plane;
+
+	node = PointInLeaf(headnode, origin);
+	if (node->contents == CONTENTS_SOLID)
+		return false;
+	node->occupant = occupant;
+
+	FloodPortals_r (node, 1);
+
+	return true;
+}
+
+bool FloodEntities(tree_t *tree) {
+	int			i;
+	vec3_t		origin;
+	std::string		cl;
+	bool		inside;
+	node_t		*headnode;
+
+	headnode = tree->headnode;
+	std::cout << "--- FloodEntities ---" << std::endl;
+	inside = false;
+	tree->outside_node.occupied = 0;
+
+	for(i = 1; i < num_entities; i++) {
+		GetVectorForKey(&entities[i], "origin", origin);
+		if(VectorCompare(origin, vec3_origin)) {
+			continue;
+		}
+
+		cl = ValueForKey(&entities[i], "classname");
+		origin[2] += 1;	// So objects on floor are ok
+
+		// Nudge playerstart around if needed so 
+		// clipping hulls always have a valid point
+		if(cl == "info_player_start") {
+			int x, y;
+
+			for(x = -16; x <= 16; x += 16) {
+				for(y = -16; y <= 16; y += 16) {
+					origin[0] += x;
+					origin[1] += y;
+					if(PlaceOccupant(headnode, origin, &entities[i])) {
+						inside = true;
+						goto gotit;
+					}
+					origin[0] -= x;
+					origin[1] -= y;
+				}
+			}
+			gotit:;
+		}
+		else {
+			if(PlaceOccupant(headnode, origin, &entities[i])) {
+				inside = true;
+			}
+		}
+	}
+
+	if(!inside) {
+		std::cout << "No entities in open -- no filling" << std::endl;
+	}
+	else if(tree->outside_node.occupied) {
+		std::cout << "Entity reached from outside -- no filling" << std::endl;
+	}
+
+	return static_cast<bool>(inside && !tree->outside_node.occupied);
+}
+
+int		c_areas;
+
+void FloodAreas_r(node_t *node) {
+	portal_t	*p;
+	int			s;
+	bspbrush_t	*b;
+	entity_t	*e;
+
+	if(node->contents == CONTENTS_AREAPORTAL) {
+		b = node->brushlist;
+		e = &entities[b->original->entitynum];
+
+		if(e->portalareas[0] == c_areas || e->portalareas[1] == c_areas) {
+			return;
+		}
+
+		if(e->portalareas[1]) {
+			std::cout << "WARNING: areaportal entity " << b->original->entitynum << " touches > 2 areas" << std::endl;
+			return;
+		}
+		if(e->portalareas[0]) {
+			e->portalareas[1] = c_areas;
+		}
+		else {
+			e->portalareas[0] = c_areas;
+		}
+
+		return;
+	}
+
+	if(node->area) {
+		return;			// Already got the area
+	}
+	node->area = c_areas;
+
+	for(p = node->portals; p; p = p->next[s]) {
+		s = (p->nodes[1] == node);
+		if(!Portal_EntityFlood(p, s)) {
+			continue;
+		}
+
+		FloodAreas_r(p->nodes[!s]);
+	}
+}
+
+void FindAreas_r(node_t *node) {
+	if(node->planenum != PLANENUM_LEAF) {
+		FindAreas_r(node->children[0]);
+		FindAreas_r(node->children[1]);
+		return;
+	}
+
+	if(node->area) {
+		return;				// Already got it
+	}
+
+	if(node->contents & CONTENTS_SOLID) {
+		return;
+	}
+
+	if(!node->occupied) {
+		return;				// Unreachable by entities
+	}
+
+	// Area portals are only ever flooded into, 
+	// and never out of
+	if(node->contents == CONTENTS_AREAPORTAL) {
+		return;
+	}
+
+	c_areas++;
+	FloodAreas_r(node);
+}
+
+void SetAreaPortalAreas_r(node_t *node) {
+	bspbrush_t	*b;
+	entity_t	*e;
+
+	if(node->planenum != PLANENUM_LEAF) {
+		SetAreaPortalAreas_r(node->children[0]);
+		SetAreaPortalAreas_r(node->children[1]);
+		return;
+	}
+
+	if(node->contents == CONTENTS_AREAPORTAL) {
+		if(node->area) {
+			return;			// Already set
+		}
+
+		b = node->brushlist;
+		e = &entities[b->original->entitynum];
+		node->area = e->portalareas[0];
+		if(!e->portalareas[1]) {
+			std::cout << "WARNING: areaportal entity " << b->original->entitynum << " doesn't touch two areas" << std::endl;
+			return; 
+		}
+	}
+}
+
+void EmitAreaPortals(node_t *headnode) {
+	int				i, j;
+	entity_t		*e;
+	dareaportal_t	*dp;
+
+	if(c_areas > MAX_MAP_AREAS) {
+		Error("MAX_MAP_AREAS");
+	}
+	numareas = c_areas + 1;
+	numareaportals = 1;			// Leave 0 as an error
+
+	for(i = 1; i < c_areas; i++) {
+		dareas[i].firstareaportal = numareaportals;
+		for(j = 0; j < num_entities; j++) {
+			e = &entities[j];
+			if(!e->areaportalnum) {
+				continue;
+			}
+			dp = &dareaportals[numareaportals];
+			if(e->portalareas[0] == i) {
+				dp->portalnum = e->areaportalnum;
+				dp->otherarea = e->portalareas[1];
+				numareaportals++;
+			}
+			else if(e->portalareas[1] == i) {
+				dp->portalnum = e->areaportalnum;
+				dp->otherarea = e->portalareas[0];
+				numareaportals++;
+			}
+		}
+		dareas[i].numareaportals = numareaportals - dareas[i].firstareaportal;
+	}
+
+	std::cout << numareas << " numareas" << std::endl;
+	std::cout << numareaportals << " numareaportals" << std::endl;
+}
+
+void FloodAreas(tree_t *tree) {
+	std::cout << "--- FloodAreas ---" << std::endl;
+	FindAreas_r(tree->headnode);
+	SetAreaPortalAreas_r(tree->headnode);
+	std::cout << c_areas << " areas" << std::endl;
+}
+
+int		c_outside;
+int		c_inside;
+int		c_solid;
+
+void FillOutside_r(node_t *node) {
+	if(node->planenum != PLANENUM_LEAF) {
+		FillOutside_r(node->children[0]);
+		FillOutside_r(node->children[1]);
+		return;
+	}
+
+	// Anything unreachable can be filled away
+	if(!node->occupied) {
+		if(node->contents != CONTENTS_SOLID) {
+			c_outside++;
+			node->contents = CONTENTS_SOLID;
+		}
+		else {
+			c_solid++;
+		}
+	}
+	else {
+		c_inside++;
+	}
+}
+
+void FillOutside(node_t *headnode) {
+	c_outside = 0;
+	c_inside = 0;
+	c_solid = 0;
+	std::cout << "--- FillOutside ---" << std::endl;
+	FillOutside_r(headnode);
+	std::cout << c_solid << " solid leafs" << std::endl;
+	std::cout << c_outside << " leafs filled" << std::endl;
+	std::cout << c_inside << " inside leafs" << std::endl;
+}
+
+void FindPortalSide(portal_t *p) {
+	int			viscontents;
+	bspbrush_t	*bb;
+	mapbrush_t	*brush;
+	node_t		*n;
+	int			i,j;
+	int			planenum;
+	side_t		*side, *bestside;
+	float		dot, bestdot;
+	plane_t		*p1, *p2;
+
+	// Decide which content change is strongest
+	// solid > lava > water, etc
+	viscontents = VisibleContents(p->nodes[0]->contents ^ p->nodes[1]->contents);
+	if(!viscontents) {
+		return;
+	}
+
+	planenum = p->onnode->planenum;
+	bestside = NULL;
+	bestdot = 0;
+
+	for(j = 0; j < 2; j++) {
+		n = p->nodes[j];
+		p1 = &mapplanes[p->onnode->planenum];
+		for(bb = n->brushlist; bb; bb = bb->next) {
+			brush = bb->original;
+			if(!(brush->contents & viscontents)) {
+				continue;
+			}
+			for(i = 0; i < brush->numsides; i++) {
+				side = &brush->original_sides[i];
+				if(side->bevel) {
+					continue;
+				}
+				if(side->texinfo == TEXINFO_NODE) {
+					continue;		// Non-visible
+				}
+				if((side->planenum&~1) == planenum) {	// Exact match
+					bestside = &brush->original_sides[i];
+					goto gotit;
+				}
+				// See how close the match is
+				p2 = &mapplanes[side->planenum&-1];
+				dot = DotProduct(p1->normal, p2->normal);
+				if(dot > bestdot) {
+					bestdot = dot;
+					bestside = side;
+				}
+			}
+		}
+	}
+
+	gotit:
+	if(!bestside) {
+		std::cout << "WARNING: side not found for portal" << std::endl;
+	}
+
+	p->sidefound = true;
+	p->side = bestside;
+}
+
+void MarkVisibleSides_r(node_t *node) {
+	portal_t	*p;
+	int			s;
+
+	if(node->planenum != PLANENUM_LEAF) {
+		MarkVisibleSides_r(node->children[0]);
+		MarkVisibleSides_r(node->children[1]);
+		return;
+	}
+
+	// Empty leafs are never boundary leafs
+	if(!node->contents) {
+		return;
+	}
+
+	for(p = node->portals; p; p = p->next[!s]) {
+		s = (p->nodes[0] == node);
+		if(!p->onnode) {
+			continue;		// Edge of the world
+		}
+		if(!p->sidefound) {
+			FindPortalSide(p);
+		}
+		if(p->side) {
+			p->side->visible = true;
+		}
+	}
+}
+
+
+void MarkVisibleSides(tree_t *tree, int startbrush, int endbrush) {
+	int			i, j;
+	mapbrush_t	*mb;
+	int			numsides;
+
+	std::cout << "--- MarkVisibleSides ---" << std::endl;
+
+	// Clear all the visible flags
+	for(i = startbrush; i < endbrush; i++) {
+		mb = &mapbrushes[i];
+
+		numsides = mb->numsides;
+		for(j = 0; j < numsides; j++) {
+			mb->original_sides[j].visible = false;
+		}
+	}
+
+	// Set visible flags on the sides that are used by portals
+	MarkVisibleSides_r(tree->headnode);
+}

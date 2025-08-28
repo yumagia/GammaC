@@ -296,9 +296,6 @@ void	GetVectorForKey(entity_t *ent, std::string key, vec3_t vec) {
 
 	v1 = v2 = v3 = 0;
 
-	if(iss >> v1 >> v2 >>v3) {
-		Error("Error: Malformed vec_t");
-	}
 	iss >> v1 >> v2 >>v3;
 
 	vec[0] = static_cast<vec_t>(v1);

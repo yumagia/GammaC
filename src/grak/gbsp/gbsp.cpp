@@ -188,9 +188,30 @@ void ProcessWorldModel(void) {
 
 		MakeTreePortals(tree);
 
-		//MarkVisibleSides(tree, brush_start, brush_end);
+		if(FloodEntities(tree)) {
+			//FillOutside(tree->headnode);
+		}
+		else {
+			std::cout << "**** leaked ****" << std::endl;
+			leaked = true;
+			//LeakFile(tree);
+			if(leaktest) {
+				std::cout << "--- MAP LEAKED ---" << std::endl;
+				exit(0);
+			}
+		}
+
+		MarkVisibleSides(tree, brush_start, brush_end);
+		if(leaked) {
+			break;
+		}
+		if(!optimize) {
+			//FreeTree(tree);
+		}
 		optimize = !optimize;
 	}
+
+	FloodAreas(tree);
 }
 
 void ProcessSubModel(void) {

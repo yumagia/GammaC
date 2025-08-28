@@ -17,6 +17,18 @@ double	VectorLength(vec3_t v) {
 	return length;
 }
 
+bool VectorCompare(vec3_t v1, vec3_t v2) {
+	int		i;
+
+	for(i = 0; i < 3; i++) {
+		if(fabs(v1[i] - v2[i]) > EQUAL_EPSILON) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 vec_t	VectorNormalize(vec3_t in, vec3_t out) {
 	vec_t	length, ilength;
 
