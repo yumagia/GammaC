@@ -1,7 +1,7 @@
-TARGET_EXEC := grak
+TARGET_EXEC := gbsp
 
 BUILD_DIR := ./build
-SRC_DIRS := ./src
+SRC_DIRS := ./src/grak
 CC = g++
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)

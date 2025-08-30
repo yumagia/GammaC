@@ -7,3 +7,4 @@ CMakePresets.json
 *.exe
 *.bsp
 *.map
+*VulkanTest
