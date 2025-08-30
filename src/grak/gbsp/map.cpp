@@ -520,9 +520,9 @@ void ParseBrush(entity_t *mapent) {
 		if(side->surf & (CONTENTS_PLAYERCLIP|CONTENTS_NPCCLIP)) {
 			side->contents |= CONTENTS_DETAIL;
 		}
-		//if(fulldetail) {
-		//	side->contents &= ~CONTENTS_DETAIL;
-		//}
+		if(fulldetail) {
+			side->contents &= ~CONTENTS_DETAIL;
+		}
 		if(!(side->contents & ((LAST_VISIBLE_CONTENTS-1) 
 			| CONTENTS_PLAYERCLIP|CONTENTS_NPCCLIP|CONTENTS_MIST))) {
 			side->contents |= CONTENTS_SOLID;
@@ -572,15 +572,15 @@ void ParseBrush(entity_t *mapent) {
 
 	b->contents = BrushContents(b);
 
-	//if(nodetail && (b->contents & CONTENTS_DETAIL)) {
-	//	b->numsides = 0;
-	//	return;
-	//}
+	if(nodetail && (b->contents & CONTENTS_DETAIL)) {
+		b->numsides = 0;
+		return;
+	}
 
-	//if(nowater && (b->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))) {
-	//	b->numsides = 0;
-	//	return;
-	//}
+	if(nowater && (b->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))) {
+		b->numsides = 0;
+		return;
+	}
 
 	MakeBrushWindings(b);
 

@@ -189,7 +189,7 @@ void ProcessWorldModel(void) {
 		MakeTreePortals(tree);
 
 		if(FloodEntities(tree)) {
-			//FillOutside(tree->headnode);
+			FillOutside(tree->headnode);
 		}
 		else {
 			std::cout << "**** leaked ****" << std::endl;
@@ -202,16 +202,29 @@ void ProcessWorldModel(void) {
 		}
 
 		MarkVisibleSides(tree, brush_start, brush_end);
-		if(leaked) {
+		if(noopt || leaked) {
 			break;
 		}
 		if(!optimize) {
-			//FreeTree(tree);
+			FreeTree(tree);
 		}
 		optimize = !optimize;
 	}
 
 	FloodAreas(tree);
+
+	MakeFaces(tree->headnode);
+	FixTjuncs(tree->headnode);
+
+	if(!noprune) {
+	PruneNodes(tree->headnode);
+	}
+	
+	PrintTree(tree);
+	
+	WriteBSP(tree->headnode);
+
+	FreeTree(tree);
 }
 
 void ProcessSubModel(void) {
@@ -229,11 +242,16 @@ void ProcessSubModel(void) {
 	mins[0] = mins[1] = mins[2] = -4096;
 	maxs[0] = maxs[1] = maxs[2] = 4096;
 	list = MakeBspBrushList(start, end, mins, maxs);
-	list = ChopBrushes(list);
+	if(!nocsg) {
+		list = ChopBrushes(list);
+	}
 	tree = BrushBSP(list, mins, maxs);
-
+	MakeTreePortals(tree);
+	MarkVisibleSides(tree, start, end);
+	MakeFaces(tree->headnode);
+	FixTjuncs(tree->headnode);
 	WriteBSP(tree->headnode);
-
+	FreeTree(tree);
 }
 
 void ProcessModels(void) {

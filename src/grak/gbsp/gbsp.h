@@ -59,11 +59,23 @@ typedef struct brush_s {
 #define MAXEDGES		20
 
 typedef struct face_s {
-	struct face_s		*next;			// The next on the node
-	winding_t		*w;
+	struct face_s	*next;			// The next on the node
+	// The chain of faces off of a node can be merged or split,
+	// but each face_t along the way will remain in the chain
+	// until the entire tree is freed
+	struct face_s	*merged;		// If set, this face isn't valid anymore
+	struct face_s	*split[2];		// If set, this face isn't valid anymore
+
+	struct portal_s	*portal;
+	int				texinfo;
 	int				planenum;
-	int				numverts;
+	int				contents;	// Faces in different contents can't merge
+	int				outputnumber;
+	winding_t		*w;
+	int				numpoints;
 	side_t			*original;		// Save the side this face came from
+	bool			badstartvert;	// T-juncts cannot be fixed without a midpoint vert
+	int				vertexnums[MAXEDGES];
 } face_t;
 
 typedef struct bspbrush_s {
@@ -96,7 +108,7 @@ typedef struct node_s {
 	bool			detail_seperator;	// A detail brush caused the split
 	side_t			*side;			// The side which created the node
 	struct node_s		*children[2];
-	face_t			*sidefaces;		// The ones which reside on the plane of the side
+	face_t			*faces;
 	// leaves only
 	bspbrush_t		*brushlist;		// Fragments of all brushes on this leaf
 	leafface_t		*leaffacelist;
@@ -138,6 +150,16 @@ extern	mapbrush_t	mapbrushes[MAX_MAP_BRUSHES];
 extern	vec3_t		map_mins, map_maxs;
 
 #define	MAX_MAP_SIDES		(MAX_MAP_BRUSHES*6)
+
+extern	bool	noprune;
+extern	bool	nodetail;
+extern	bool	fulldetail;
+extern	bool	nomerge;
+extern	bool	nosubdiv;
+extern	bool	nowater;
+extern	bool	noweld;
+extern	bool	noshare;
+extern	bool	notjunc;
 
 extern	vec_t		microvolume;
 
@@ -222,6 +244,7 @@ void FreePortal(portal_t *p);
 void EmitAreaPortals(node_t *headnode);
 
 void MakeTreePortals(tree_t *tree);
+void RemovePortalFromNode(portal_t *portal, node_t *l);
 
 /**=============================================
  * writebsp.cpp
@@ -239,32 +262,39 @@ void BeginModel(void);
 void EndModel(void);
 
 /**=============================================
+ * faces.cpp
+ * 
+ * =============================================
+ */
+
+void MakeFaces(node_t *headnode);
+void FixTjuncs(node_t *headnode);
+int GetEdge2(int v1, int v2,  face_t *f);
+
+face_t	*AllocFace(void);
+void FreeFace(face_t *f);
+
+void MergeNodeFaces(node_t *node);
+
+/**=============================================
+ * tree.cpp
+ * 
+ * =============================================
+ */
+
+void FreeTree(tree_t *tree);
+void FreeTree_r(node_t *node);
+void PrintTree(tree_t *tree);
+void PrintTree_r(node_t *node, int depth);
+void FreeTreePortals_r(node_t *node);
+void PruneNodes_r(node_t *node);
+void PruneNodes(node_t *node);
+
+/**=============================================
  * vkdraw.cpp
  * 
  * =============================================
  */
 
-// Uniquely brushbsp stuff. Remove?
-// int		BoxOnPlaneSide(vec3_t mins, vec3_t maxs, plane_t *plane);
 
-// int		QuickTestBrushToPlanenum(bspbrush_t *brush, int planenum, int *numsplits);
-// int		TestBrushToPlanenum(bspbrush_t *brush, int planenum,
-// 					int *numsplits, bool *hintsplit, int *epsilonbrush);
-
-// bool		WindingIsTiny(winding_t *w);
-// bool		WindingIsHuge(winding_t *w);
-
-// void 		LeafNode(node_t *node, bspbrush_t *brushes);
-
-// void		CheckPlaneAgainstParents(int pnum, node_t *node);
-// bool		CheckPlaneAgainstVolume(int pnum, node_t *node);
-
-// side_t		*SelectSplitSide(bspbrush_t *brushes, node_t *node);
-// int			BrushMostlyOnSide(bspbrush_t *brush, plane_t *plane);
-// void		SplitBrush(bspbrush_t *brush, int planenum,
-// 				bspbrush_t **front, bspbrush_t **back);
-// void		SplitBrushList(bspbrush_t *brushes, 
-// 				node_t *node, bspbrush_t **front, bspbrush_t **back);
-
-// node_t		*BuildTree_r(node_t *node, bspbrush_t *brushes);
 

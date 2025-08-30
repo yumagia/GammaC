@@ -64,7 +64,7 @@ void PrintTree_r(node_t *node, int depth) {
 	bspbrush_t	*bb;
 
 	for(i = 0; i < depth; i++) {
-		std::cout << "	" << std::endl;
+		std::cout << "	";
 	}
 	if(node->planenum == PLANENUM_LEAF) {
 		if(!node->brushlist) {
@@ -87,6 +87,11 @@ void PrintTree_r(node_t *node, int depth) {
 		<< plane->dist << std::endl;
 	PrintTree_r(node->children[0], depth + 1);
 	PrintTree_r(node->children[0], depth + 1);
+}
+
+void PrintTree(tree_t *tree) {
+	std::cout << "--- PrintTree ---" << std::endl;
+	PrintTree_r(tree->headnode, 0);
 }
 
 int	c_pruned;
