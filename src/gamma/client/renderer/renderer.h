@@ -10,7 +10,7 @@
 
 #include <filesystem>
 
-namespace Renderer {
+namespace GammaRenderer {
 
 	struct Buffer {
 		VkBuffer Handle = nullptr;

@@ -9,10 +9,10 @@
 #include "imgui_internal.h"
 #include "misc/cpp/imgui_stdlib.h"
 
-namespace Renderer {
+namespace GammaRenderer {
 	static uint32_t ImGui_ImplVulkan_MemoryType(VkMemoryPropertyFlags properties, uint32_t type_bits)
 	{
-		VkPhysicalDevice physicalDevice = Renderer::GetVulkanInfo()->PhysicalDevice;
+		VkPhysicalDevice physicalDevice = GammaRenderer::GetVulkanInfo()->PhysicalDevice;
 
 		VkPhysicalDeviceMemoryProperties prop;
 		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &prop);

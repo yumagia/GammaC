@@ -48,7 +48,7 @@ namespace vkb {
 
 }
 
-namespace Renderer {
+namespace GammaRenderer {
 
 	ImGui_ImplVulkan_InitInfo* GetVulkanInfo()
 	{
