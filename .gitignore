@@ -8,3 +8,5 @@ CMakePresets.json
 *.bsp
 *.map
 *VulkanTest
+*GAMMA
+*imgui.ini
