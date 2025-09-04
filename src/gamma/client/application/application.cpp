@@ -11,6 +11,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+static Application* s_Instance = nullptr;
+
 // Volk headers
 #ifdef IMGUI_IMPL_VULKAN_USE_VOLK
 #define VOLK_IMPLEMENTATION
@@ -337,8 +339,20 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd)
 	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount; // Now we can use the next set of semaphores
 }
 
+Application::Application(const ApplicationSpecification& specification)
+: m_Specification(specification) {
+	s_Instance = this;
 
-void Application::init() {
+	Init();
+}
+
+Application::~Application() {
+	Cleanup();
+
+	s_Instance = nullptr;
+}
+
+void Application::Init() {
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit()) {
 		std::cerr << "GLFW: Vulkan Not Supported\n";
@@ -347,7 +361,7 @@ void Application::init() {
 
 	// Create window with Vulkan context
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	window = glfwCreateWindow(1280, 720, "Gamma", nullptr, nullptr);
+	window = glfwCreateWindow(m_Specification.Width, m_Specification.Height, "Gamma", nullptr, nullptr);
 	if (!glfwVulkanSupported())
 	{
 		std::cerr << "GLFW: Vulkan Not Supported\n";
@@ -409,8 +423,9 @@ void Application::init() {
 	clear_color = ImVec4(0, 0, 0, 1);
 }
 
-void Application::mainLoop() {
-	// Main loop
+
+
+void Application::MainLoop() {
 	while (!glfwWindowShouldClose(window))
 	{
 		// Poll and handle events (inputs, window resize, etc.)
@@ -419,6 +434,8 @@ void Application::mainLoop() {
 		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
 		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 		glfwPollEvents();
+
+		Application::RenderView();
 
 		// Resize swap chain?
 		int fb_width, fb_height;
@@ -457,8 +474,7 @@ void Application::mainLoop() {
 	}
 }
 
-void Application::cleanup() {
-	// Cleanup
+void Application::Cleanup() {
 	err = vkDeviceWaitIdle(g_Device);
 	check_vk_result(err);
 	ImGui_ImplVulkan_Shutdown();
@@ -474,8 +490,9 @@ void Application::cleanup() {
 	return;
 }
 
-void Application::run() {
-	init();
-	mainLoop();
-	cleanup();
+void Application::Run() {
+	wd = &g_MainWindowData;
+	clear_color = ImVec4(0, 0, 0, 1);
+	
+	MainLoop();
 }
