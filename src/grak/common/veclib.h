@@ -1,6 +1,6 @@
 #include <math.h>
 
-typedef double vec_t;
+typedef float vec_t;
 typedef vec_t vec3_t[3];
 
 #define	SIDE_FRONT		0
