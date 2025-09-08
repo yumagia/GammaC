@@ -4,7 +4,7 @@ LDFLAGS = -lvulkan -lglfw -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 TARGET_EXEC := GAMMA
 
 BUILD_DIR := ../../build
-SRC_DIRS := ./client ./imgui
+SRC_DIRS := ./common ./client ./imgui
 CC = g++
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
