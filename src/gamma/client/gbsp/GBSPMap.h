@@ -13,23 +13,25 @@ public:
 
 	BspHeader					header;
 	
-	BspVertex					vertices;
-	BspEdge						edges;
-	BspFace						faces;
-	BspFaceEdge 				faceEdges;
+	BspEntities								entities;
+	
+	std::vector<BspVertex>					vertices;
+	std::vector<BspEdge>					edges;
+	std::vector<BspFace>					faces;
+	std::vector<BspFaceEdge> 				faceEdges;
 
-	BspTexInfo					texInfos;
-	std::map<std::string, int>	texIDs;
+	std::vector<BspTexInfo>					texInfos;
+	std::vector<std::map<std::string, int>>	texIDs;
 
-	int							lightMapData;
+	std::vector<int>						lightMapData;
 
-	BspNode						nodes;
-	BspPlane					planes;
-	BspLeaf						leafs;
-	BspLeafFace 				leafFaces;
+	std::vector<BspNode>					nodes;
+	std::vector<BspPlane>					planes;
+	std::vector<BspLeaf>					leafs;
+	std::vector<BspLeafFace> 				leafFaces;
 
-	int							VisData;
-	BspVisOffset				VisOffsets;
+	std::vector<int>						visData;
+	std::vector<BspVisOffset>				visOffsets;
 protected:
 	bool		m_bspValid;
 };

@@ -33,25 +33,26 @@ struct BoundBoxInt {
  */
 
 enum LumpTypes {
-	entities = 0,
-	planes,
-	vertices,
-	visibility,
-	nodes,
-	texInfos,
-	faces,
-	lightmaps,
-	leaves,
-	leafFaces,
-	leafBrushes,
-	edges,
-	faceEdges,
-	models,
-	brushes,
-	brushSides
+	Entities = 0,
+	Planes,
+	Vertices,
+	VisData,
+	Nodes,
+	TexInfos,
+	Faces,
+	Lightmaps,
+	Leaves,
+	LeafFaces,
+	LeafBrushes,
+	Edges,
+	FaceEdges,
+	Models,
+	Brushes,
+	BrushSides
 };
  
 struct BspLump {
+	int offset;
 	int length;
 };
 
@@ -129,7 +130,8 @@ struct BspTexInfo {
 };
 
 struct BspEntities {
-	std::string	ents;
+	int			size;
+	char*		ents;
 };
 
 /**=============================================
