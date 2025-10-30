@@ -1,14 +1,19 @@
-#ifndef BSP_LIB_INCLUDED
-#define BSP_LIB_INCLUDED
+#ifndef BSP_INCLUDED
+#define BSP_INCLUDED
 
 #include "Math.h"
+
 #include <vector>
 
 /**=============================================
- * BSP OBJECTS
+ * BSP AND LAZY MESH OBJECTS
  * 
  * =============================================
 */
+
+struct Material {
+	Color	baseColor;
+};
 
 struct BspBoundBoxf {
 	BspBoundBoxf() {}
@@ -21,6 +26,9 @@ struct BspBoundBoxf {
 };
 
 struct BspPlane {
+	BspPlane() {}
+	BspPlane(Vec3f normal, float dist) : normal(normal), dist(dist) {}
+
 	Vec3f	normal;
 	float	dist;
 };
@@ -29,17 +37,21 @@ struct BspVertex {
 	BspVertex() {}
 	BspVertex(Vec3f point) : point(point) {}
 
+	// Create vertex from three floats
+	BspVertex(float x, float y, float z);
+
 	Vec3f	point;
 };
 
 struct BspFace {
 	BspFace() {}
 
-	// Create fropm new winding, inherit plane
+	// Create from new winding, inherit plane
 	BspFace(int numVerts, Vec3f verts[], BspPlane *plane);
 
 	std::vector<BspVertex*>	vertices;
 	BspPlane	*plane;
+	Material	*material;
 };
 
 struct BspNode {
@@ -54,16 +66,32 @@ struct BspNode {
 	BspNode		*front, *back;
 	BspPlane	*plane;
 	// Leafs only
+	bool	solid;
 	std::vector<BspFace*>	faces;
 	BspBoundBoxf	minBounds;
 };
 
 struct BspModel {
 	Vec3f	origin;
+	Quaternion orientation;
 
 	BspNode root;
 	
 	BspBoundBoxf	minBounds;
 };
+
+struct LazyMesh {
+	bool	solid;
+	std::vector<BspFace*>	faces;
+	std::vector<BspVertex*> vertexList;
+};
+
+/**=============================================
+ * FUNCS
+ * 
+ * =============================================
+*/
+
+BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
 
 #endif

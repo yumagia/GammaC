@@ -1,6 +1,7 @@
 
 #include "Bsp.h"
 #include "Math.h"
+
 #include <vector>
 
 #define PLANE_EPSILON 0.01
@@ -34,6 +35,10 @@ void BspBoundBoxf::AddPoint(Vec3f p) {
 	}
 }
 
+BspVertex::BspVertex(float x, float y, float z) {
+	point = Vec3f(x, y, z);
+}
+
 // Calculate a bounding box from a set of polygons
 BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
 	BspBoundBoxf bounds = BspBoundBoxf(((*polygons[0]).vertices[0])->point);
@@ -60,6 +65,8 @@ BspFace::BspFace(int numVerts, Vec3f verts[], BspPlane *plane) {
 BspNode::BspNode(std::vector<BspFace *> &polygons) {
 	isLeaf = true;
 
+	solid = polygons.size() == 0;
+
 	this->faces = polygons;
 	minBounds = CalcBounds(polygons);
 }
@@ -71,6 +78,16 @@ BspNode::BspNode(BspNode *front, BspNode *back, BspPlane *plane) {
 	this->front = front;
 	this->back = back;
 	this->plane = plane;
+}
+
+BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
+	Vec3f a = p1 - p0;
+	Vec3f b = p2 - p0;
+	Vec3f normal = a.Cross(b);
+	normal.Normalize();
+	float d = -(normal.Dot(p0));
+
+	return new BspPlane(normal, d);
 }
 
 // Find if a polygon is in front, behind, 
