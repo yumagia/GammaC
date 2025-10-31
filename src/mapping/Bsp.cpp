@@ -3,6 +3,7 @@
 #include "Math.h"
 
 #include <vector>
+#include <iostream>
 
 #define PLANE_EPSILON 0.01
 #define FLOAT_MAX 999999999
@@ -250,4 +251,18 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	BspNode *frontTree = BuildBspTree(frontList, depth + 1);
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
 	return new BspNode(frontTree, backTree, &splitPlane);
+}
+
+void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
+	this->origin = origin;
+	this->orientation = orientation;
+}
+
+void BspModel::CreateTreeFromLazyMesh(LazyMesh mesh) {
+	std::cout << "--- Creating tree for BSP model ---" << std::endl;
+	std::cout << mesh.faces.size() << " Number of faces" << std::endl;
+	std::cout << mesh.vertexList.size() << " Number of verts" << std::endl;
+
+	solid = mesh.solid;
+	root = BuildBspTree(mesh.faces, 0);
 }

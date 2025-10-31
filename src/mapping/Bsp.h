@@ -60,30 +60,39 @@ struct BspNode {
 	BspNode(std::vector<BspFace *> &polygons);
 	BspNode(BspNode *front, BspNode *back, BspPlane *plane);
 
+	// Both leafs and internal nodes
 	bool	isLeaf;
 	int		depth;
+	BspNode		*parent;
+	BspBoundBoxf	minBounds;
 	// Internal nodes only
 	BspNode		*front, *back;
 	BspPlane	*plane;
 	// Leafs only
 	bool	solid;
 	std::vector<BspFace*>	faces;
-	BspBoundBoxf	minBounds;
-};
-
-struct BspModel {
-	Vec3f	origin;
-	Quaternion orientation;
-
-	BspNode root;
-	
-	BspBoundBoxf	minBounds;
 };
 
 struct LazyMesh {
 	bool	solid;
 	std::vector<BspFace*>	faces;
 	std::vector<BspVertex*> vertexList;
+};
+
+struct BspModel {
+	BspModel() {}
+
+	void SetModel(Vec3f origin, Quaternion orientation);
+	void CreateTreeFromLazyMesh(LazyMesh mesh);
+
+	bool solid;
+
+	Vec3f	origin = Vec3f();
+	Quaternion orientation = Quaternion();
+
+	BspNode *root;
+	
+	BspBoundBoxf	minBounds;
 };
 
 /**=============================================

@@ -8,5 +8,7 @@ int main() {
     MeshLoader loader;
     LazyMesh *mesh = loader.ParseMeshFile("../mesh-files/mesh1.txt");
 
+    BspModel model;
+    model.CreateTreeFromLazyMesh(*mesh);
     return 0;
 }
