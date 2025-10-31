@@ -6,7 +6,7 @@ int main() {
     std::cout << "GRAK" << std::endl;
 
     MeshLoader loader;
-    LazyMesh *mesh = loader.ParseMeshFile("../mesh-files/mesh1.txt");
+    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/mesh1.txt");
 
     BspModel model;
     model.CreateTreeFromLazyMesh(*mesh);
