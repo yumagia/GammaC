@@ -46,7 +46,11 @@ struct BspVertex {
 struct BspFace {
 	BspFace() {}
 
+	// Check if already tested for splitting
+	bool		tested;
+
 	// Create from new winding, inherit plane
+	BspFace(int numVerts, Vec3f verts[], BspFace *face);
 	BspFace(int numVerts, Vec3f verts[], BspPlane *plane);
 
 	std::vector<BspVertex*>	vertices;

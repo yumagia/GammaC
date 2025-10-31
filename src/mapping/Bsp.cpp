@@ -53,6 +53,16 @@ BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
 	return bounds;
 }
 
+BspFace::BspFace(int numVerts, Vec3f verts[], BspFace *face) {
+	vertices.reserve(numVerts);
+	for(int i = 0; i < numVerts; i++) {
+		vertices.push_back(new BspVertex(verts[i]));
+	}
+
+	this->tested = face->tested;
+	this->plane = face->plane;
+}
+
 BspFace::BspFace(int numVerts, Vec3f verts[], BspPlane *plane) {
 	vertices.reserve(numVerts);
 	for(int i = 0; i < numVerts; i++) {
@@ -94,7 +104,8 @@ BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
 // Find if a polygon is in front, behind, 
 // coplanar, or straddling a plane
 int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
-	int	numInFront, numBehind = 0;
+	int	numInFront, numBehind;
+	numInFront = numBehind = 0;
 	int numVerts = polygon->vertices.size();
 	for(int i = 0; i < numVerts; i++) {
 		Vec3f p = polygon->vertices[i]->point;
@@ -121,18 +132,24 @@ int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
 }
 
 // Pick the best splitting plane, heuristically
-BspPlane PickSplittingPlane(std::vector<BspFace *> &polygons) {
-	BspPlane bestPlane;
+BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
+	BspPlane *bestPlane = NULL;
 	float bestScore = FLOAT_MAX;
 
 	for(int i = 0; i < polygons.size(); i++) {
+
+		if(polygons[i]->tested) {	// Already tested
+			continue;
+		}
+		polygons[i]->tested = true; // Mark as tested so it won't recurse indefinitely
+
 		int numInFront, numBehind, numStraddling = 0;
-		BspPlane plane = *polygons[i]->plane;
+		BspPlane *plane = polygons[i]->plane;
 		for(int j = 0; j < polygons.size(); j++) {
 			if(i == j) {	// Ignore testing against self
 				continue;
 			}
-			switch(ClassifyPolygonToPlane(polygons[j], plane)) {
+			switch(ClassifyPolygonToPlane(polygons[j], *plane)) {
 			case POLYGON_COPLANAR:
 			case POLYGON_IN_FRONT:
 				numInFront++;
@@ -163,7 +180,8 @@ Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane) {
 
 // Split the polygon and create two new polygons
 void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace **backPoly) {
-	int numFront, numBack = 0;
+	int numFront, numBack;
+	numFront = numBack = 0;
 
 	int numVerts = polygon.vertices.size();
 	Vec3f frontVerts[numVerts + 2], backVerts[numVerts + 2];
@@ -210,8 +228,8 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 		prevDot = currDot;
 	}
 
-	*frontPoly = new BspFace(numFront, frontVerts, polygon.plane);
-	*backPoly = new BspFace(numBack, backVerts, polygon.plane);
+	*frontPoly = new BspFace(numFront, frontVerts, &polygon);
+	*backPoly = new BspFace(numBack, backVerts, &polygon);
 }
 
 BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
@@ -219,20 +237,21 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		return NULL;
 	}
 
-	int numPolys = polygons.size();
 
-	if(numPolys <= 0) {
+	BspPlane *splitPlane = PickSplittingPlane(polygons);
+
+	if(!splitPlane) {
 		return new BspNode(polygons);
 	}
 
-	BspPlane splitPlane = PickSplittingPlane(polygons);
-
 	std::vector<BspFace *> frontList, backList;
 
+	int numPolys = polygons.size();
 	for(int i = 0; i < numPolys; i++) {
 		BspFace *polygon = polygons[i], *frontPart, *backPart;
-		switch(ClassifyPolygonToPlane(polygon, splitPlane)) {
+		switch(ClassifyPolygonToPlane(polygon, *splitPlane)) {
 		case POLYGON_COPLANAR:
+		
 		case POLYGON_IN_FRONT:
 			frontList.push_back(polygon);
 			break;
@@ -240,7 +259,7 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 			backList.push_back(polygon);
 			break;
 		case POLYGON_STRADDLING:
-			SplitPolygon(*polygon, splitPlane, &frontPart, &backPart);
+			SplitPolygon(*polygon, *splitPlane, &frontPart, &backPart);
 			frontList.push_back(frontPart);
 			backList.push_back(backPart);
 			break;
@@ -250,7 +269,7 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	// Recurse on two children
 	BspNode *frontTree = BuildBspTree(frontList, depth + 1);
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
-	return new BspNode(frontTree, backTree, &splitPlane);
+	return new BspNode(frontTree, backTree, splitPlane);
 }
 
 void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
