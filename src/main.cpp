@@ -1,6 +1,7 @@
 #include <iostream>
 #include "mapping/Bsp.h"
 #include "mapping/MeshLoader.h"
+#include "render/Application.h"
 
 int main() {
     std::cout << "GRAK" << std::endl;
@@ -10,5 +11,8 @@ int main() {
 
     BspModel model;
     model.CreateTreeFromLazyMesh(*mesh);
-    return 0;
+
+    Application app;
+
+    return app.Run();
 }
