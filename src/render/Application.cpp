@@ -41,7 +41,20 @@ void Application::InitializeGL() {
 }
 
 void Application::BeginRendering() {
+	// Set viewport
+	int viewWidth, viewHeight;
+	glfwGetFramebufferSize(m_window, &viewHeight, &viewHeight);
+	glViewport(0, 0, viewWidth, viewHeight);
 
+	// Clear the frame
+	glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// TODO: render buffers
+	//unsigned int VBO;
+	//glGenBuffers(1, &VBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 }
 
 void Application::RenderScene() {
@@ -54,22 +67,10 @@ int Application::Run() {
 		ProcessInput(m_window);
 		glfwPollEvents();
 
-		// Set viewport
-		int viewWidth, viewHeight;
-		glfwGetFramebufferSize(m_window, &viewHeight, &viewHeight);
-		glViewport(0, 0, viewWidth, viewHeight);
+		BeginRendering();
+		RenderScene();
 
-		// Clear the frame
-		glClearColor(0.6, 0.8, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// TODO: render buffers
-		//unsigned int VBO;
-		//glGenBuffers(1, &VBO);
-		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-
-		// Diplay the fram
+		// Diplay the frame
 		glfwSwapBuffers(m_window);
 	}
 

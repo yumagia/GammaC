@@ -1,6 +1,6 @@
 #include <iostream>
-#include "mapping/Bsp.h"
-#include "mapping/MeshLoader.h"
+#include "gbsp/Bsp.h"
+#include "gbsp/MeshLoader.h"
 #include "render/Application.h"
 
 int main() {

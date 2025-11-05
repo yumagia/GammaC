@@ -4,7 +4,7 @@
 #define MAX_FACES 10000
 #define MAX_VERTS 100000
 
-#include "../mapping/Bsp.h"
+#include "../gbsp/Bsp.h"
 
 #include <vector>
 #include <map>

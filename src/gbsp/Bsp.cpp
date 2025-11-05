@@ -29,7 +29,7 @@ void BspBoundBoxf::AddPoint(Vec3f p) {
 		max.x = p.x;
 	}
 	if(p.y > max.y) {
-		max.x = p.y;
+		max.y = p.y;
 	}
 	if(p.z > max.z) {
 		max.z = p.z;
@@ -174,7 +174,7 @@ BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
 }
 
 Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane) {
-	float d = plane.normal.Dot(p2 - p1) - plane.dist;
+	float d = (plane.normal.Dot(p1) - plane.dist) / plane.normal.Dot(p2 - p1);
 	return p1 + d * (p2 - p1);
 }
 
