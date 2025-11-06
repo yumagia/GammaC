@@ -1,5 +1,5 @@
 #include "MeshLoader.h"
-#include "Bsp.h"
+#include "BspGen.h"
 
 #include <iostream>
 #include <fstream>

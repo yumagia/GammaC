@@ -1,8 +1,14 @@
 #ifndef MAP_LOADER_INCLUDED
 #define MAP_LOADER_INCLUDED
 
-#include "Bsp.h"
+#include "BspGen.h"
 #include <fstream>
+
+struct LazyMesh {
+	bool	solid;
+	std::vector<BspFace*>	faces;
+	std::vector<BspVertex*> vertexList;
+};
 
 // Loader class for mesh
 class MeshLoader {

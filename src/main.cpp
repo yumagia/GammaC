@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gbsp/Bsp.h"
+#include "gbsp/BspGen.h"
 #include "gbsp/MeshLoader.h"
 #include "render/Application.h"
 
