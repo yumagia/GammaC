@@ -51,7 +51,7 @@ int MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 
 	case VERTICES_STATE:
 		// New vertex
-		mesh->vertexList.push_back(new BspVertex(stof(args[0]), stof(args[1]), stof(args[2])));
+		mesh->vertexList.push_back(new Vertex(stof(args[0]), stof(args[1]), stof(args[2])));
 
 		counter++;
 		if(counter > vertexCount) {
@@ -68,7 +68,7 @@ int MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 		for(int i = 0; i < numVerts; i++) {
 			verts[i] = mesh->vertexList[stoi(args[i])]->point;
 		}
-		mesh->faces.push_back(new BspFace(numVerts, verts, PlaneFromTriangle(verts[0], verts[1], verts[2])));
+		mesh->faces.push_back(new Face(numVerts, verts, PlaneFromTriangle(verts[0], verts[1], verts[2])));
 
 		counter++;
 		if(counter > faceCount) {

@@ -4,12 +4,6 @@
 #include "BspGen.h"
 #include <fstream>
 
-struct LazyMesh {
-	bool	solid;
-	std::vector<BspFace*>	faces;
-	std::vector<BspVertex*> vertexList;
-};
-
 // Loader class for mesh
 class MeshLoader {
 public:	

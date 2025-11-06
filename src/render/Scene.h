@@ -14,11 +14,11 @@ public:
 	Scene() {}
 	~Scene() {}
 
-	void AddBspModel(BspModel *model);
+	void AddBspModel(Model *model);
 
 
 private:
-	BspModel *sceneRoot = NULL;
+	Model *sceneRoot = NULL;
 };
 
 #endif
