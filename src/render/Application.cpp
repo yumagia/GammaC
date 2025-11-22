@@ -1,6 +1,6 @@
 // Include GLAD first
 #include "glad/glad.h"
-#include "Application.h"
+#include "Application.hpp"
 
 #include <GLFW/glfw3.h>
 

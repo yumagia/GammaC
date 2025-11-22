@@ -1,7 +1,7 @@
 #ifndef MAP_LOADER_INCLUDED
 #define MAP_LOADER_INCLUDED
 
-#include "Bsp.h"
+#include "Bsp.hpp"
 #include <fstream>
 
 // Loader class for mesh

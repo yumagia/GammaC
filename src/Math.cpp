@@ -1,4 +1,4 @@
-#include "Math.h"
+#include "Math.hpp"
 
 float Vec3f::Normalize() {
 	float l = Length();

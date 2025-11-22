@@ -1,7 +1,7 @@
 #include <iostream>
-#include "gbsp/Bsp.h"
-#include "gbsp/MeshLoader.h"
-#include "render/Application.h"
+#include "gbsp/Bsp.hpp"
+#include "gbsp/MeshLoader.hpp"
+#include "render/Application.hpp"
 
 int main() {
     std::cout << "GRAK" << std::endl;

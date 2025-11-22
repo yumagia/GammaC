@@ -1,7 +1,7 @@
 #ifndef BSP_INCLUDED
 #define BSP_INCLUDED
 
-#include "Math.h"
+#include "Math.hpp"
 
 #include <vector>
 
@@ -62,13 +62,13 @@ struct BspNode {
 	BspNode() {}
 	
 	BspNode(std::vector<BspFace *> &polygons);
-	BspNode(BspNode *front, BspNode *back, BspPlane *plane);
+	BspNode(BspNode *front, BspNode *back, BspPlane *plane, std::vector<BspFace *> &polygons);
 
 	// Both leafs and internal nodes
 	bool	isLeaf;
 	int		depth;
 	BspNode		*parent;
-	BspBoundBoxf	minBounds;
+	BspBoundBoxf	bounds;
 	// Internal nodes only
 	BspNode		*front, *back;
 	BspPlane	*plane;
@@ -96,7 +96,7 @@ struct BspModel {
 
 	BspNode *root;
 	
-	BspBoundBoxf	minBounds;
+	BspBoundBoxf	bounds;
 };
 
 /**=============================================

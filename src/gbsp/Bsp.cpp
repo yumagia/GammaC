@@ -1,6 +1,6 @@
 
-#include "Bsp.h"
-#include "Math.h"
+#include "Bsp.hpp"
+#include "Math.hpp"
 
 #include <vector>
 #include <iostream>
@@ -79,16 +79,18 @@ BspNode::BspNode(std::vector<BspFace *> &polygons) {
 	solid = polygons.size() == 0;
 
 	this->faces = polygons;
-	minBounds = CalcBounds(polygons);
+	bounds = CalcBounds(polygons);
 }
 
 // Internal node
-BspNode::BspNode(BspNode *front, BspNode *back, BspPlane *plane) {
+BspNode::BspNode(BspNode *front, BspNode *back, BspPlane *plane, std::vector<BspFace *> &polygons) {
 	isLeaf = false;
 
 	this->front = front;
 	this->back = back;
 	this->plane = plane;
+
+	bounds = CalcBounds(polygons);
 }
 
 BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
@@ -237,7 +239,6 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		return NULL;
 	}
 
-
 	BspPlane *splitPlane = PickSplittingPlane(polygons);
 
 	if(!splitPlane) {
@@ -269,7 +270,7 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	// Recurse on two children
 	BspNode *frontTree = BuildBspTree(frontList, depth + 1);
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
-	return new BspNode(frontTree, backTree, splitPlane);
+	return new BspNode(frontTree, backTree, splitPlane, polygons);
 }
 
 void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
@@ -279,8 +280,8 @@ void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
 
 void BspModel::CreateTreeFromLazyMesh(LazyMesh mesh) {
 	std::cout << "--- Creating tree for BSP model ---" << std::endl;
-	std::cout << mesh.faces.size() << " Number of faces" << std::endl;
-	std::cout << mesh.vertexList.size() << " Number of verts" << std::endl;
+	std::cout << mesh.faces.size() << " Initial number of faces" << std::endl;
+	std::cout << mesh.vertexList.size() << " Initial number of verts" << std::endl;
 
 	solid = mesh.solid;
 	root = BuildBspTree(mesh.faces, 0);

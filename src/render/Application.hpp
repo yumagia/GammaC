@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Scene.h"
+#include "Scene.hpp"
 
 struct ApplicationSpecification {
     int width = 800;
