@@ -4,6 +4,7 @@
 
 #define MAX_MAP_NODES		32768
 #define MAX_MAP_LEAFS		32768
+#define MAX_MAP_LEAF_FACES	32768
 #define MAX_MAP_VERTS		65536
 #define MAX_MAP_EDGES		128000
 
@@ -22,6 +23,7 @@ enum {
 	LUMP_PLANES,
 	LUMP_NODES,
 	LUMP_LEAFS,
+	LUMP_LEAFFACES,
 	LUMP_VERTS,
 	LUMP_EDGES,
 	LUMP_FACES
@@ -59,10 +61,14 @@ struct FileNode {
 };
 
 struct FileLeaf {
-	unsigned int	firstFace, numFaces;
+	unsigned int	firstLeafFace, numLeafFaces;
 	int				minBound[3], maxBound[3];
 	
 	int				visOffset;
+};
+
+struct FileLeafFace {
+	unsigned int	faceIdx;
 };
 
 struct FileVert {

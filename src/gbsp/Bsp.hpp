@@ -69,12 +69,12 @@ struct BspNode {
 	int		depth;
 	BspNode		*parent;
 	BspBoundBoxf	bounds;
+	std::vector<BspFace*>	faces;	// Used differently among leafs and internal nodes
 	// Internal nodes only
 	BspNode		*front, *back;
 	BspPlane	*plane;
 	// Leafs only
 	bool	solid;
-	std::vector<BspFace*>	faces;
 };
 
 struct LazyMesh {
@@ -106,5 +106,6 @@ struct BspModel {
 */
 
 BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
+void PrintTree(BspNode *node, int depth);
 
 #endif

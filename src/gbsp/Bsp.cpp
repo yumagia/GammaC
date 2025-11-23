@@ -77,8 +77,11 @@ BspNode::BspNode(std::vector<BspFace *> &polygons) {
 	isLeaf = true;
 
 	solid = polygons.size() == 0;
-
 	this->faces = polygons;
+	if(solid) {
+		return;
+	}
+
 	bounds = CalcBounds(polygons);
 }
 
@@ -91,6 +94,8 @@ BspNode::BspNode(BspNode *front, BspNode *back, BspPlane *plane, std::vector<Bsp
 	this->plane = plane;
 
 	bounds = CalcBounds(polygons);
+
+	this->faces = polygons;
 }
 
 BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
@@ -98,7 +103,7 @@ BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
 	Vec3f b = p2 - p0;
 	Vec3f normal = a.Cross(b);
 	normal.Normalize();
-	float d = -(normal.Dot(p0));
+	float d = normal.Dot(p0);
 
 	return new BspPlane(normal, d);
 }
@@ -143,7 +148,6 @@ BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
 		if(polygons[i]->tested) {	// Already tested
 			continue;
 		}
-		polygons[i]->tested = true; // Mark as tested so it won't recurse indefinitely
 
 		int numInFront, numBehind, numStraddling = 0;
 		BspPlane *plane = polygons[i]->plane;
@@ -151,8 +155,13 @@ BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
 			if(i == j) {	// Ignore testing against self
 				continue;
 			}
+			if(polygons[j]->tested) {	// These are left unsplit
+				continue;
+			}
 			switch(ClassifyPolygonToPlane(polygons[j], *plane)) {
 			case POLYGON_COPLANAR:
+				numInFront++;
+				break;
 			case POLYGON_IN_FRONT:
 				numInFront++;
 				break;
@@ -236,7 +245,7 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 
 BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	if(polygons.empty()) {
-		return NULL;
+		return new BspNode(polygons);
 	}
 
 	BspPlane *splitPlane = PickSplittingPlane(polygons);
@@ -245,14 +254,20 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		return new BspNode(polygons);
 	}
 
-	std::vector<BspFace *> frontList, backList;
+	std::vector<BspFace *> nodeFaces, frontList, backList;
 
 	int numPolys = polygons.size();
 	for(int i = 0; i < numPolys; i++) {
 		BspFace *polygon = polygons[i], *frontPart, *backPart;
+
+		if(polygon->tested) {	// These are left unsplit
+				continue;
+		}
+
 		switch(ClassifyPolygonToPlane(polygon, *splitPlane)) {
 		case POLYGON_COPLANAR:
-		
+			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
+			nodeFaces.push_back(polygon);
 		case POLYGON_IN_FRONT:
 			frontList.push_back(polygon);
 			break;
@@ -270,7 +285,10 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	// Recurse on two children
 	BspNode *frontTree = BuildBspTree(frontList, depth + 1);
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
-	return new BspNode(frontTree, backTree, splitPlane, polygons);
+
+	BspNode *node = new BspNode(frontTree, backTree, splitPlane, nodeFaces);
+	node->bounds = CalcBounds(polygons);
+	return node;
 }
 
 void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
@@ -285,4 +303,33 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh mesh) {
 
 	solid = mesh.solid;
 	root = BuildBspTree(mesh.faces, 0);
+
+	std::cout << "Sucessful BuildBsp run..." << std::endl;
+	std::cout << "Printing Tree..." << std::endl;
+
+	PrintTree(root, 0);
+}
+
+void PrintTree(BspNode *node, int depth) {
+	for(int i = 0; i < depth; i++) {
+		std::cout << "  ";
+	}
+
+	if(node->isLeaf) {
+		if(node->faces.empty()) {
+			std::cout << "SOLID" << std::endl;
+		}
+		else {
+			std::cout << node->faces.size() << " face(s)" << std::endl;
+		}
+		return;
+	}
+
+	std::cout << "(" 
+		<< node->plane->normal.x << ", " 
+		<< node->plane->normal.y << ", " 
+		<< node->plane->normal.z << ") " 
+		<< node->plane->dist << std::endl;
+	PrintTree(node->back, depth + 1);
+	PrintTree(node->front, depth + 1);
 }
