@@ -1,4 +1,4 @@
-
+#include "gfile/GammaFile.h"
 #include "Bsp.hpp"
 #include "Math.hpp"
 
@@ -9,6 +9,9 @@
 #define FLOAT_MAX 999999999
 #define SPLIT_BALANCE 0.8f
 #define MAX_WINDING 32
+
+extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
+extern	int			numMapPlanes;
 
 enum {	POLYGON_STRADDLING, 
 		POLYGON_IN_FRONT, 
@@ -60,16 +63,16 @@ BspFace::BspFace(int numVerts, Vec3f verts[], BspFace *face) {
 	}
 
 	this->tested = face->tested;
-	this->plane = face->plane;
+	this->planeNum = face->planeNum;
 }
 
-BspFace::BspFace(int numVerts, Vec3f verts[], BspPlane *plane) {
+BspFace::BspFace(int numVerts, Vec3f verts[], int planeNum) {
 	vertices.reserve(numVerts);
 	for(int i = 0; i < numVerts; i++) {
 		vertices.push_back(new BspVertex(verts[i]));
 	}
 
-	this->plane = plane;
+	this->planeNum = planeNum;
 }
 
 // Leaf node
@@ -86,26 +89,16 @@ BspNode::BspNode(std::vector<BspFace *> &polygons) {
 }
 
 // Internal node
-BspNode::BspNode(BspNode *front, BspNode *back, BspPlane *plane, std::vector<BspFace *> &polygons) {
+BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFace *> &polygons) {
 	isLeaf = false;
 
 	this->front = front;
 	this->back = back;
-	this->plane = plane;
+	this->planeNum = planeNum;
 
 	bounds = CalcBounds(polygons);
 
 	this->faces = polygons;
-}
-
-BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2) {
-	Vec3f a = p1 - p0;
-	Vec3f b = p2 - p0;
-	Vec3f normal = a.Cross(b);
-	normal.Normalize();
-	float d = normal.Dot(p0);
-
-	return new BspPlane(normal, d);
 }
 
 // Find if a polygon is in front, behind, 
@@ -139,8 +132,8 @@ int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
 }
 
 // Pick the best splitting plane, heuristically
-BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
-	BspPlane *bestPlane = NULL;
+int PickSplittingPlane(std::vector<BspFace *> &polygons) {
+	int bestPlaneNum = -1;
 	float bestScore = FLOAT_MAX;
 
 	for(int i = 0; i < polygons.size(); i++) {
@@ -150,7 +143,8 @@ BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
 		}
 
 		int numInFront, numBehind, numStraddling = 0;
-		BspPlane *plane = polygons[i]->plane;
+		int planeNum = polygons[i]->planeNum;
+		BspPlane *plane = &mapPlanes[planeNum];
 		for(int j = 0; j < polygons.size(); j++) {
 			if(i == j) {	// Ignore testing against self
 				continue;
@@ -177,11 +171,11 @@ BspPlane *PickSplittingPlane(std::vector<BspFace *> &polygons) {
 		float score = SPLIT_BALANCE * numStraddling + (1.0f - SPLIT_BALANCE) * fabs(numInFront - numBehind);
 		if(score < bestScore) {
 			bestScore = score;
-			bestPlane = plane;
+			bestPlaneNum = planeNum;
 		}
 	}
 
-	return bestPlane;
+	return bestPlaneNum;
 }
 
 Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane) {
@@ -248,9 +242,9 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		return new BspNode(polygons);
 	}
 
-	BspPlane *splitPlane = PickSplittingPlane(polygons);
+	int splitPlane = PickSplittingPlane(polygons);
 
-	if(!splitPlane) {
+	if(splitPlane == -1) {
 		return new BspNode(polygons);
 	}
 
@@ -264,10 +258,11 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 				continue;
 		}
 
-		switch(ClassifyPolygonToPlane(polygon, *splitPlane)) {
+		switch(ClassifyPolygonToPlane(polygon, mapPlanes[splitPlane])) {
 		case POLYGON_COPLANAR:
 			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
 			nodeFaces.push_back(polygon);
+			backList.push_back(polygon);
 		case POLYGON_IN_FRONT:
 			frontList.push_back(polygon);
 			break;
@@ -275,7 +270,7 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 			backList.push_back(polygon);
 			break;
 		case POLYGON_STRADDLING:
-			SplitPolygon(*polygon, *splitPlane, &frontPart, &backPart);
+			SplitPolygon(*polygon, mapPlanes[splitPlane], &frontPart, &backPart);
 			frontList.push_back(frontPart);
 			backList.push_back(backPart);
 			break;
@@ -312,24 +307,27 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh mesh) {
 
 void PrintTree(BspNode *node, int depth) {
 	for(int i = 0; i < depth; i++) {
-		std::cout << "  ";
+		std::cout << "   |";
 	}
 
 	if(node->isLeaf) {
 		if(node->faces.empty()) {
-			std::cout << "SOLID" << std::endl;
+			std::cout << "___ SOLID" << std::endl;
 		}
 		else {
-			std::cout << node->faces.size() << " face(s)" << std::endl;
+			std::cout << "___ " << node->faces.size() << " face(s)" << std::endl;
 		}
 		return;
 	}
 
-	std::cout << "(" 
-		<< node->plane->normal.x << ", " 
-		<< node->plane->normal.y << ", " 
-		<< node->plane->normal.z << ") " 
-		<< node->plane->dist << std::endl;
+	BspPlane *plane;
+	plane = &mapPlanes[node->planeNum];
+
+	std::cout << "___ (" 
+		<< plane->normal.x << ", " 
+		<< plane->normal.y << ", " 
+		<< plane->normal.z << ") " 
+		<< plane->dist << std::endl;
 	PrintTree(node->back, depth + 1);
 	PrintTree(node->front, depth + 1);
 }

@@ -1,13 +1,40 @@
-.PHONY: clean
-
-SRC_DIR = src
-EXE_NAME = GRAK
-CFLAGS = -O2 -ggdb
-
+CFLAGS = -std=c++17 -O2 -ggdb
 LDFLAGS = -lglfw
 
-build: $(SRC_DIR)/main.cpp $(SRC_DIR)/render/glad/glad.c $(SRC_DIR)/render/Application.cpp $(SRC_DIR)/gbsp/Bsp.cpp $(SRC_DIR)/gbsp/MeshLoader.cpp $(SRC_DIR)/Math.cpp
-	g++ $(CFLAGS) -o $(EXE_NAME) $(SRC_DIR)/main.cpp $(SRC_DIR)/render/glad/glad.c $(SRC_DIR)/render/Application.cpp $(SRC_DIR)/gbsp/Bsp.cpp $(SRC_DIR)/gbsp/MeshLoader.cpp $(SRC_DIR)/Math.cpp -I$(SRC_DIR) $(LDFLAGS)
+TARGET_EXEC := GRAK
+
+BUILD_DIR := build
+SRC_DIRS := src
+CC = g++
+
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
+
+$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# c++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+
+.PHONY: clean
 
 clean:
-	-rm $(EXE_NAME)
+	$(RM) -r $(BUILD_DIR)
+
+-include $(DEPS)
+
+MKDIR_P := mkdir -p

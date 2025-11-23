@@ -1,9 +1,12 @@
+#ifndef LEVEL_WRITER_INCLUDED
+#define LEVEL_WRITER_INCLUDED
+
 #include "Bsp.hpp"
 #include "GammaFile.h"
 
 class LevelWriter {
 public:
-	LevelWriter() {}
+	LevelWriter();
 	~LevelWriter() {}
 
 	void WriteLevel();
@@ -22,6 +25,7 @@ public:
 private:
 	int		EmitTree(BspNode *node);
 	void	EmitLeaf(BspNode *node);
+	void	EmitFace(BspFace *f);
 private:
     int startLeaf;
     int startEdge;
@@ -32,8 +36,10 @@ private:
 	FilePlane		filePlanes[MAX_MAP_PLANES];
 	FileNode		fileNodes[MAX_MAP_NODES];
 	FileLeaf		fileLeafs[MAX_MAP_LEAFS];
-	FileLeafFace	fileLeafFaces[MAX_MAP_LEAF_FACES];
+	unsigned int	fileLeafFaces[MAX_MAP_LEAF_FACES];
 	FileVert		fileVerts[MAX_MAP_VERTS];
 	FileEdge		fileEdges[MAX_MAP_EDGES];
 	FileFace		fileFaces[MAX_MAP_FACES];
 };
+
+#endif

@@ -74,6 +74,21 @@ void LevelWriter::EmitLeaf(BspNode *node) {
 	emittedLeaf->numLeafFaces = numLeafFaces - emittedLeaf->firstLeafFace;
 }
 
+void LevelWriter::EmitFace(BspFace *face) {
+	FileFace *emittedFace;
+	
+	face->outputNumber = numFaces;
+
+	if(numFaces >= MAX_MAP_FACES) {
+		std::cerr << "Reached MAX_MAP_FACES: " << MAX_MAP_FACES << std::endl;
+	}
+
+	emittedFace = &fileFaces[numFaces];
+	numFaces++;
+
+	emittedFace->planeNum = face->planeNum;
+}
+
 int LevelWriter::EmitTree(BspNode *node) {
 	
 	if(node->isLeaf) {
@@ -96,15 +111,12 @@ int LevelWriter::EmitTree(BspNode *node) {
 	emittedNode->maxBound[1] = node->bounds.max.y;
 	emittedNode->maxBound[2] = node->bounds.max.z;
 
-
-	// TODO: Hash these...
-	filePlanes[numPlanes].normal[0] = node->plane->normal.x;
-	filePlanes[numPlanes].normal[1] = node->plane->normal.y;
-	filePlanes[numPlanes].normal[2] = node->plane->normal.z;
-	filePlanes[numPlanes].dist = node->plane->dist;
-
-	emittedNode->planeNum = numPlanes;
+	emittedNode->planeNum = node->planeNum;
 	numPlanes++;
+
+	for(BspFace *face : node->faces) {
+		EmitFace(face);
+	}
 
 	if(node->back->isLeaf) {
 		emittedNode->children[0] = -(numLeafs + 1);

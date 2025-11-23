@@ -68,7 +68,7 @@ int MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 		for(int i = 0; i < numVerts; i++) {
 			verts[i] = mesh->vertexList[stoi(args[i + 1])]->point;
 		}
-		mesh->faces.push_back(new BspFace(numVerts, verts, PlaneFromTriangle(verts[0], verts[1], verts[2])));
+		mesh->faces.push_back(new BspFace(numVerts, verts, PlaneNumFromTriangle(verts[0], verts[1], verts[2])));
 
 		counter++;
 		if(counter > faceCount) {

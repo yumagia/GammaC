@@ -29,8 +29,11 @@ struct BspPlane {
 	BspPlane() {}
 	BspPlane(Vec3f normal, float dist) : normal(normal), dist(dist) {}
 
+	bool EqualTo(Vec3f normal, float dist);
+
 	Vec3f	normal;
 	float	dist;
+	BspPlane *hashChain;
 };
 
 struct BspVertex {
@@ -51,18 +54,20 @@ struct BspFace {
 
 	// Create from new winding, inherit plane
 	BspFace(int numVerts, Vec3f verts[], BspFace *face);
-	BspFace(int numVerts, Vec3f verts[], BspPlane *plane);
+	BspFace(int numVerts, Vec3f verts[], int planeNum);
 
 	std::vector<BspVertex*>	vertices;
-	BspPlane	*plane;
+	int			planeNum;
 	Material	*material;
+
+	int			outputNumber;
 };
 
 struct BspNode {
 	BspNode() {}
 	
 	BspNode(std::vector<BspFace *> &polygons);
-	BspNode(BspNode *front, BspNode *back, BspPlane *plane, std::vector<BspFace *> &polygons);
+	BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFace *> &polygons);
 
 	// Both leafs and internal nodes
 	bool	isLeaf;
@@ -72,7 +77,7 @@ struct BspNode {
 	std::vector<BspFace*>	faces;	// Used differently among leafs and internal nodes
 	// Internal nodes only
 	BspNode		*front, *back;
-	BspPlane	*plane;
+	int		planeNum;
 	// Leafs only
 	bool	solid;
 };
@@ -105,7 +110,10 @@ struct BspModel {
  * =============================================
 */
 
-BspPlane *PlaneFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
 void PrintTree(BspNode *node, int depth);
+
+
+int PlaneNumFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
+int FindPlane(Vec3f normal, float dist);
 
 #endif

@@ -1,3 +1,5 @@
+#pragma once
+
 #define MAX_MAP_MODELS		256
 #define MAX_MAP_ENTITIES	512
 #define MAX_MAP_PLANES		16384
@@ -65,10 +67,6 @@ struct FileLeaf {
 	int				minBound[3], maxBound[3];
 	
 	int				visOffset;
-};
-
-struct FileLeafFace {
-	unsigned int	faceIdx;
 };
 
 struct FileVert {
