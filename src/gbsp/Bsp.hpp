@@ -53,10 +53,12 @@ struct BspFace {
 	bool		tested;
 
 	// Create from new winding, inherit plane
-	BspFace(int numVerts, Vec3f verts[], BspFace *face);
-	BspFace(int numVerts, Vec3f verts[], int planeNum);
+	BspFace(int numVerts, int vertIndices[], BspFace *face);
+	BspFace(int numVerts, int vertIndices[], int planeNum);
 
-	std::vector<BspVertex*>	vertices;
+	BspVertex GetVertex(int vertIndex);
+
+	std::vector<int>	vertIndices;
 	int			planeNum;
 	Material	*material;
 
@@ -92,7 +94,7 @@ struct BspModel {
 	BspModel() {}
 
 	void SetModel(Vec3f origin, Quaternion orientation);
-	void CreateTreeFromLazyMesh(LazyMesh mesh);
+	void CreateTreeFromLazyMesh(LazyMesh *mesh);
 
 	bool solid;
 

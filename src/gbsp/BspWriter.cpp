@@ -5,6 +5,11 @@
 #include "Bsp.hpp"
 #include "GammaFile.h"
 
+extern	int			numMapPlanes;
+extern int		numMapVerts;
+extern int		numMapFaceVerts;
+
+
 FileWriter::FileWriter() {
 	numModels = 1;
 	numEntities = 0;
@@ -14,6 +19,14 @@ FileWriter::FileWriter() {
 	numVerts = 1;
 	numFaceVerts = 1;
 	numFaces = 0;
+}
+
+void FileWriter::BeginBspFile() {
+	std::cout << "Initializing BSP file" << std::endl;
+
+	numMapPlanes = 0;
+	numMapVerts = 0;
+	numMapFaceVerts = 0;
 }
 
 
@@ -89,7 +102,7 @@ void FileWriter::EmitFace(BspFace *face) {
 	emittedFace->planeNum = face->planeNum;
 	
 	emittedFace->firstVert = numFaceVerts;
-	int numVerts = face->vertices.size();
+	int numVerts = face->vertIndices.size();
 	emittedFace->numVerts = numVerts;
 	//TODO: HASH YOUR VERTS
 }

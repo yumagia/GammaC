@@ -10,12 +10,13 @@ int main() {
 
     FileWriter fileWriter;
     
+    fileWriter.BeginBspFile();
 
     MeshLoader loader;
     LazyMesh *mesh = loader.ParseMeshFile("mesh-files/mesh1.txt");
 
     BspModel model;
-    model.CreateTreeFromLazyMesh(*mesh);
+    model.CreateTreeFromLazyMesh(mesh);
 
     Application app;
 

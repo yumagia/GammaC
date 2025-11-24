@@ -13,6 +13,12 @@
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
 
+extern int		numMapVerts;
+extern BspVertex	mapVerts[MAX_MAP_VERTS];
+
+extern int		numMapFaceVerts;
+extern int		mapFaceVerts[MAX_MAP_FACE_VERTS];
+
 enum {	POLYGON_STRADDLING, 
 		POLYGON_IN_FRONT, 
 		POLYGON_BEHIND, 
@@ -45,11 +51,11 @@ BspVertex::BspVertex(float x, float y, float z) {
 
 // Calculate a bounding box from a set of polygons
 BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
-	BspBoundBoxf bounds = BspBoundBoxf(((*polygons[0]).vertices[0])->point);
+	BspBoundBoxf bounds = BspBoundBoxf(mapVerts[((*polygons[0]).vertIndices[0])].point);
 
 	for(BspFace *polygon : polygons) {
-		for(BspVertex *vertex : polygon->vertices) {
-			bounds.AddPoint(vertex->point);
+		for(int vertIndex : polygon->vertIndices) {
+			bounds.AddPoint(mapVerts[vertIndex].point);
 		}
 	}
 
@@ -87,9 +93,9 @@ BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFac
 int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
 	int	numInFront, numBehind;
 	numInFront = numBehind = 0;
-	int numVerts = polygon->vertices.size();
+	int numVerts = polygon->vertIndices.size();
 	for(int i = 0; i < numVerts; i++) {
-		Vec3f p = polygon->vertices[i]->point;
+		Vec3f p = mapVerts[polygon->vertIndices[i]].point;
 
 		float dist = plane.normal.Dot(p) - plane.dist;
 		if(dist > PLANE_EPSILON) {
@@ -169,20 +175,24 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 	int numFront, numBack;
 	numFront = numBack = 0;
 
-	int numVerts = polygon.vertices.size();
-	Vec3f frontVerts[numVerts + 2], backVerts[numVerts + 2];
-	Vec3f prev = polygon.vertices[numVerts - 1]->point;
-	int prevDot = plane.normal.Dot(prev) - plane.dist;
+	int numVerts = polygon.vertIndices.size();
+	int frontVerts[numVerts + 2], backVerts[numVerts + 2];
+	int prev = polygon.vertIndices[numVerts - 1];
+	int prevDot = plane.normal.Dot(mapVerts[prev].point) - plane.dist;
+
+	
 
 	for(int n = 0; n < numVerts; n++) {
-		Vec3f curr = polygon.vertices[n]->point;
-		int currDot = plane.normal.Dot(curr) - plane.dist;
+		int curr = polygon.vertIndices[n];
+		int currDot = plane.normal.Dot(mapVerts[curr].point) - plane.dist;
 		if(currDot > PLANE_EPSILON) {
 			if(prevDot < -PLANE_EPSILON) {
 				// Current edge intersects plane,
 				// So output the intersection point
-				Vec3f intersection = SegmentPlaneIntersection(curr, prev, plane);
-				frontVerts[numFront++] = backVerts[numBack++] = intersection;
+				Vec3f intersection = SegmentPlaneIntersection(mapVerts[curr].point, mapVerts[prev].point, plane);
+				mapVerts[numMapVerts] = intersection;
+				frontVerts[numFront++] = backVerts[numBack++] = numMapVerts;
+				numMapVerts++;
 			}
 
 			// Output b to front side in all three cases
@@ -191,8 +201,10 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 		else if(currDot < -PLANE_EPSILON) {
 			if(prevDot > PLANE_EPSILON) {
 				// Also an intersection
-				Vec3f intersection = SegmentPlaneIntersection(curr, prev, plane);
-				frontVerts[numFront++] = backVerts[numBack++] = intersection;
+				Vec3f intersection = SegmentPlaneIntersection(mapVerts[curr].point, mapVerts[prev].point, plane);
+				mapVerts[numMapVerts] = intersection;
+				frontVerts[numFront++] = backVerts[numBack++] = numMapVerts;
+				numMapVerts++;
 			}
 			else if(prevDot > -PLANE_EPSILON) {	// Trailing vertex of edge is "on" plane
 				backVerts[numBack++] = prev;
@@ -271,13 +283,26 @@ void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
 	this->orientation = orientation;
 }
 
-void BspModel::CreateTreeFromLazyMesh(LazyMesh mesh) {
+void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 	std::cout << "--- Creating tree for BSP model ---" << std::endl;
-	std::cout << mesh.faces.size() << " Initial number of faces" << std::endl;
-	std::cout << mesh.vertexList.size() << " Initial number of verts" << std::endl;
+	std::cout << mesh->faces.size() << " Initial number of faces" << std::endl;
+	std::cout << mesh->vertexList.size() << " Initial number of verts" << std::endl;
 
-	solid = mesh.solid;
-	root = BuildBspTree(mesh.faces, 0);
+	std::cout << "Applying offsets to map face verts..." << std::endl;
+	for(BspFace *face : mesh->faces) {
+		for(int vertIndex : face->vertIndices) {
+			vertIndex += numMapVerts;
+		}
+	}
+
+	std::cout << "Outputting verts to buffer..." << std::endl;
+	for(BspVertex *vertex : mesh->vertexList) {
+		mapVerts[numMapVerts] = *vertex;
+		numMapVerts++;
+	}
+
+	solid = mesh->solid;
+	root = BuildBspTree(mesh->faces, 0);
 
 	std::cout << "Sucessful BuildBsp run..." << std::endl;
 	std::cout << "Printing Tree..." << std::endl;

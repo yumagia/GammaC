@@ -9,6 +9,7 @@ public:
 	FileWriter();
 	~FileWriter() {}
 
+	void BeginBspFile();
 	void WriteLevel();
 	void AddWorldModel(BspModel *model);
 

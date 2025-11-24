@@ -64,11 +64,11 @@ int MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 	case FACES_STATE:
 		// New face
 		int numVerts = stoi(args[0]);
-		Vec3f verts[numVerts];
+		int vertIndices[numVerts];
 		for(int i = 0; i < numVerts; i++) {
-			verts[i] = mesh->vertexList[stoi(args[i + 1])]->point;
+			vertIndices[i] = stoi(args[i + 1]);
 		}
-		mesh->faces.push_back(new BspFace(numVerts, verts, PlaneNumFromTriangle(verts[0], verts[1], verts[2])));
+		mesh->faces.push_back(new BspFace(numVerts, vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point)));
 
 		counter++;
 		if(counter > faceCount) {
