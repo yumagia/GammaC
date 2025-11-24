@@ -1,4 +1,4 @@
-#include "gfile/GammaFile.h"
+#include "GammaFile.h"
 #include "Bsp.hpp"
 #include "Math.hpp"
 
@@ -54,25 +54,6 @@ BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
 	}
 
 	return bounds;
-}
-
-BspFace::BspFace(int numVerts, Vec3f verts[], BspFace *face) {
-	vertices.reserve(numVerts);
-	for(int i = 0; i < numVerts; i++) {
-		vertices.push_back(new BspVertex(verts[i]));
-	}
-
-	this->tested = face->tested;
-	this->planeNum = face->planeNum;
-}
-
-BspFace::BspFace(int numVerts, Vec3f verts[], int planeNum) {
-	vertices.reserve(numVerts);
-	for(int i = 0; i < numVerts; i++) {
-		vertices.push_back(new BspVertex(verts[i]));
-	}
-
-	this->planeNum = planeNum;
 }
 
 // Leaf node
@@ -262,7 +243,6 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		case POLYGON_COPLANAR:
 			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
 			nodeFaces.push_back(polygon);
-			backList.push_back(polygon);
 		case POLYGON_IN_FRONT:
 			frontList.push_back(polygon);
 			break;

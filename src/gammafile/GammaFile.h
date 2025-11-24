@@ -8,7 +8,7 @@
 #define MAX_MAP_LEAFS		32768
 #define MAX_MAP_LEAF_FACES	32768
 #define MAX_MAP_VERTS		65536
-#define MAX_MAP_EDGES		128000
+#define MAX_MAP_FACE_VERTS	65536
 
 #define MAX_MAP_FACES		32768
 
@@ -73,12 +73,20 @@ struct FileVert {
 	float			point[3];
 };
 
-struct FileEdge {
-	unsigned int	v[2];
-};
-
 struct FileFace {
 	unsigned int	planeNum;
-	int				FirstEdge, numEdges;
+	int				firstVert, numVerts;
 	int				material;
+};
+
+struct BspFile {
+	FileModel		fileModels[MAX_MAP_MODELS];
+	FileEntity		fileEntities[MAX_MAP_ENTITIES];
+	FilePlane		filePlanes[MAX_MAP_PLANES];
+	FileNode		fileNodes[MAX_MAP_NODES];
+	FileLeaf		fileLeafs[MAX_MAP_LEAFS];
+	unsigned int	fileLeafFaces[MAX_MAP_LEAF_FACES];
+	FileVert		fileVerts[MAX_MAP_VERTS];
+	unsigned int	fileFaceVert[MAX_MAP_FACE_VERTS];
+	FileFace		fileFaces[MAX_MAP_FACES];
 };

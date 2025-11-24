@@ -1,51 +1,51 @@
 #include <iostream>
 
-#include "LevelWriter.hpp"
+#include "BspWriter.hpp"
 
 #include "Bsp.hpp"
 #include "GammaFile.h"
 
-LevelWriter::LevelWriter() {
+FileWriter::FileWriter() {
 	numModels = 1;
 	numEntities = 0;
 	numPlanes = 0;
 	numNodes = 0;
 	numLeafs = 1;
 	numVerts = 1;
-	numEdges = 1;
+	numFaceVerts = 1;
 	numFaces = 0;
 }
 
 
-void LevelWriter::WriteLevel() {
+void FileWriter::WriteLevel() {
 	std::cout << "--- WriteLevel ---" << std::endl;
 }
 
-void LevelWriter::AddWorldModel(BspModel *model) {
+void FileWriter::AddWorldModel(BspModel *model) {
 	startLeaf = numLeafs;
-	startEdge = numEdges;
+	startFaceVert = numFaceVerts;
 	startFace = numFaces;
 	
-	fileModels[0].firstFace = numFaces;
+	bspFile->fileModels[0].firstFace = numFaces;
 	
-	fileModels[0].minBound[0] = model->bounds.min.x;
-	fileModels[0].minBound[1] = model->bounds.min.y;
-	fileModels[0].minBound[2] = model->bounds.min.z;
-	fileModels[0].maxBound[0] = model->bounds.max.x;
-	fileModels[0].maxBound[1] = model->bounds.max.y;
-	fileModels[0].maxBound[2] = model->bounds.max.z;
+	bspFile->fileModels[0].minBound[0] = model->bounds.min.x;
+	bspFile->fileModels[0].minBound[1] = model->bounds.min.y;
+	bspFile->fileModels[0].minBound[2] = model->bounds.min.z;
+	bspFile->fileModels[0].maxBound[0] = model->bounds.max.x;
+	bspFile->fileModels[0].maxBound[1] = model->bounds.max.y;
+	bspFile->fileModels[0].maxBound[2] = model->bounds.max.z;
 
-	fileModels[0].headNode = EmitTree(model->root);
+	bspFile->fileModels[0].headNode = EmitTree(model->root);
 }
 
-void LevelWriter::EmitLeaf(BspNode *node) {
+void FileWriter::EmitLeaf(BspNode *node) {
 	FileLeaf *emittedLeaf;
 
 	if(numLeafs >= MAX_MAP_LEAFS) {
 		std::cerr << "Reached MAX_MAP_LEAFS: " << MAX_MAP_LEAFS << std::endl;
 	}
 
-	emittedLeaf = &fileLeafs[numLeafs];
+	emittedLeaf = &bspFile->fileLeafs[numLeafs];
 	numLeafs++;
 
 	emittedLeaf->minBound[0] = node->bounds.min.x;
@@ -67,14 +67,14 @@ void LevelWriter::EmitLeaf(BspNode *node) {
 		if(numLeafFaces >= MAX_MAP_LEAF_FACES) {
 			std::cerr << "Reached MAX_MAP_LEAF_FACES: " << MAX_MAP_LEAF_FACES << std::endl;
 		}
-		fileLeafFaces[numLeafFaces] = faceNum;
+		bspFile->fileLeafFaces[numLeafFaces] = faceNum;
 		numLeafFaces++;
 	}
 
 	emittedLeaf->numLeafFaces = numLeafFaces - emittedLeaf->firstLeafFace;
 }
 
-void LevelWriter::EmitFace(BspFace *face) {
+void FileWriter::EmitFace(BspFace *face) {
 	FileFace *emittedFace;
 	
 	face->outputNumber = numFaces;
@@ -83,13 +83,18 @@ void LevelWriter::EmitFace(BspFace *face) {
 		std::cerr << "Reached MAX_MAP_FACES: " << MAX_MAP_FACES << std::endl;
 	}
 
-	emittedFace = &fileFaces[numFaces];
+	emittedFace = &bspFile->fileFaces[numFaces];
 	numFaces++;
 
 	emittedFace->planeNum = face->planeNum;
+	
+	emittedFace->firstVert = numFaceVerts;
+	int numVerts = face->vertices.size();
+	emittedFace->numVerts = numVerts;
+	//TODO: HASH YOUR VERTS
 }
 
-int LevelWriter::EmitTree(BspNode *node) {
+int FileWriter::EmitTree(BspNode *node) {
 	
 	if(node->isLeaf) {
 		EmitLeaf(node);
@@ -101,7 +106,7 @@ int LevelWriter::EmitTree(BspNode *node) {
 	}
 	
 	FileNode *emittedNode;
-	emittedNode = &fileNodes[numNodes];
+	emittedNode = &bspFile->fileNodes[numNodes];
 	numNodes++;
 
 	emittedNode->minBound[0] = node->bounds.min.x;
@@ -136,6 +141,6 @@ int LevelWriter::EmitTree(BspNode *node) {
 		EmitTree(node->front);
 	}
 
-	return emittedNode - fileNodes;
+	return emittedNode - bspFile->fileNodes;
 }
 

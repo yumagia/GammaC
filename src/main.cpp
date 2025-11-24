@@ -1,10 +1,15 @@
 #include <iostream>
-#include "gbsp/Bsp.hpp"
-#include "gbsp/MeshLoader.hpp"
-#include "render/Application.hpp"
+#include "Bsp.hpp"
+#include "MeshLoader.hpp"
+#include "Application.hpp"
+#include "BspWriter.hpp"
+
 
 int main() {
     std::cout << "GRAK" << std::endl;
+
+    FileWriter fileWriter;
+    
 
     MeshLoader loader;
     LazyMesh *mesh = loader.ParseMeshFile("mesh-files/mesh1.txt");

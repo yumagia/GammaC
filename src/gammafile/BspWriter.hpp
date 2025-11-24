@@ -4,10 +4,10 @@
 #include "Bsp.hpp"
 #include "GammaFile.h"
 
-class LevelWriter {
+class FileWriter {
 public:
-	LevelWriter();
-	~LevelWriter() {}
+	FileWriter();
+	~FileWriter() {}
 
 	void WriteLevel();
 	void AddWorldModel(BspModel *model);
@@ -19,27 +19,20 @@ public:
 	int			numLeafs = 1;
 	int			numLeafFaces = 1;
 	int			numVerts = 1;
-	int			numEdges = 1;
+	int			numFaceVerts = 1;
 	int			numFaces = 0;
 
 private:
 	int		EmitTree(BspNode *node);
 	void	EmitLeaf(BspNode *node);
 	void	EmitFace(BspFace *f);
+	
 private:
     int startLeaf;
-    int startEdge;
+    int startFaceVert;
     int startFace;
 
-	FileModel		fileModels[MAX_MAP_MODELS];
-	FileEntity		fileEntities[MAX_MAP_ENTITIES];
-	FilePlane		filePlanes[MAX_MAP_PLANES];
-	FileNode		fileNodes[MAX_MAP_NODES];
-	FileLeaf		fileLeafs[MAX_MAP_LEAFS];
-	unsigned int	fileLeafFaces[MAX_MAP_LEAF_FACES];
-	FileVert		fileVerts[MAX_MAP_VERTS];
-	FileEdge		fileEdges[MAX_MAP_EDGES];
-	FileFace		fileFaces[MAX_MAP_FACES];
+	BspFile	*bspFile;
 };
 
 #endif
