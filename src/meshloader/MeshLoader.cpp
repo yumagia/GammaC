@@ -69,7 +69,6 @@ int MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 			vertIndices[i] = stoi(args[i + 1]);
 		}
 		mesh->faces.push_back(new BspFace(numVerts, vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point)));
-
 		counter++;
 		if(counter > faceCount) {
 			counter = 1;
@@ -115,8 +114,9 @@ LazyMesh *MeshLoader::ParseMeshFile(const char *fileName) {
 
 	file.close();
 	std::cout << "Sucessfully created new lazy mesh" << std::endl;
-	std::cout << newMesh->faces.size() << " New faces" << std::endl;
-	std::cout << newMesh->vertexList.size() << " New vertices" << std::endl;
+	std::cout << "\t" << newMesh->faces.size() << " New faces" << std::endl;
+	std::cout << "\t" << newMesh->vertexList.size() << " New vertices" << std::endl;
+	std::cout << std::endl;
 
 	return newMesh;
 }

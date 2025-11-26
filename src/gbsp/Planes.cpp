@@ -2,6 +2,7 @@
 #include "GammaFile.h"
 #include "Math.hpp"
 
+#include <iostream>
 #include <vector>
 
 int numMapPlanes;
@@ -47,13 +48,15 @@ int FindPlane(Vec3f normal, float dist) {
 	return numMapPlanes - 1;
 }
 
+
 bool BspPlane::EqualTo(Vec3f normal, float dist) {
-	if(	fabs(this->dist - dist) < DISTANCE_EPSILON
+	if(	fabs(this->dist - dist) > DISTANCE_EPSILON
 	|| fabs(this->normal.x - normal.x) > NORMAL_EPSILON
 	|| fabs(this->normal.y - normal.y) > NORMAL_EPSILON
 	|| fabs(this->normal.z - normal.z) > NORMAL_EPSILON ) {
 		return false;
 	}
+	
 	return true;
 }
 

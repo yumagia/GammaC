@@ -27,7 +27,6 @@ enum {
 	LUMP_LEAFS,
 	LUMP_LEAFFACES,
 	LUMP_VERTS,
-	LUMP_EDGES,
 	LUMP_FACES
 };
 
@@ -38,17 +37,17 @@ struct FileHeader {
 };
 
 struct FileModel {
-	float		minBound[3], maxBound[3];
 	float		origin[3];
 	int			headNode;
 	int			firstFace, numFaces;
+	float		minBound[3], maxBound[3];
 };
 
 struct FileEntity {
 	float	origin[3];
 	int		type;
 	int		model;
-	int		numKeys[MAX_KEY];
+	int		firstKey, numKeys;
 };
 
 struct FilePlane {
@@ -59,6 +58,7 @@ struct FilePlane {
 struct FileNode {
 	int				planeNum;
 	int				children[2];
+	int				firstFace, numFaces;
 	int				minBound[3], maxBound[3];
 };
 
@@ -80,6 +80,7 @@ struct FileFace {
 };
 
 struct BspFile {
+	FileHeader		fileHeader;
 	FileModel		fileModels[MAX_MAP_MODELS];
 	FileEntity		fileEntities[MAX_MAP_ENTITIES];
 	FilePlane		filePlanes[MAX_MAP_PLANES];

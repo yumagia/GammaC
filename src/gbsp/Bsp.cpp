@@ -19,6 +19,8 @@ extern BspVertex	mapVerts[MAX_MAP_VERTS];
 extern int		numMapFaceVerts;
 extern int		mapFaceVerts[MAX_MAP_FACE_VERTS];
 
+int splitFaces;
+
 enum {	POLYGON_STRADDLING, 
 		POLYGON_IN_FRONT, 
 		POLYGON_BEHIND, 
@@ -83,8 +85,6 @@ BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFac
 	this->back = back;
 	this->planeNum = planeNum;
 
-	bounds = CalcBounds(polygons);
-
 	this->faces = polygons;
 }
 
@@ -121,6 +121,7 @@ int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
 // Pick the best splitting plane, heuristically
 int PickSplittingPlane(std::vector<BspFace *> &polygons) {
 	int bestPlaneNum = -1;
+	BspFace *bestPoly = NULL;
 	float bestScore = FLOAT_MAX;
 
 	for(int i = 0; i < polygons.size(); i++) {
@@ -129,7 +130,10 @@ int PickSplittingPlane(std::vector<BspFace *> &polygons) {
 			continue;
 		}
 
-		int numInFront, numBehind, numStraddling = 0;
+		int numInFront = 0;
+		int numBehind = 0;
+		int numStraddling = 0;
+
 		int planeNum = polygons[i]->planeNum;
 		BspPlane *plane = &mapPlanes[planeNum];
 		for(int j = 0; j < polygons.size(); j++) {
@@ -156,10 +160,15 @@ int PickSplittingPlane(std::vector<BspFace *> &polygons) {
 		}
 
 		float score = SPLIT_BALANCE * numStraddling + (1.0f - SPLIT_BALANCE) * fabs(numInFront - numBehind);
+
 		if(score < bestScore) {
 			bestScore = score;
-			bestPlaneNum = planeNum;
+			bestPoly = polygons[i];
 		}
+	}
+
+	if(bestPoly) {
+		bestPlaneNum = bestPoly->planeNum;
 	}
 
 	return bestPlaneNum;
@@ -226,6 +235,8 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 		prevDot = currDot;
 	}
 
+	splitFaces++;
+
 	*frontPoly = new BspFace(numFront, frontVerts, &polygon);
 	*backPoly = new BspFace(numBack, backVerts, &polygon);
 }
@@ -247,14 +258,17 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 	for(int i = 0; i < numPolys; i++) {
 		BspFace *polygon = polygons[i], *frontPart, *backPart;
 
-		if(polygon->tested) {	// These are left unsplit
-				continue;
-		}
-
 		switch(ClassifyPolygonToPlane(polygon, mapPlanes[splitPlane])) {
 		case POLYGON_COPLANAR:
-			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
 			nodeFaces.push_back(polygon);
+			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
+			if(mapPlanes[splitPlane].normal.Dot(mapPlanes[polygon->planeNum].normal) < 0) {
+				backList.push_back(polygon);
+			}
+			else {
+				frontList.push_back(polygon);
+			}
+			break;
 		case POLYGON_IN_FRONT:
 			frontList.push_back(polygon);
 			break;
@@ -262,10 +276,16 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 			backList.push_back(polygon);
 			break;
 		case POLYGON_STRADDLING:
-			SplitPolygon(*polygon, mapPlanes[splitPlane], &frontPart, &backPart);
-			frontList.push_back(frontPart);
-			backList.push_back(backPart);
-			break;
+			if(polygon->tested) {	// These are left unsplit
+				frontList.push_back(polygon);
+				backList.push_back(polygon);
+			}
+			else {
+				SplitPolygon(*polygon, mapPlanes[splitPlane], &frontPart, &backPart);
+				frontList.push_back(frontPart);
+				backList.push_back(backPart);
+				break;
+			}
 		}
 	}
 
@@ -284,9 +304,10 @@ void BspModel::SetModel(Vec3f origin, Quaternion orientation) {
 }
 
 void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
-	std::cout << "--- Creating tree for BSP model ---" << std::endl;
-	std::cout << mesh->faces.size() << " Initial number of faces" << std::endl;
-	std::cout << mesh->vertexList.size() << " Initial number of verts" << std::endl;
+	std::cout << "--- BuildBSP ---" << std::endl;
+	std::cout << "Creating tree for BSP model..." << std::endl;
+	std::cout << "\t" << mesh->faces.size() << " Initial number of faces" << std::endl;
+	std::cout << "\t" << mesh->vertexList.size() << " Initial number of verts" << std::endl;
 
 	std::cout << "Applying offsets to map face verts..." << std::endl;
 	for(BspFace *face : mesh->faces) {
@@ -301,10 +322,20 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 		numMapVerts++;
 	}
 
+	for(int i = 0; i < numMapPlanes; i++) {
+		BspPlane *plane = &mapPlanes[i];
+	}
+
+	std::cout << "Building tree..." << std::endl;
+
 	solid = mesh->solid;
 	root = BuildBspTree(mesh->faces, 0);
 
-	std::cout << "Sucessful BuildBsp run..." << std::endl;
+	std::cout << "Sucessful BuildBSP run..." << std::endl;
+
+	std::cout << "\t" << mesh->faces.size() + splitFaces << " Resulting number of faces" << std::endl;
+	std::cout << "\t" << numMapVerts << " Resulting number of vertices" << std::endl;
+
 	std::cout << "Printing Tree..." << std::endl;
 
 	PrintTree(root, 0);
@@ -335,4 +366,6 @@ void PrintTree(BspNode *node, int depth) {
 		<< plane->dist << std::endl;
 	PrintTree(node->back, depth + 1);
 	PrintTree(node->front, depth + 1);
+
+	return;
 }

@@ -26,5 +26,6 @@ BspFace::BspFace(int numVerts, int vertIndices[], int planeNum) {
 		this->vertIndices.push_back(vertIndices[i]);
 	}
 
+	this->tested = false;
 	this->planeNum = planeNum;
 }
