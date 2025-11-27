@@ -30,7 +30,7 @@ private:
 	int		EmitTree(BspNode *node);
 	// -1 denotes air leaf, positive integers are solid
 	int		EmitLeaf(BspNode *node);
-	void	EmitFace(BspFace *f);
+	void	EmitFace(BspFace *face);
 	void	EmitPlanes();
 	void	EmitVerts();
 	

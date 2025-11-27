@@ -16,7 +16,7 @@ extern	int			numMapFaceVerts;
 
 
 FileWriter::FileWriter() {
-	numModels = 1;
+	numModels = 1;		// Model 0 is reserved for the world
 	numEntities = 0;
 	numPlanes = 0;
 	numNodes = 0;
@@ -48,7 +48,7 @@ void FileWriter::AddWorldModel(BspModel *model) {
 
 	std::cout << "Outputting tree to file..." << std::endl;
 	bspFile.fileModels[0].headNode = EmitTree(model->root);
-	std::cout << "Successfully wrote world model!" << std::endl;
+	std::cout << "Successfully outputted world model!" << std::endl;
 }
 
 int FileWriter::EmitLeaf(BspNode *node) {

@@ -33,7 +33,7 @@ enum {
 struct FileHeader {
 	int		version;
 	int		identifier;
-	FileLump lumps[6];
+	FileLump lumps[8];
 };
 
 struct FileModel {
@@ -75,7 +75,7 @@ struct FileVert {
 
 struct FileFace {
 	unsigned int	planeNum;
-	int				firstVert, numVerts;
+	unsigned int	firstVert, numVerts;
 	int				material;
 };
 
