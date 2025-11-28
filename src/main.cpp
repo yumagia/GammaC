@@ -13,7 +13,7 @@ int main() {
     fileWriter.BeginBspFile();
 
     MeshLoader loader;
-    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/mesh2.txt");
+    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/2brush.obj");
 
     BspModel model;
     model.CreateTreeFromLazyMesh(mesh);

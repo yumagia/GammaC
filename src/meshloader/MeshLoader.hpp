@@ -23,7 +23,7 @@ private:
 
 	int materialCount, vertexCount, faceCount;
 
-	int ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh);
+	void ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh);
 
 	std::ifstream file;
 	std::string currentLine;

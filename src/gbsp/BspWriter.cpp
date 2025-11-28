@@ -20,7 +20,7 @@ FileWriter::FileWriter() {
 	numEntities = 0;
 	numPlanes = 0;
 	numNodes = 0;
-	numLeafs = 1;		// Leaf 0 is non-negatable. Leaf as error
+	numLeafs = 2;		// Leaf 0 is non-negatable. Leaf as error. Leaf 1 is solid
 	numVerts = 0;
 	numFaceVerts = 0;
 	numFaces = 0;
@@ -48,6 +48,8 @@ void FileWriter::AddWorldModel(BspModel *model) {
 
 	std::cout << "Outputting tree to file..." << std::endl;
 	bspFile.fileModels[0].headNode = EmitTree(model->root);
+
+	bspFile.fileModels[0].numFaces = numFaces - bspFile.fileModels[0].firstFace;
 	std::cout << "Successfully outputted world model!" << std::endl;
 }
 
@@ -115,7 +117,7 @@ int FileWriter::EmitTree(BspNode *node) {
 	
 	if(node->isLeaf) {
 		if(EmitLeaf(node) > 0) {
-			return -1;
+			return 0;
 		}
 		return -numLeafs;
 	}
@@ -144,9 +146,8 @@ int FileWriter::EmitTree(BspNode *node) {
 	emittedNode->numFaces = numFaces - emittedNode->firstFace;
 
 	if(node->back->isLeaf) {
-		emittedNode->children[0] = -(numLeafs + 1);
-		EmitLeaf(node->back);
-		if(EmitLeaf(node) > 0) {
+		emittedNode->children[0] = -numLeafs;
+		if(EmitLeaf(node->back) > 0) {
 			emittedNode->children[0] = -1;
 		}
 	}
@@ -156,9 +157,8 @@ int FileWriter::EmitTree(BspNode *node) {
 	}
 
 	if(node->front->isLeaf) {
-		emittedNode->children[1] = -(numLeafs + 1);
-		EmitLeaf(node->front);
-		if(EmitLeaf(node) > 0) {
+		emittedNode->children[1] = -numLeafs;
+		if(EmitLeaf(node->front) > 0) {
 			emittedNode->children[0] = -1;
 		}
 	}
@@ -195,7 +195,17 @@ void FileWriter::EmitVerts() {
 }
 
 void FileWriter::EndBspFile() {
-	FileLeaf *solidLeaf = &bspFile.fileLeafs[0];
+	FileLeaf *errorLeaf = &bspFile.fileLeafs[0];
+	errorLeaf->firstLeafFace = 0;
+	errorLeaf->numLeafFaces = 0;
+	errorLeaf->minBound[0] = 0;
+	errorLeaf->minBound[1] = 0;
+	errorLeaf->minBound[2] = 0;
+	errorLeaf->maxBound[0] = 0;
+	errorLeaf->maxBound[1] = 0;
+	errorLeaf->maxBound[2] = 0;
+
+	FileLeaf *solidLeaf = &bspFile.fileLeafs[1];
 	solidLeaf->firstLeafFace = 0;
 	solidLeaf->numLeafFaces = 0;
 	solidLeaf->minBound[0] = 0;
@@ -218,7 +228,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 	std::ofstream outputFile(fileName);
 
-	int numLines = 17;
+	int numLines = 19;
 	if(outputFile.is_open()) {
 		outputFile << "MODELS LUMP" << std::endl;
 		numLines++;
@@ -352,6 +362,17 @@ void FileWriter::WriteLevel(std::string fileName) {
 		}
 		header.lumps[LUMP_VERTS].length = numLines - header.lumps[LUMP_VERTS].offset;
 		
+
+		outputFile << "FACEVERTS LUMP" << std::endl;
+		numLines++;
+		header.lumps[LUMP_FACE_VERTS].offset = numLines;
+		for(int i = 0; i < numFaceVerts; i++) {
+			outputFile << bspFile.fileFaceVert[i] << std::endl;
+
+			numLines ++;
+		}
+		header.lumps[LUMP_FACE_VERTS].length = numLines - header.lumps[LUMP_FACE_VERTS].offset;
+		
 		outputFile << "FACES LUMP" << std::endl;
 		numLines++;
 		header.lumps[LUMP_FACES].offset = numLines;
@@ -395,6 +416,8 @@ void FileWriter::WriteLevel(std::string fileName) {
 	secondPass << header.lumps[LUMP_LEAFFACES].length << std::endl;
 	secondPass << header.lumps[LUMP_VERTS].offset << std::endl;
 	secondPass << header.lumps[LUMP_VERTS].length << std::endl;
+	secondPass << header.lumps[LUMP_FACE_VERTS].offset << std::endl;
+	secondPass << header.lumps[LUMP_FACE_VERTS].length << std::endl;
 	secondPass << header.lumps[LUMP_FACES].offset << std::endl;
 	secondPass << header.lumps[LUMP_FACES].length << std::endl;
 
