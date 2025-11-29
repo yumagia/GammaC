@@ -22,7 +22,7 @@ int main() {
 
     fileWriter.EndBspFile();
 
-    fileWriter.WriteLevel("BspTest.txt");
+    fileWriter.WriteLevel("testmap.txt");
 
     Application app;
 

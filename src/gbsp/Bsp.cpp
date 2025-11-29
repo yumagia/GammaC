@@ -189,8 +189,6 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 	int prev = polygon.vertIndices[numVerts - 1];
 	int prevDot = plane.normal.Dot(mapVerts[prev].point) - plane.dist;
 
-	
-
 	for(int n = 0; n < numVerts; n++) {
 		int curr = polygon.vertIndices[n];
 		int currDot = plane.normal.Dot(mapVerts[curr].point) - plane.dist;
