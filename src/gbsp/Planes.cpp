@@ -11,8 +11,8 @@ BspPlane mapPlanes[MAX_MAP_PLANES];
 #define PLANE_HASHES 1024
 BspPlane	*hashPlanes[PLANE_HASHES];
 
-#define NORMAL_EPSILON	0.00001
-#define DISTANCE_EPSILON	0.01
+#define NORMAL_EPSILON	0.000001
+#define DISTANCE_EPSILON	0.001
 
 int GetHashFromPlane(Vec3f normal, float dist) {
 	int hash = (int)(abs(normal.x + 1) * 64)

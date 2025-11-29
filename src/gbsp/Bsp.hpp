@@ -56,8 +56,6 @@ struct BspFace {
 	BspFace(int numVerts, int vertIndices[], BspFace *face);
 	BspFace(int numVerts, int vertIndices[], int planeNum);
 
-	BspVertex GetVertex(int vertIndex);
-
 	std::vector<int>	vertIndices;
 	int			planeNum;
 	Material	*material;
@@ -113,7 +111,7 @@ struct BspModel {
 */
 
 void PrintTree(BspNode *node, int depth);
-
+void FreeTree(BspNode *node);
 
 int PlaneNumFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
 int FindPlane(Vec3f normal, float dist);

@@ -53,6 +53,10 @@ BspVertex::BspVertex(float x, float y, float z) {
 
 // Calculate a bounding box from a set of polygons
 BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
+	if(polygons.empty()) {
+		return BspBoundBoxf(Vec3f());
+	}
+
 	BspBoundBoxf bounds = BspBoundBoxf(mapVerts[((*polygons[0]).vertIndices[0])].point);
 
 	for(BspFace *polygon : polygons) {
@@ -91,8 +95,8 @@ BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFac
 // Find if a polygon is in front, behind, 
 // coplanar, or straddling a plane
 int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
-	int	numInFront, numBehind;
-	numInFront = numBehind = 0;
+	int	numInFront = 0;
+	int numBehind = 0;
 	int numVerts = polygon->vertIndices.size();
 	for(int i = 0; i < numVerts; i++) {
 		Vec3f p = mapVerts[polygon->vertIndices[i]].point;
@@ -175,17 +179,19 @@ int PickSplittingPlane(std::vector<BspFace *> &polygons) {
 }
 
 Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane) {
-	float d = (plane.normal.Dot(p1) - plane.dist) / plane.normal.Dot(p2 - p1);
+	float d = -(plane.normal.Dot(p1) - plane.dist) / plane.normal.Dot(p2 - p1);
 	return p1 + d * (p2 - p1);
 }
 
 // Split the polygon and create two new polygons
 void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace **backPoly) {
+	*frontPoly = *backPoly = NULL;
+
 	int numFront, numBack;
 	numFront = numBack = 0;
 
 	int numVerts = polygon.vertIndices.size();
-	int frontVerts[numVerts + 2], backVerts[numVerts + 2];
+	int frontVerts[MAX_WINDING], backVerts[MAX_WINDING];
 	int prev = polygon.vertIndices[numVerts - 1];
 	int prevDot = plane.normal.Dot(mapVerts[prev].point) - plane.dist;
 
@@ -221,10 +227,10 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 			backVerts[numBack++] = curr;
 		} else {
 			// Leading vertex of edge is on the plane,
-			// So output b to the front sde
+			// So output it to the front side
 			frontVerts[numFront++] = curr;
 			if(prevDot < -PLANE_EPSILON) {
-				backVerts[numBack++] = prev;
+				backVerts[numBack++] = curr;
 			}
 		}
 
@@ -235,8 +241,12 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 
 	splitFaces++;
 
-	*frontPoly = new BspFace(numFront, frontVerts, &polygon);
-	*backPoly = new BspFace(numBack, backVerts, &polygon);
+	if(numFront >= 3) {
+		*frontPoly = new BspFace(numFront, frontVerts, &polygon);
+	}
+	if(numBack >= 3) {
+		*backPoly = new BspFace(numBack, backVerts, &polygon);		
+	}
 }
 
 BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
@@ -280,10 +290,16 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 			}
 			else {
 				SplitPolygon(*polygon, mapPlanes[splitPlane], &frontPart, &backPart);
-				frontList.push_back(frontPart);
-				backList.push_back(backPart);
-				break;
+				if(frontPart) {
+					frontList.push_back(frontPart);
+
+				}
+				if(backPart) {
+					backList.push_back(backPart);
+				}
 			}
+			
+			break;
 		}
 	}
 
@@ -337,33 +353,4 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 	std::cout << "Printing Tree..." << std::endl;
 
 	PrintTree(root, 0);
-}
-
-void PrintTree(BspNode *node, int depth) {
-	for(int i = 0; i < depth; i++) {
-		std::cout << "   |";
-	}
-
-	if(node->isLeaf) {
-		if(node->faces.empty()) {
-			std::cout << "___ SOLID" << std::endl;
-		}
-		else {
-			std::cout << "___ " << node->faces.size() << " face(s)" << std::endl;
-		}
-		return;
-	}
-
-	BspPlane *plane;
-	plane = &mapPlanes[node->planeNum];
-
-	std::cout << "___ (" 
-		<< plane->normal.x << ", " 
-		<< plane->normal.y << ", " 
-		<< plane->normal.z << ") " 
-		<< plane->dist << std::endl;
-	PrintTree(node->back, depth + 1);
-	PrintTree(node->front, depth + 1);
-
-	return;
 }

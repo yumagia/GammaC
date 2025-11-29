@@ -15,7 +15,10 @@ void MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) 
 		int numVerts = args.size() - 1;
 		int vertIndices[numVerts];
 		for(int i = 0; i < numVerts; i++) {
-			vertIndices[i] = ((int) args[i + 1][0] - '0') - 1;
+			std::stringstream arg(args[i + 1]);
+			std::string vert;
+			std::getline(arg, vert, '/');
+			vertIndices[i] = stoi(vert) - 1;
 		}
 
 		mesh->faces.push_back(new BspFace(numVerts, vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point)));

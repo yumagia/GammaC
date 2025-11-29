@@ -13,16 +13,18 @@ int main() {
     fileWriter.BeginBspFile();
 
     MeshLoader loader;
-    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/2brush.obj");
+    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/blockout.obj");
 
     BspModel model;
     model.CreateTreeFromLazyMesh(mesh);
 
     fileWriter.AddWorldModel(&model);
 
+    FreeTree(model.root);
+
     fileWriter.EndBspFile();
 
-    fileWriter.WriteLevel("testmap.txt");
+    fileWriter.WriteLevel("blockout.txt");
 
     Application app;
 
