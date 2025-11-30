@@ -3,8 +3,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Scene.hpp"
-
 struct ApplicationSpecification {
     int width = 800;
     int height = 600;
@@ -27,7 +25,6 @@ private:
     void ProcessInput(GLFWwindow *window);
     
 private:
-    Scene scene;
 
     ApplicationSpecification m_spec;
     GLFWwindow *m_window;

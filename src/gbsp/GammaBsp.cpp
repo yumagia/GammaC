@@ -1,12 +1,10 @@
 #include <iostream>
 #include "Bsp.hpp"
 #include "MeshLoader.hpp"
-#include "Application.hpp"
 #include "BspWriter.hpp"
 
-
 int main() {
-    std::cout << "GRAK" << std::endl;
+    std::cout << "GRAK GBSP" << std::endl;
 
     FileWriter fileWriter;
     
