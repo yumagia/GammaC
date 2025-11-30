@@ -1,5 +1,7 @@
 #pragma once
 
+
+// MAP DEFS
 #define MAX_MAP_MODELS		256
 #define MAX_MAP_ENTITIES	512
 #define MAX_MAP_PLANES		16384
@@ -14,6 +16,9 @@
 
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
+
+// MISC
+#define BOUND_PADDING 16
 
 struct FileLump {
 	int		offset, length;

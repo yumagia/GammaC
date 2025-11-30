@@ -67,12 +67,12 @@ int FileWriter::EmitLeaf(BspNode *node) {
 	emittedLeaf = &bspFile.fileLeafs[numLeafs];
 	numLeafs++;
 
-	emittedLeaf->minBound[0] = node->bounds.min.x;
-	emittedLeaf->minBound[1] = node->bounds.min.y;
-	emittedLeaf->minBound[2] = node->bounds.min.z;
-	emittedLeaf->maxBound[0] = node->bounds.max.x;
-	emittedLeaf->maxBound[1] = node->bounds.max.y;
-	emittedLeaf->maxBound[2] = node->bounds.max.z;
+	emittedLeaf->minBound[0] = node->bounds.min.x - BOUND_PADDING;
+	emittedLeaf->minBound[1] = node->bounds.min.y - BOUND_PADDING;
+	emittedLeaf->minBound[2] = node->bounds.min.z - BOUND_PADDING;
+	emittedLeaf->maxBound[0] = node->bounds.max.x + BOUND_PADDING;
+	emittedLeaf->maxBound[1] = node->bounds.max.y + BOUND_PADDING;
+	emittedLeaf->maxBound[2] = node->bounds.max.z + BOUND_PADDING;
 
 	emittedLeaf->firstLeafFace = numLeafFaces;
 
@@ -130,12 +130,12 @@ int FileWriter::EmitTree(BspNode *node) {
 	emittedNode = &bspFile.fileNodes[numNodes];
 	numNodes++;
 
-	emittedNode->minBound[0] = node->bounds.min.x;
-	emittedNode->minBound[1] = node->bounds.min.y;
-	emittedNode->minBound[2] = node->bounds.min.z;
-	emittedNode->maxBound[0] = node->bounds.max.x;
-	emittedNode->maxBound[1] = node->bounds.max.y;
-	emittedNode->maxBound[2] = node->bounds.max.z;
+	emittedNode->minBound[0] = node->bounds.min.x - BOUND_PADDING;
+	emittedNode->minBound[1] = node->bounds.min.y - BOUND_PADDING;
+	emittedNode->minBound[2] = node->bounds.min.z - BOUND_PADDING;
+	emittedNode->maxBound[0] = node->bounds.max.x + BOUND_PADDING;
+	emittedNode->maxBound[1] = node->bounds.max.y + BOUND_PADDING;
+	emittedNode->maxBound[2] = node->bounds.max.z + BOUND_PADDING;
 
 	emittedNode->planeNum = node->planeNum;
 	emittedNode->firstFace = numFaces;

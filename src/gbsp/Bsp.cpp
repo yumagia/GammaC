@@ -9,6 +9,7 @@
 #define FLOAT_MAX 999999999
 #define SPLIT_BALANCE 0.8f
 #define MAX_WINDING 32
+#define MAX_TREE_DEPTH 200
 
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
@@ -250,6 +251,10 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 }
 
 BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
+	if(depth > MAX_TREE_DEPTH) {
+		return new BspNode(polygons);
+	}
+
 	if(polygons.empty()) {
 		return new BspNode(polygons);
 	}
@@ -350,7 +355,7 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 	std::cout << "\t" << mesh->faces.size() + splitFaces << " Resulting number of faces" << std::endl;
 	std::cout << "\t" << numMapVerts << " Resulting number of vertices" << std::endl;
 
-	std::cout << "Printing Tree..." << std::endl;
+	// std::cout << "Printing Tree..." << std::endl;
 
-	PrintTree(root, 0);
+	// PrintTree(root, 0);
 }

@@ -1,4 +1,4 @@
-CFLAGS = -std=c++17 -O2 -ggdb
+CFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = -lglfw
 
 TARGET_EXEC := GRAK

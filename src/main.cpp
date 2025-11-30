@@ -25,8 +25,4 @@ int main() {
     fileWriter.EndBspFile();
 
     fileWriter.WriteLevel("blockout.txt");
-
-    Application app;
-
-    return app.Run();
 }
