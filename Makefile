@@ -4,7 +4,7 @@ LDFLAGS = -lglfw
 TARGET_EXEC := GRAK
 
 BUILD_DIR := gbsp-build
-SRC_DIRS := src/gbsp src/common
+SRC_DIRS := src/grak/gbsp src/common
 CC = g++ -fsanitize=address
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
