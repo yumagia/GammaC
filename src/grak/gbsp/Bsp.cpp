@@ -4,11 +4,11 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #define PLANE_EPSILON 0.01
 #define FLOAT_MAX 999999999
 #define SPLIT_BALANCE 0.8f
-#define MAX_WINDING 32
 #define MAX_TREE_DEPTH 200
 
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
@@ -53,14 +53,14 @@ BspVertex::BspVertex(float x, float y, float z) {
 }
 
 // Calculate a bounding box from a set of polygons
-BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
+BspBoundBoxf CalcBounds(std::vector<std::shared_ptr<BspFace>> polygons) {
 	if(polygons.empty()) {
 		return BspBoundBoxf(Vec3f());
 	}
 
 	BspBoundBoxf bounds = BspBoundBoxf(mapVerts[((*polygons[0]).vertIndices[0])].point);
 
-	for(BspFace *polygon : polygons) {
+	for(std::shared_ptr<BspFace> polygon : polygons) {
 		for(int vertIndex : polygon->vertIndices) {
 			bounds.AddPoint(mapVerts[vertIndex].point);
 		}
@@ -70,7 +70,7 @@ BspBoundBoxf CalcBounds(std::vector<BspFace *> &polygons) {
 }
 
 // Leaf node
-BspNode::BspNode(std::vector<BspFace *> &polygons) {
+BspNode::BspNode(std::vector<std::shared_ptr<BspFace>> polygons) {
 	isLeaf = true;
 
 	solid = polygons.size() == 0;
@@ -83,7 +83,7 @@ BspNode::BspNode(std::vector<BspFace *> &polygons) {
 }
 
 // Internal node
-BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFace *> &polygons) {
+BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<std::shared_ptr<BspFace>> polygons) {
 	isLeaf = false;
 
 	this->front = front;
@@ -95,7 +95,7 @@ BspNode::BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFac
 
 // Find if a polygon is in front, behind, 
 // coplanar, or straddling a plane
-int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
+int ClassifyPolygonToPlane(std::shared_ptr<BspFace> polygon, BspPlane plane) {
 	int	numInFront = 0;
 	int numBehind = 0;
 	int numVerts = polygon->vertIndices.size();
@@ -124,9 +124,9 @@ int ClassifyPolygonToPlane(BspFace *polygon, BspPlane plane) {
 }
 
 // Pick the best splitting plane, heuristically
-int PickSplittingPlane(std::vector<BspFace *> &polygons) {
+int PickSplittingPlane(std::vector<std::shared_ptr<BspFace>> polygons) {
 	int bestPlaneNum = -1;
-	BspFace *bestPoly = NULL;
+	std::shared_ptr<BspFace> bestPoly = NULL;
 	float bestScore = FLOAT_MAX;
 
 	for(int i = 0; i < polygons.size(); i++) {
@@ -185,19 +185,16 @@ Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane) {
 }
 
 // Split the polygon and create two new polygons
-void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace **backPoly) {
-	*frontPoly = *backPoly = NULL;
+void SplitPolygon(std::shared_ptr<BspFace> polygon, BspPlane plane, std::shared_ptr<BspFace> &frontPoly, std::shared_ptr<BspFace> &backPoly) {
+	frontPoly = backPoly = NULL;
 
-	int numFront, numBack;
-	numFront = numBack = 0;
-
-	int numVerts = polygon.vertIndices.size();
-	int frontVerts[MAX_WINDING], backVerts[MAX_WINDING];
-	int prev = polygon.vertIndices[numVerts - 1];
+	int numVerts = polygon->vertIndices.size();
+	std::vector<int> frontVerts, backVerts;
+	int prev = polygon->vertIndices[numVerts - 1];
 	int prevDot = plane.normal.Dot(mapVerts[prev].point) - plane.dist;
 
 	for(int n = 0; n < numVerts; n++) {
-		int curr = polygon.vertIndices[n];
+		int curr = polygon->vertIndices[n];
 		int currDot = plane.normal.Dot(mapVerts[curr].point) - plane.dist;
 		if(currDot > PLANE_EPSILON) {
 			if(prevDot < -PLANE_EPSILON) {
@@ -205,33 +202,36 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 				// So output the intersection point
 				Vec3f intersection = SegmentPlaneIntersection(mapVerts[curr].point, mapVerts[prev].point, plane);
 				mapVerts[numMapVerts] = intersection;
-				frontVerts[numFront++] = backVerts[numBack++] = numMapVerts;
+				frontVerts.push_back(numMapVerts);
+				backVerts.push_back(numMapVerts);
 				numMapVerts++;
 			}
 
 			// Output b to front side in all three cases
-			frontVerts[numFront++] = curr;
+			frontVerts.push_back(curr);
 		}
 		else if(currDot < -PLANE_EPSILON) {
 			if(prevDot > PLANE_EPSILON) {
 				// Also an intersection
 				Vec3f intersection = SegmentPlaneIntersection(mapVerts[curr].point, mapVerts[prev].point, plane);
 				mapVerts[numMapVerts] = intersection;
-				frontVerts[numFront++] = backVerts[numBack++] = numMapVerts;
+				frontVerts.push_back(numMapVerts);
+				backVerts.push_back(numMapVerts);
 				numMapVerts++;
 			}
 			else if(prevDot > -PLANE_EPSILON) {	// Trailing vertex of edge is "on" plane
-				backVerts[numBack++] = prev;
+				backVerts.push_back(prev);
+
 			}
 
 			// Output b to back side in all three cases
-			backVerts[numBack++] = curr;
+			backVerts.push_back(curr);
 		} else {
 			// Leading vertex of edge is on the plane,
 			// So output it to the front side
-			frontVerts[numFront++] = curr;
+			frontVerts.push_back(curr);
 			if(prevDot < -PLANE_EPSILON) {
-				backVerts[numBack++] = curr;
+				backVerts.push_back(curr);
 			}
 		}
 
@@ -242,15 +242,15 @@ void SplitPolygon(BspFace &polygon, BspPlane plane, BspFace **frontPoly, BspFace
 
 	splitFaces++;
 
-	if(numFront >= 3) {
-		*frontPoly = new BspFace(numFront, frontVerts, &polygon);
+	if(frontVerts.size() >= 3) {
+		frontPoly = std::make_shared<BspFace>(frontVerts, polygon);
 	}
-	if(numBack >= 3) {
-		*backPoly = new BspFace(numBack, backVerts, &polygon);		
+	if(backVerts.size() >= 3) {
+		backPoly = std::make_shared<BspFace>(backVerts, polygon);
 	}
 }
 
-BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
+BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth) {
 	if(depth > MAX_TREE_DEPTH) {
 		return new BspNode(polygons);
 	}
@@ -265,11 +265,11 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 		return new BspNode(polygons);
 	}
 
-	std::vector<BspFace *> nodeFaces, frontList, backList;
+	std::vector<std::shared_ptr<BspFace>> nodeFaces, frontList, backList;
 
 	int numPolys = polygons.size();
 	for(int i = 0; i < numPolys; i++) {
-		BspFace *polygon = polygons[i], *frontPart, *backPart;
+		std::shared_ptr<BspFace> polygon = polygons[i], frontPart, backPart;
 
 		switch(ClassifyPolygonToPlane(polygon, mapPlanes[splitPlane])) {
 		case POLYGON_COPLANAR:
@@ -294,7 +294,7 @@ BspNode *BuildBspTree(std::vector<BspFace *> &polygons, int depth) {
 				backList.push_back(polygon);
 			}
 			else {
-				SplitPolygon(*polygon, mapPlanes[splitPlane], &frontPart, &backPart);
+				SplitPolygon(polygon, mapPlanes[splitPlane], frontPart, backPart);
 				if(frontPart) {
 					frontList.push_back(frontPart);
 
@@ -329,7 +329,7 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 	std::cout << "\t" << mesh->vertexList.size() << " Initial number of verts" << std::endl;
 
 	std::cout << "Applying offsets to map face verts..." << std::endl;
-	for(BspFace *face : mesh->faces) {
+	for(std::shared_ptr<BspFace> face : mesh->faces) {
 		for(int vertIndex : face->vertIndices) {
 			vertIndex += numMapVerts;
 		}

@@ -7,7 +7,7 @@ extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
 
 void FreeTree(BspNode *node) {
-    BspFace *f;
+    std::shared_ptr<BspFace> f;
 
     if(!node->isLeaf) {
         FreeTree(node->back);
@@ -18,7 +18,7 @@ void FreeTree(BspNode *node) {
             f = node->faces.back();
             node->faces.pop_back();
 
-            //delete f;
+			f.reset();
         }
     }
 

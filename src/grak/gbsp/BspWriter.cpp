@@ -76,7 +76,7 @@ int FileWriter::EmitLeaf(BspNode *node) {
 
 	emittedLeaf->firstLeafFace = numLeafFaces;
 
-	for(BspFace *face : node->faces) {
+	for(std::shared_ptr<BspFace> face : node->faces) {
 		int faceNum = face->outputNumber;
 		if(numLeafFaces >= MAX_MAP_LEAF_FACES) {
 			std::cerr << "Reached MAX_MAP_LEAF_FACES: " << MAX_MAP_LEAF_FACES << std::endl;
@@ -90,7 +90,7 @@ int FileWriter::EmitLeaf(BspNode *node) {
 	return -1;
 }
 
-void FileWriter::EmitFace(BspFace *face) {
+void FileWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	FileFace *emittedFace;
 	
 	face->outputNumber = numFaces;
@@ -139,7 +139,7 @@ int FileWriter::EmitTree(BspNode *node) {
 
 	emittedNode->planeNum = node->planeNum;
 	emittedNode->firstFace = numFaces;
-	for(BspFace *face : node->faces) {
+	for(std::shared_ptr<BspFace> face : node->faces) {
 		EmitFace(face);
 	}
 

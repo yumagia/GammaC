@@ -4,6 +4,7 @@
 #include "Math.hpp"
 
 #include <vector>
+#include <memory>
 
 /**=============================================
  * BSP AND LAZY MESH OBJECTS
@@ -53,8 +54,8 @@ struct BspFace {
 	bool		tested;
 
 	// Create from new winding, inherit plane
-	BspFace(int numVerts, int vertIndices[], BspFace *face);
-	BspFace(int numVerts, int vertIndices[], int planeNum);
+	BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face);
+	BspFace(std::vector<int> vertIndices, int planeNum);
 
 	std::vector<int>	vertIndices;
 	int			planeNum;
@@ -66,15 +67,15 @@ struct BspFace {
 struct BspNode {
 	BspNode() {}
 	
-	BspNode(std::vector<BspFace *> &polygons);
-	BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<BspFace *> &polygons);
+	BspNode(std::vector<std::shared_ptr<BspFace>> polygons);
+	BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<std::shared_ptr<BspFace>> polygons);
 
 	// Both leafs and internal nodes
 	bool	isLeaf;
 	int		depth;
 	BspNode		*parent;
 	BspBoundBoxf	bounds;
-	std::vector<BspFace*>	faces;	// Used differently among leafs and internal nodes
+	std::vector<std::shared_ptr<BspFace>>	faces;	// Used differently among leafs and internal nodes
 	// Internal nodes only
 	BspNode		*front, *back;
 	int		planeNum;
@@ -84,7 +85,7 @@ struct BspNode {
 
 struct LazyMesh {
 	bool	solid;
-	std::vector<BspFace*>	faces;
+	std::vector<std::shared_ptr<BspFace>>	faces;
 	std::vector<BspVertex*> vertexList;
 };
 

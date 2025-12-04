@@ -19,6 +19,8 @@
 
 // MISC
 #define BOUND_PADDING 16
+#define MAX_WINDING 32
+
 
 struct FileLump {
 	int		offset, length;

@@ -1,10 +1,12 @@
 #include "MeshLoader.hpp"
+#include "GammaFile.h"
 #include "Bsp.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <memory>
 
 void MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
 	if(args[0] == "v") {
@@ -13,15 +15,18 @@ void MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) 
 
 	if(args[0] == "f") {
 		int numVerts = args.size() - 1;
-		int vertIndices[numVerts];
+
+		std::vector<int> vertIndices;
 		for(int i = 0; i < numVerts; i++) {
 			std::stringstream arg(args[i + 1]);
 			std::string vert;
 			std::getline(arg, vert, '/');
-			vertIndices[i] = stoi(vert) - 1;
+			vertIndices.push_back(stoi(vert) - 1);
 		}
 
-		mesh->faces.push_back(new BspFace(numVerts, vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point)));
+		std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point));
+
+		mesh->faces.push_back(newFace);
 	}
 }
 
