@@ -22,7 +22,6 @@ void FreeTree(BspNode *node) {
         }
     }
 
-
     delete node;
 }
 

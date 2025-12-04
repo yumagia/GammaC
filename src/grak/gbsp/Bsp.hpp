@@ -84,6 +84,9 @@ struct BspNode {
 };
 
 struct LazyMesh {
+	LazyMesh() {}
+	~LazyMesh();
+
 	bool	solid;
 	std::vector<std::shared_ptr<BspFace>>	faces;
 	std::vector<BspVertex*> vertexList;

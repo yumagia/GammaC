@@ -15,6 +15,7 @@ int main() {
 
     BspModel model;
     model.CreateTreeFromLazyMesh(mesh);
+    delete mesh;
 
     fileWriter.AddWorldModel(&model);
 
