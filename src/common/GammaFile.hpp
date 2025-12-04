@@ -1,5 +1,7 @@
 #pragma once
 
+// FILESYSTEM DEFS
+#define OUTPUT_FILES_DIR "bsp-files"
 
 // MAP DEFS
 #define MAX_MAP_MODELS		256
@@ -17,7 +19,7 @@
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
 
-// MISC
+// MISC MAP DEFS
 #define BOUND_PADDING 16
 #define MAX_WINDING 32
 

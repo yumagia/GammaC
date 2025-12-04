@@ -3,7 +3,7 @@
 #include "MeshLoader.hpp"
 #include "BspWriter.hpp"
 
-int main() {
+int main(int argc, char *argv[]) {
     std::cout << "GRAK GBSP" << std::endl;
 
     FileWriter fileWriter;

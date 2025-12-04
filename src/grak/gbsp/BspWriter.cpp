@@ -1,7 +1,7 @@
 #include "BspWriter.hpp"
 
 #include "Bsp.hpp"
-#include "GammaFile.h"
+#include "GammaFile.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -428,7 +428,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 	try {
 		std::filesystem::remove(fileName);
-		std::filesystem::rename("temp" + fileName, fileName);
+		std::filesystem::rename("temp" + fileName, OUTPUT_FILES_DIR + (std::string) "/" + fileName);
 		std::cout << "File update success!" << std::endl;
 	} catch (const std::filesystem::filesystem_error& e) {
 		std::cerr << "Filesystem error: " << e.what() << std::endl;

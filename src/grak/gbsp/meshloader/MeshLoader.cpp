@@ -1,5 +1,5 @@
 #include "MeshLoader.hpp"
-#include "GammaFile.h"
+#include "GammaFile.hpp"
 #include "Bsp.hpp"
 
 #include <iostream>

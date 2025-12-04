@@ -1,5 +1,5 @@
 #include "Bsp.hpp"
-#include "GammaFile.h"
+#include "GammaFile.hpp"
 
 LazyMesh::~LazyMesh() {
     for(BspVertex* vert : vertexList) {

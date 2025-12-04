@@ -1,4 +1,4 @@
-#include "GammaFile.h"
+#include "GammaFile.hpp"
 #include "Bsp.hpp"
 #include "Math.hpp"
 
