@@ -1,12 +1,10 @@
 #include "FileWriter.hpp"
 #include "GammaFile.hpp"
+#include "GammaDir.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-
-// FILESYSTEM DEFS
-#define OUTPUT_FILES_DIR "bsp-files"
 
 FileWriter::FileWriter() {
 	numModels = 1;		// Model 0 is reserved for the world
@@ -168,7 +166,6 @@ void FileWriter::WriteLevel(std::string fileName) {
 		header.lumps[LUMP_FACE_VERTS].offset = numLines;
 		for(int i = 0; i < numFaceVerts; i++) {
 			outputFile << bspFile.fileFaceVert[i] << std::endl;
-
 			numLines ++;
 		}
 		header.lumps[LUMP_FACE_VERTS].length = numLines - header.lumps[LUMP_FACE_VERTS].offset;

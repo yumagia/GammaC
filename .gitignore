@@ -1,4 +1,8 @@
 .vscode
-GRAK
 /build
+
+GBSP
 /gbsp-build
+
+GRAD
+/grad-build

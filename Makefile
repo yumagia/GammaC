@@ -1,40 +1,65 @@
-CFLAGS = -std=c++17 -O3 -ggdb
+CC = g++ -fsanitize=address
+CXXFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = -lglfw
 
-TARGET_EXEC := GRAK
+COMMON_DIR := src/common
 
-BUILD_DIR := gbsp-build
-SRC_DIRS := src/grak/gbsp src/common
-CC = g++ -fsanitize=address
+# GBSP Program
+GBSP_EXEC := GBSP
+GBSP_BUILD_DIR := gbsp-build
+GBSP_SRC_DIRS := src/grak/gbsp $(COMMON_DIR)
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS := $(OBJS:.o=.d)
+GBSP_SRCS := $(shell find $(GBSP_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+GBSP_OBJS := $(GBSP_SRCS:%=$(GBSP_BUILD_DIR)/%.o)
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+GBSP_INC_DIRS := $(shell find $(GBSP_SRC_DIRS) -type d)
+GBSP_INC_FLAGS := $(addprefix -I,$(GBSP_INC_DIRS))
 
-CPPFLAGS := $(INC_FLAGS) -MMD -MP
+GBSP_CPPFLAGS := $(GBSP_INC_FLAGS) -MMD -MP
 
-$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+# GRAD Program
+GRAD_EXEC := GRAD
+GRAD_BUILD_DIR := grad-build
+GRAD_SRC_DIRS := src/grak/grad $(COMMON_DIR)
 
-# c source
-$(BUILD_DIR)/%.c.o: %.c
+GRAD_SRCS := $(shell find $(GRAD_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+GRAD_OBJS := $(GRAD_SRCS:%=$(GRAD_BUILD_DIR)/%.o)
+
+GRAD_INC_DIRS := $(shell find $(GRAD_SRC_DIRS) -type d)
+GRAD_INC_FLAGS := $(addprefix -I,$(GRAD_INC_DIRS))
+
+GRAD_CPPFLAGS := $(GRAD_INC_FLAGS) -MMD -MP
+
+all: $(GBSP_EXEC) $(GRAD_EXEC)
+
+# GBSP Executable
+$(GBSP_EXEC): $(GBSP_OBJS)
+	$(CC) $(GBSP_OBJS) -o $@ $(LDFLAGS)
+
+$(GBSP_BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(GBSP_CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-# c++ source
-$(BUILD_DIR)/%.cpp.o: %.cpp
+$(GBSP_BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(GBSP_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 
-.PHONY: clean
+# GRAD Executable
+$(GRAD_EXEC): $(GRAD_OBJS)
+	$(CC) $(GRAD_OBJS) -o $@ $(LDFLAGS)
+
+$(GRAD_BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(GRAD_CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(GRAD_BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(GRAD_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: clean all
 
 clean:
-	$(RM) -r $(BUILD_DIR)
-
--include $(DEPS)
+	$(RM) -r $(GBSP_BUILD_DIR)
 
 MKDIR_P := mkdir -p

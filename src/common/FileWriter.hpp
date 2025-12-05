@@ -16,7 +16,7 @@ public:
 	int			numEntities = 0;
 	int			numPlanes = 0;
 	int			numNodes = 0;
-	int			numLeafs = 1;
+	int			numLeafs = 2;
 	int			numLeafFaces = 0;
 	int			numVerts = 0;
 	int			numFaceVerts = 0;
