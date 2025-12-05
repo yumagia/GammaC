@@ -25,50 +25,72 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		std::cerr << "Warning: Incorrect identifier" << std::endl;
 	}
 
+	FileHeader header;
+
 	std::getline(readFile, line);
+	header.lumps[LUMP_MODELS].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_MODELS].length = stoi(line);
 	numModels = stoi(line) / 12;
 	std::cout << "	" << numModels << " number of models" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_ENTITIES].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_ENTITIES].length = stoi(line);
 	numEntities = stoi(line) / 7;
 	std::cout << "	" << numEntities << " number of entities" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_PLANES].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_PLANES].length = stoi(line);
 	numPlanes = stoi(line) / 4;
 	std::cout << "	" << numPlanes << " number of planes" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_NODES].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_NODES].length = stoi(line);
 	numNodes = stoi(line) / 11;
 	std::cout << "	" << numNodes << " number of nodes" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_LEAFS].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_LEAFS].length = stoi(line);
 	numLeafs = stoi(line) / 9;
 	std::cout << "	" << numLeafs << " number of leafs" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_LEAFFACES].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_LEAFFACES].length = stoi(line);
 	numLeafFaces = stoi(line);
 	std::cout << "	" << numLeafFaces << " number of leafFaces" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_VERTS].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_VERTS].length = stoi(line);
 	numVerts = stoi(line) / 3;
 	std::cout << "	" << numVerts << " number of verts" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_FACE_VERTS].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_FACE_VERTS].length = stoi(line);
 	numFaceVerts = stoi(line);
 	std::cout << "	" << numFaceVerts << " number of faceVerts" << std::endl;
 
 	std::getline(readFile, line);
+	header.lumps[LUMP_FACES].offset = stoi(line);
 	std::getline(readFile, line);
+	header.lumps[LUMP_FACES].length = stoi(line);
 	numFaces = stoi(line) / 3;
 	std::cout << "	" << numFaces << " number of faces" << std::endl;
+
+	bspFile->fileHeader = header;
 
 	std::getline(readFile, line);
 	for(int i = 0; i < numModels; i++) {

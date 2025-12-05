@@ -1,6 +1,6 @@
 CC = g++ -fsanitize=address
 CXXFLAGS = -std=c++17 -O3 -ggdb
-LDFLAGS = -lglfw
+# LDFLAGS = -lglfw
 
 COMMON_DIR := src/common
 

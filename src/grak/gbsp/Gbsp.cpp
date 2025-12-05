@@ -6,12 +6,16 @@
 int main(int argc, char *argv[]) {
     std::cout << "GRAK GBSP" << std::endl;
 
+    if(argc < 3) {
+        std::cout << "Program use: ./GBSP <.obj file> <output file name>" << std::endl;
+    }
+
     GbspWriter fileWriter;
     
     fileWriter.BeginBspFile();
 
     MeshLoader loader;
-    LazyMesh *mesh = loader.ParseMeshFile("mesh-files/blockout.obj");
+    LazyMesh *mesh = loader.ParseMeshFile(argv[1]);
 
     BspModel model;
     model.CreateTreeFromLazyMesh(mesh);
@@ -23,5 +27,5 @@ int main(int argc, char *argv[]) {
 
     fileWriter.EndBspFile();
 
-    fileWriter.WriteLevel("blockout.txt");
+    fileWriter.WriteLevel(((std::string) argv[2]) + ".txt");
 }

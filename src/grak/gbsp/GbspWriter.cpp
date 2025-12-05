@@ -94,7 +94,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	int numVerts = face->vertIndices.size();
 	emittedFace->numVerts = numVerts;
 	for(int i = 0; i < numVerts; i++) {
-		bspFile.fileFaceVert[numFaceVerts] = face->vertIndices[i];
+		bspFile.fileFaceVerts[numFaceVerts] = face->vertIndices[i];
 		numFaceVerts++;
 	}
 }
@@ -205,6 +205,20 @@ void GbspWriter::EndBspFile() {
 
 	EmitPlanes();
 	EmitVerts();
+
+	FileHeader header;
+
+	header.lumps[LUMP_MODELS].length = numModels * 12;
+	header.lumps[LUMP_ENTITIES].length = numEntities * 7;
+	header.lumps[LUMP_PLANES].length = numPlanes * 4;
+	header.lumps[LUMP_NODES].length = numNodes * 11;
+	header.lumps[LUMP_LEAFS].length = numLeafs * 9;
+	header.lumps[LUMP_LEAFFACES].length = numLeafFaces;
+	header.lumps[LUMP_VERTS].length = numVerts * 3;
+	header.lumps[LUMP_FACE_VERTS].length = numFaceVerts;
+	header.lumps[LUMP_FACES].length = numFaces * 3;
+
+	bspFile.fileHeader = header;
 
 	bspFile.valid = true;
 

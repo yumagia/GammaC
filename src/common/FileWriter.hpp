@@ -8,6 +8,7 @@
 class FileWriter {
 public:
 	FileWriter();
+	FileWriter(BspFile *bspfile);
 	~FileWriter() {}
 
 	void WriteLevel(std::string fileName);

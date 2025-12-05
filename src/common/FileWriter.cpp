@@ -17,12 +17,28 @@ FileWriter::FileWriter() {
 	numFaces = 0;
 }
 
+FileWriter::FileWriter(BspFile *bspFile) {
+	FileHeader header = bspFile->fileHeader;
+
+	numModels = header.lumps[LUMP_MODELS].length / 12;
+	numEntities = header.lumps[LUMP_ENTITIES].length / 7;
+	numPlanes = header.lumps[LUMP_PLANES].length / 4;
+	numNodes = header.lumps[LUMP_NODES].length / 11;
+	numLeafs = header.lumps[LUMP_LEAFS].length / 9;
+	numLeafFaces = header.lumps[LUMP_LEAFFACES].length;
+	numVerts = header.lumps[LUMP_VERTS].length / 3;
+	numFaceVerts = header.lumps[LUMP_FACE_VERTS].length;
+	numFaces = header.lumps[LUMP_FACES].length / 3;
+
+	(*this).bspFile = *bspFile;
+}
+
 void FileWriter::WriteLevel(std::string fileName) {
 	std::cout << "--- WriteLevel ---" << std::endl;
 
 	std::cout << "Writing first-pass file..." << std::endl;
 	
-	FileHeader header;
+	FileHeader header = bspFile.fileHeader;
 
 	std::ofstream outputFile(fileName);
 
