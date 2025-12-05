@@ -7,7 +7,7 @@
 
 class FileReader {
 public:
-	void ReadFile(std::string fileName);
+	BspFile *ReadFile(std::string fileName);
 
 	int			numModels = 0;
 	int			numEntities = 0;

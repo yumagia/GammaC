@@ -97,6 +97,8 @@ struct BspFile {
 	FileLeaf		fileLeafs[MAX_MAP_LEAFS];
 	unsigned int	fileLeafFaces[MAX_MAP_LEAF_FACES];
 	FileVert		fileVerts[MAX_MAP_VERTS];
-	unsigned int	fileFaceVert[MAX_MAP_FACE_VERTS];
+	unsigned int	fileFaceVerts[MAX_MAP_FACE_VERTS];
 	FileFace		fileFaces[MAX_MAP_FACES];
+
+	bool			valid = false;
 };

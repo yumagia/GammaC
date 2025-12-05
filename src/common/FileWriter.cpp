@@ -165,7 +165,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_FACE_VERTS].offset = numLines;
 		for(int i = 0; i < numFaceVerts; i++) {
-			outputFile << bspFile.fileFaceVert[i] << std::endl;
+			outputFile << bspFile.fileFaceVerts[i] << std::endl;
 			numLines ++;
 		}
 		header.lumps[LUMP_FACE_VERTS].length = numLines - header.lumps[LUMP_FACE_VERTS].offset;

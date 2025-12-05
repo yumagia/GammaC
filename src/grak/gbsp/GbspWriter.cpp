@@ -13,7 +13,7 @@ extern	BspVertex 	mapVerts[MAX_MAP_VERTS];
 extern	int			numMapFaceVerts;
 
 void GbspWriter::BeginBspFile() {
-	std::cout << "--- Initialize BSP ---" << std::endl; 
+	std::cout << "--- Initialize BSP File ---" << std::endl; 
 	numMapPlanes = 0;
 	numMapVerts = 0;
 	numMapFaceVerts = 0;
@@ -181,6 +181,8 @@ void GbspWriter::EmitVerts() {
 }
 
 void GbspWriter::EndBspFile() {
+	std::cout << "--- End BSP File ---" << std::endl;
+
 	FileLeaf *errorLeaf = &bspFile.fileLeafs[0];
 	errorLeaf->firstLeafFace = 0;
 	errorLeaf->numLeafFaces = 0;
@@ -203,4 +205,8 @@ void GbspWriter::EndBspFile() {
 
 	EmitPlanes();
 	EmitVerts();
+
+	bspFile.valid = true;
+
+	std::cout << "Successfully Validated BSP file" << std::endl;
 }
