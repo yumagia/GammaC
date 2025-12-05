@@ -1,5 +1,5 @@
-#ifndef LEVEL_WRITER_INCLUDED
-#define LEVEL_WRITER_INCLUDED
+#ifndef GBSP_WRITER_INCLUDED
+#define GBSP_WRITER_INCLUDED
 
 #include "Bsp.hpp"
 #include "GammaFile.hpp"

@@ -5,6 +5,9 @@
 #include <fstream>
 #include <filesystem>
 
+// FILESYSTEM DEFS
+#define OUTPUT_FILES_DIR "bsp-files"
+
 FileWriter::FileWriter() {
 	numModels = 1;		// Model 0 is reserved for the world
 	numEntities = 0;
@@ -199,24 +202,10 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 	// OVERWRITE THE HEADER LINES
 	secondPass << "GBSP" << std::endl;
-	secondPass << header.lumps[LUMP_MODELS].offset << std::endl;
-	secondPass << header.lumps[LUMP_MODELS].length << std::endl;
-	secondPass << header.lumps[LUMP_ENTITIES].offset << std::endl;
-	secondPass << header.lumps[LUMP_ENTITIES].length << std::endl;
-	secondPass << header.lumps[LUMP_PLANES].offset << std::endl;
-	secondPass << header.lumps[LUMP_PLANES].length << std::endl;
-	secondPass << header.lumps[LUMP_NODES].offset << std::endl;
-	secondPass << header.lumps[LUMP_NODES].length << std::endl;
-	secondPass << header.lumps[LUMP_LEAFS].offset << std::endl;
-	secondPass << header.lumps[LUMP_LEAFS].length << std::endl;
-	secondPass << header.lumps[LUMP_LEAFFACES].offset << std::endl;
-	secondPass << header.lumps[LUMP_LEAFFACES].length << std::endl;
-	secondPass << header.lumps[LUMP_VERTS].offset << std::endl;
-	secondPass << header.lumps[LUMP_VERTS].length << std::endl;
-	secondPass << header.lumps[LUMP_FACE_VERTS].offset << std::endl;
-	secondPass << header.lumps[LUMP_FACE_VERTS].length << std::endl;
-	secondPass << header.lumps[LUMP_FACES].offset << std::endl;
-	secondPass << header.lumps[LUMP_FACES].length << std::endl;
+	for(int i = 0; i < NUM_LUMPS; i++) {
+		secondPass << header.lumps[i].offset << std::endl;
+		secondPass << header.lumps[i].length << std::endl;
+	}
 
 	std::string line;
 	while(std::getline(original, line)) {

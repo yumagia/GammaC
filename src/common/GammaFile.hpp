@@ -1,9 +1,8 @@
 #pragma once
 
-// FILESYSTEM DEFS
-#define OUTPUT_FILES_DIR "bsp-files"
+#define NUM_LUMPS			9
 
-// MAP DEFS
+// MAP UPPER BOUNDS
 #define MAX_MAP_MODELS		256
 #define MAX_MAP_ENTITIES	512
 #define MAX_MAP_PLANES		16384
@@ -43,7 +42,7 @@ enum {
 struct FileHeader {
 	int		version;
 	int		identifier;
-	FileLump lumps[8];
+	FileLump lumps[NUM_LUMPS];
 };
 
 struct FileModel {

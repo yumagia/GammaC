@@ -12,10 +12,6 @@
  * =============================================
 */
 
-struct Material {
-	Color	baseColor;
-};
-
 struct BspBoundBoxf {
 	BspBoundBoxf() {}
 	BspBoundBoxf(Vec3f min, Vec3f max) : min(min), max(max) {}
@@ -59,7 +55,10 @@ struct BspFace {
 
 	std::vector<int>	vertIndices;
 	int			planeNum;
-	Material	*material;
+	int			materialIdx;
+
+	// TODO: Face Lighting attributes
+	//int			lightingIdx;
 
 	int			outputNumber;
 };
