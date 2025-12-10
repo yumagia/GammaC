@@ -2,8 +2,13 @@
 
 #include "Bsp.hpp"
 #include "GammaFile.hpp"
+#include "GammaDir.hpp"
+
+#include "MeshLoader.hpp"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 extern	int			numMapPlanes;
 extern	BspPlane 	mapPlanes[MAX_MAP_PLANES];
@@ -11,6 +16,54 @@ extern	BspPlane 	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapVerts;
 extern	BspVertex 	mapVerts[MAX_MAP_VERTS];
 extern	int			numMapFaceVerts;
+
+GbspWriter::~GbspWriter() {
+
+}
+
+void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
+	std::string expMapDir = MAPS_DIR + (std::string) "/" + mapDir + "/";
+	std::ifstream scriptsFile(expMapDir + (std::string) "scripts.txt");
+	
+	BeginBspFile();
+
+	std::string line;
+	std::vector<std::string> args;
+	while(std::getline(scriptsFile, line)) {
+		args = ParseArgsFromLine(line);
+
+		if(args[0] == "wmodel") {
+			MeshLoader loader;
+
+			std::string fileName = expMapDir + "mesh-files/" + args[1] + ".obj";
+			LazyMesh *mesh = loader.ParseMeshFile(fileName.c_str());
+
+			BspModel model;
+			model.CreateTreeFromLazyMesh(mesh);
+			delete mesh;
+
+			AddWorldModel(&model);
+
+			FreeTree(model.root);
+		}
+	}
+
+	EndBspFile();
+	
+    WriteLevel(((std::string) bspLevelName) + ".txt");
+}
+
+std::vector<std::string> GbspWriter::ParseArgsFromLine(std::string line) {
+	std::vector<std::string> args;
+
+	std::istringstream iss(line);
+	std::string arg;
+	while(iss >> arg) {
+		args.push_back(arg);
+	}
+
+	return args;
+}
 
 void GbspWriter::BeginBspFile() {
 	std::cout << "--- Initialize BSP File ---" << std::endl; 

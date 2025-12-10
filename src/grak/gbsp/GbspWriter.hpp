@@ -9,17 +9,24 @@
 
 class GbspWriter : public FileWriter {
 public:
+	GbspWriter() {}
+	~GbspWriter();
+
+	void WriteMap(const char *mapDir, const char *bspLevelName);
+	
+private:
 	void BeginBspFile();
 	void AddWorldModel(BspModel *model);
 	void EndBspFile();
-	
-private:
+
 	int		EmitTree(BspNode *node);
 	// -1 denotes air leaf, positive integers are solid
 	int		EmitLeaf(BspNode *node);
 	void	EmitFace(std::shared_ptr<BspFace> face);
 	void	EmitPlanes();
 	void	EmitVerts();
+
+	std::vector<std::string> ParseArgsFromLine(std::string line);
 	
 private:
     int startLeaf;

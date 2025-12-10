@@ -104,8 +104,15 @@ struct FileTextInfo {
 	int				material;
 };
 
-struct FileLightBasis {
+struct FileLighting {
+	float			color[3];
 	float			hBasis[6];
+};
+
+struct FileMaterial {
+	float			diffuse[3];
+	float			specular[3];
+	float			emissive[3];
 };
 
 struct BspFile {
@@ -122,7 +129,7 @@ struct BspFile {
 	FileTextInfo	fileTextInfos[MAX_MAP_TEXT_INFOS];
 
 	unsigned int	lightMap[MAX_LIGHTMAP];
-	FileLightBasis	fileLightBases[MAX_MAP_LIGHT_BASES];
+	FileLighting	fileLightBases[MAX_MAP_LIGHT_BASES];
 
 	bool			valid = false;
 };
