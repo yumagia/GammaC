@@ -11,11 +11,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	FileReader bspReader; 
-	BspFile *bspFile = bspReader.ReadFile(argv[1]);
+	FileWriter gradWriter(bspReader.ReadFile(argv[1]));
 
-	FileWriter gradWriter(bspFile);
 	
+
 	gradWriter.WriteLevel(argv[1]);
 
-	delete bspFile;
 }

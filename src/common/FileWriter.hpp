@@ -8,8 +8,8 @@
 class FileWriter {
 public:
 	FileWriter();
+	~FileWriter();
 	FileWriter(BspFile *bspfile);
-	~FileWriter() {}
 
 	void WriteLevel(std::string fileName);
 
@@ -23,7 +23,7 @@ public:
 	int			numFaceVerts = 0;
 	int			numFaces = 0;
 
-	BspFile	bspFile;
+	BspFile	*bspFile;
 };
 
 #endif

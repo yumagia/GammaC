@@ -60,6 +60,6 @@ $(GRAD_BUILD_DIR)/%.cpp.o: %.cpp
 .PHONY: clean all
 
 clean:
-	$(RM) -r $(GBSP_BUILD_DIR)
+	$(RM) -r $(GBSP_BUILD_DIR) $(GRAD_BUILD_DIR)
 
 MKDIR_P := mkdir -p

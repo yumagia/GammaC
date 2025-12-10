@@ -12,8 +12,11 @@
 #define MAX_MAP_LEAF_FACES	32768
 #define MAX_MAP_VERTS		65536
 #define MAX_MAP_FACE_VERTS	65536
-
 #define MAX_MAP_FACES		32768
+#define MAX_MAP_TEXT_INFOS	32768
+#define MAX_LIGHTMAP		131072
+#define MAX_MAP_LIGHT_BASES	65536
+
 
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
@@ -85,7 +88,24 @@ struct FileVert {
 struct FileFace {
 	unsigned int	planeNum;
 	unsigned int	firstVert, numVerts;
+
+	int				textInfo;
+
+	int				lightMapOffset;
+};
+
+struct FileTextInfo {
+	float			uAxis[3];
+	float			uOffset;
+
+	float			vAxis[3];
+	float			vOffset;
+
 	int				material;
+};
+
+struct FileLightBasis {
+	float			hBasis[6];
 };
 
 struct BspFile {
@@ -99,6 +119,10 @@ struct BspFile {
 	FileVert		fileVerts[MAX_MAP_VERTS];
 	unsigned int	fileFaceVerts[MAX_MAP_FACE_VERTS];
 	FileFace		fileFaces[MAX_MAP_FACES];
+	FileTextInfo	fileTextInfos[MAX_MAP_TEXT_INFOS];
+
+	unsigned int	lightMap[MAX_LIGHTMAP];
+	FileLightBasis	fileLightBases[MAX_MAP_LIGHT_BASES];
 
 	bool			valid = false;
 };

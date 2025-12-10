@@ -17,25 +17,27 @@ void GbspWriter::BeginBspFile() {
 	numMapPlanes = 0;
 	numMapVerts = 0;
 	numMapFaceVerts = 0;
+
+	bspFile = new BspFile();
 }
 
 void GbspWriter::AddWorldModel(BspModel *model) {
 	std::cout << "--- AddWorldModel ---" << std::endl;
 	std::cout << "Setting world model..." << std::endl;
 
-	bspFile.fileModels[0].firstFace = numFaces;
+	bspFile->fileModels[0].firstFace = numFaces;
 
-	bspFile.fileModels[0].minBound[0] = model->bounds.min.x;
-	bspFile.fileModels[0].minBound[1] = model->bounds.min.y;
-	bspFile.fileModels[0].minBound[2] = model->bounds.min.z;
-	bspFile.fileModels[0].maxBound[0] = model->bounds.max.x;
-	bspFile.fileModels[0].maxBound[1] = model->bounds.max.y;
-	bspFile.fileModels[0].maxBound[2] = model->bounds.max.z;
+	bspFile->fileModels[0].minBound[0] = model->bounds.min.x;
+	bspFile->fileModels[0].minBound[1] = model->bounds.min.y;
+	bspFile->fileModels[0].minBound[2] = model->bounds.min.z;
+	bspFile->fileModels[0].maxBound[0] = model->bounds.max.x;
+	bspFile->fileModels[0].maxBound[1] = model->bounds.max.y;
+	bspFile->fileModels[0].maxBound[2] = model->bounds.max.z;
 
 	std::cout << "Outputting tree to file..." << std::endl;
-	bspFile.fileModels[0].headNode = EmitTree(model->root);
+	bspFile->fileModels[0].headNode = EmitTree(model->root);
 
-	bspFile.fileModels[0].numFaces = numFaces - bspFile.fileModels[0].firstFace;
+	bspFile->fileModels[0].numFaces = numFaces - bspFile->fileModels[0].firstFace;
 	std::cout << "Successfully outputted world model!" << std::endl;
 }
 
@@ -50,7 +52,7 @@ int GbspWriter::EmitLeaf(BspNode *node) {
 		std::cerr << "Reached MAX_MAP_LEAFS: " << MAX_MAP_LEAFS << std::endl;
 	}
 
-	emittedLeaf = &bspFile.fileLeafs[numLeafs];
+	emittedLeaf = &bspFile->fileLeafs[numLeafs];
 	numLeafs++;
 
 	emittedLeaf->minBound[0] = node->bounds.min.x - BOUND_PADDING;
@@ -67,7 +69,7 @@ int GbspWriter::EmitLeaf(BspNode *node) {
 		if(numLeafFaces >= MAX_MAP_LEAF_FACES) {
 			std::cerr << "Reached MAX_MAP_LEAF_FACES: " << MAX_MAP_LEAF_FACES << std::endl;
 		}
-		bspFile.fileLeafFaces[numLeafFaces] = faceNum;
+		bspFile->fileLeafFaces[numLeafFaces] = faceNum;
 		numLeafFaces++;
 	}
 
@@ -85,7 +87,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 		std::cerr << "Reached MAX_MAP_FACES: " << MAX_MAP_FACES << std::endl;
 	}
 
-	emittedFace = &bspFile.fileFaces[numFaces];
+	emittedFace = &bspFile->fileFaces[numFaces];
 	numFaces++;
 
 	emittedFace->planeNum = face->planeNum;
@@ -94,7 +96,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	int numVerts = face->vertIndices.size();
 	emittedFace->numVerts = numVerts;
 	for(int i = 0; i < numVerts; i++) {
-		bspFile.fileFaceVerts[numFaceVerts] = face->vertIndices[i];
+		bspFile->fileFaceVerts[numFaceVerts] = face->vertIndices[i];
 		numFaceVerts++;
 	}
 }
@@ -113,7 +115,7 @@ int GbspWriter::EmitTree(BspNode *node) {
 	}
 	
 	FileNode *emittedNode;
-	emittedNode = &bspFile.fileNodes[numNodes];
+	emittedNode = &bspFile->fileNodes[numNodes];
 	numNodes++;
 
 	emittedNode->minBound[0] = node->bounds.min.x - BOUND_PADDING;
@@ -153,12 +155,12 @@ int GbspWriter::EmitTree(BspNode *node) {
 		EmitTree(node->front);
 	}
 
-	return emittedNode - bspFile.fileNodes;
+	return emittedNode - bspFile->fileNodes;
 }
 
 void GbspWriter::EmitPlanes() {
 	for(int i = 0; i < numMapPlanes; i++) {
-		FilePlane *emittedPlane = &bspFile.filePlanes[numPlanes];
+		FilePlane *emittedPlane = &bspFile->filePlanes[numPlanes];
 		numPlanes++;
 		
 		emittedPlane->normal[0] = mapPlanes[i].normal.x;
@@ -171,7 +173,7 @@ void GbspWriter::EmitPlanes() {
 
 void GbspWriter::EmitVerts() {
 	for(int i = 0; i < numMapVerts; i++) {
-		FileVert *emittedVert = &bspFile.fileVerts[numVerts];
+		FileVert *emittedVert = &bspFile->fileVerts[numVerts];
 		numVerts++;
 
 		emittedVert->point[0] = mapVerts[i].point.x;
@@ -183,7 +185,7 @@ void GbspWriter::EmitVerts() {
 void GbspWriter::EndBspFile() {
 	std::cout << "--- End BSP File ---" << std::endl;
 
-	FileLeaf *errorLeaf = &bspFile.fileLeafs[0];
+	FileLeaf *errorLeaf = &bspFile->fileLeafs[0];
 	errorLeaf->firstLeafFace = 0;
 	errorLeaf->numLeafFaces = 0;
 	errorLeaf->minBound[0] = 0;
@@ -193,7 +195,7 @@ void GbspWriter::EndBspFile() {
 	errorLeaf->maxBound[1] = 0;
 	errorLeaf->maxBound[2] = 0;
 
-	FileLeaf *solidLeaf = &bspFile.fileLeafs[1];
+	FileLeaf *solidLeaf = &bspFile->fileLeafs[1];
 	solidLeaf->firstLeafFace = 0;
 	solidLeaf->numLeafFaces = 0;
 	solidLeaf->minBound[0] = 0;
@@ -218,9 +220,9 @@ void GbspWriter::EndBspFile() {
 	header.lumps[LUMP_FACE_VERTS].length = numFaceVerts;
 	header.lumps[LUMP_FACES].length = numFaces * 3;
 
-	bspFile.fileHeader = header;
+	bspFile->fileHeader = header;
 
-	bspFile.valid = true;
+	bspFile->valid = true;
 
 	std::cout << "Successfully Validated BSP file" << std::endl;
 }

@@ -12,6 +12,7 @@ public:
 	void BeginBspFile();
 	void AddWorldModel(BspModel *model);
 	void EndBspFile();
+	
 private:
 	int		EmitTree(BspNode *node);
 	// -1 denotes air leaf, positive integers are solid

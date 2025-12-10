@@ -17,6 +17,11 @@ FileWriter::FileWriter() {
 	numFaces = 0;
 }
 
+FileWriter::~FileWriter() {
+	delete bspFile;
+	bspFile = NULL;
+}
+
 FileWriter::FileWriter(BspFile *bspFile) {
 	FileHeader header = bspFile->fileHeader;
 
@@ -30,7 +35,7 @@ FileWriter::FileWriter(BspFile *bspFile) {
 	numFaceVerts = header.lumps[LUMP_FACE_VERTS].length;
 	numFaces = header.lumps[LUMP_FACES].length / 3;
 
-	(*this).bspFile = *bspFile;
+	(*this).bspFile = bspFile;
 }
 
 void FileWriter::WriteLevel(std::string fileName) {
@@ -38,7 +43,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 	std::cout << "Writing first-pass file..." << std::endl;
 	
-	FileHeader header = bspFile.fileHeader;
+	FileHeader header = bspFile->fileHeader;
 
 	std::ofstream outputFile(fileName);
 
@@ -48,7 +53,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_MODELS].offset = numLines;
 		for(int i = 0; i < numModels; i++) {
-			FileModel *currentModel = &bspFile.fileModels[i];
+			FileModel *currentModel = &bspFile->fileModels[i];
 
 			outputFile << currentModel->origin[0] << std::endl;
 			outputFile << currentModel->origin[1] << std::endl;
@@ -74,7 +79,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_ENTITIES].offset = numLines;
 		for(int i = 0; i < numEntities; i++) {
-			FileEntity *currentEntity = &bspFile.fileEntities[i];
+			FileEntity *currentEntity = &bspFile->fileEntities[i];
 
 			outputFile << currentEntity->origin[0] << std::endl;
 			outputFile << currentEntity->origin[1] << std::endl;
@@ -95,7 +100,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_PLANES].offset = numLines;
 		for(int i = 0; i < numPlanes; i++) {
-			FilePlane *currentPlane = &bspFile.filePlanes[i];
+			FilePlane *currentPlane = &bspFile->filePlanes[i];
 
 			outputFile << currentPlane->normal[0] << std::endl;
 			outputFile << currentPlane->normal[1] << std::endl;
@@ -111,7 +116,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_NODES].offset = numLines;
 		for(int i = 0; i < numNodes; i++) {
-			FileNode *currentNode = &bspFile.fileNodes[i];
+			FileNode *currentNode = &bspFile->fileNodes[i];
 
 			outputFile << currentNode->planeNum << std::endl;
 			outputFile << currentNode->children[0] << std::endl;
@@ -135,7 +140,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_LEAFS].offset = numLines;
 		for(int i = 0; i < numLeafs; i++) {
-			FileLeaf *currentLeaf = &bspFile.fileLeafs[i];
+			FileLeaf *currentLeaf = &bspFile->fileLeafs[i];
 
 			outputFile << currentLeaf->firstLeafFace << std::endl;
 			outputFile << currentLeaf->numLeafFaces << std::endl;
@@ -157,7 +162,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_LEAFFACES].offset = numLines;
 		for(int i = 0; i < numLeafFaces; i++) {
-			outputFile << bspFile.fileLeafFaces[i] << std::endl;
+			outputFile << bspFile->fileLeafFaces[i] << std::endl;
 			numLines++;
 		}
 		header.lumps[LUMP_LEAFFACES].length = numLines - header.lumps[LUMP_LEAFFACES].offset;
@@ -166,7 +171,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_VERTS].offset = numLines;
 		for(int i = 0; i < numVerts; i++) {
-			FileVert *currentVert = &bspFile.fileVerts[i];
+			FileVert *currentVert = &bspFile->fileVerts[i];
 
 			outputFile << currentVert->point[0] << std::endl;
 			outputFile << currentVert->point[1] << std::endl;
@@ -181,7 +186,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_FACE_VERTS].offset = numLines;
 		for(int i = 0; i < numFaceVerts; i++) {
-			outputFile << bspFile.fileFaceVerts[i] << std::endl;
+			outputFile << bspFile->fileFaceVerts[i] << std::endl;
 			numLines ++;
 		}
 		header.lumps[LUMP_FACE_VERTS].length = numLines - header.lumps[LUMP_FACE_VERTS].offset;
@@ -190,7 +195,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 		numLines++;
 		header.lumps[LUMP_FACES].offset = numLines;
 		for(int i = 0; i < numFaces; i++) {
-			FileFace *currentFace = &bspFile.fileFaces[i];
+			FileFace *currentFace = &bspFile->fileFaces[i];
 
 			outputFile << currentFace->firstVert << std::endl;
 			outputFile << currentFace->numVerts << std::endl;
