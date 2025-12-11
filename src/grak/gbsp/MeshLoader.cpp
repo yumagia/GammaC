@@ -24,7 +24,7 @@ std::vector<std::string> MeshLoader::ParseArgsFromLine(std::string line) {
 	return args;
 }
 
-void MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap) {
+int MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap) {
 	std::cout << " --- Adding materials from file ---" << std::endl;
 	
 	std::ifstream file;
@@ -33,7 +33,7 @@ void MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<s
 
 	if(!file.is_open()) {
 		std::cerr << "Error opening file!" << std::endl;
-		return;
+		return 0;
 	}
 
 	std::string line;
@@ -81,6 +81,8 @@ void MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<s
 
 	file.close();
 	std::cout << "Success!" << std::endl;
+
+	return materialCount;
 }
 
 LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, int> &materialMap) {

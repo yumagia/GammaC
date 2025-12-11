@@ -12,7 +12,7 @@ class MeshLoader {
 public:	
 	LazyMesh *ParseMeshFile(const char *fileName, std::map<std::string, int> &materialMap);
 
-	void AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap);
+	int		AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap);
 private:
 	std::vector<std::string> ParseArgsFromLine(std::string line);
 

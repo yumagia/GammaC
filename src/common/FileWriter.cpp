@@ -15,7 +15,7 @@ FileWriter::FileWriter() {
 	numVerts = 0;
 	numFaceVerts = 0;
 	numFaces = 0;
-	
+
 	numMaterials = 0;
 }
 
@@ -35,7 +35,8 @@ FileWriter::FileWriter(BspFile *bspFile) {
 	numLeafFaces = header.lumps[LUMP_LEAFFACES].length;
 	numVerts = header.lumps[LUMP_VERTS].length / 3;
 	numFaceVerts = header.lumps[LUMP_FACE_VERTS].length;
-	numFaces = header.lumps[LUMP_FACES].length / 3;
+	numFaces = header.lumps[LUMP_FACES].length / 4;
+	numMaterials = header.lumps[LUMP_MATERIALS].length / 10;
 
 	(*this).bspFile = bspFile;
 }
@@ -202,10 +203,35 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentFace->firstVert << std::endl;
 			outputFile << currentFace->numVerts << std::endl;
 			outputFile << currentFace->planeNum << std::endl;
+			outputFile << currentFace->textInfo << std::endl;
 
-			numLines += 3;
+			numLines += 4;
 		}
 		header.lumps[LUMP_FACES].length = numLines - header.lumps[LUMP_FACES].offset;
+
+		outputFile << "MATERIALS LUMP" << std::endl;
+		numLines++;
+		header.lumps[LUMP_MATERIALS].offset = numLines;
+		for(int i = 0; i < numMaterials; i++) {
+			FileMaterial *currentMaterial = &bspFile->fileMaterials[i];
+
+			outputFile << currentMaterial->diffuse[0] << std::endl;
+			outputFile << currentMaterial->diffuse[1] << std::endl;
+			outputFile << currentMaterial->diffuse[2] << std::endl;
+
+			outputFile << currentMaterial->specular[0] << std::endl;
+			outputFile << currentMaterial->specular[1] << std::endl;
+			outputFile << currentMaterial->specular[2] << std::endl;
+
+			outputFile << currentMaterial->emissive[0] << std::endl;
+			outputFile << currentMaterial->emissive[1] << std::endl;
+			outputFile << currentMaterial->emissive[2] << std::endl;
+
+			outputFile << currentMaterial->specCoeff << std::endl;
+
+			numLines += 10;
+		}
+		header.lumps[LUMP_MATERIALS].length = numLines - header.lumps[LUMP_MATERIALS].offset;
 		
 		outputFile.close();
 	}

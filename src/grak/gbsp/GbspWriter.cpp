@@ -37,7 +37,7 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 			MeshLoader meshLoader;
 
 			std::string mtlFileName = expMapDir + "mesh-files/" + args[1] + ".mtl";
-			meshLoader.AddMaterials(mtlFileName.c_str(), *bspFile, materialMap);
+			numMaterials += meshLoader.AddMaterials(mtlFileName.c_str(), *bspFile, materialMap);
 
 			std::string objFileName = expMapDir + "mesh-files/" + args[1] + ".obj";
 			LazyMesh *mesh = meshLoader.ParseMeshFile(objFileName.c_str(), materialMap);
@@ -152,6 +152,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	numFaces++;
 
 	emittedFace->planeNum = face->planeNum;
+	emittedFace->textInfo = face->materialNum;
 	
 	emittedFace->firstVert = numFaceVerts;
 	int numVerts = face->vertIndices.size();

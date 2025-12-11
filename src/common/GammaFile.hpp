@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUM_LUMPS			9
+#define NUM_LUMPS			10
 
 // MAP UPPER BOUNDS
 #define MAX_MAP_MODELS		256
@@ -40,7 +40,8 @@ enum {
 	LUMP_LEAFFACES,
 	LUMP_VERTS,
 	LUMP_FACE_VERTS,
-	LUMP_FACES
+	LUMP_FACES,
+	LUMP_MATERIALS
 };
 
 struct FileHeader {

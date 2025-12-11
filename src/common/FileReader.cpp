@@ -87,8 +87,15 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 	header.lumps[LUMP_FACES].offset = stoi(line);
 	std::getline(readFile, line);
 	header.lumps[LUMP_FACES].length = stoi(line);
-	numFaces = stoi(line) / 3;
+	numFaces = stoi(line) / 4;
 	std::cout << "	" << numFaces << " number of faces" << std::endl;
+
+	std::getline(readFile, line);
+	header.lumps[LUMP_MATERIALS].offset = stoi(line);
+	std::getline(readFile, line);
+	header.lumps[LUMP_MATERIALS].length = stoi(line);
+	numMaterials = stoi(line) / 10;
+	std::cout << "	" << numMaterials << " number of materials" << std::endl;
 
 	bspFile->fileHeader = header;
 
@@ -276,8 +283,41 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		readFace.numVerts = stoi(line);
 		std::getline(readFile, line);
 		readFace.planeNum = stoi(line);
+		std::getline(readFile, line);
+		readFace.textInfo = stoi(line);
 
 		bspFile->fileFaces[i] = readFace;
+	}
+
+	std::getline(readFile, line);
+	for(int i = 0; i < numMaterials; i++) {
+		FileMaterial readMaterial;
+
+		std::getline(readFile, line);
+		readMaterial.diffuse[0] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.diffuse[1] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.diffuse[2] = stof(line);
+
+		std::getline(readFile, line);
+		readMaterial.specular[0] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.specular[1] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.specular[2] = stof(line);
+
+		std::getline(readFile, line);
+		readMaterial.emissive[0] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.emissive[1] = stof(line);
+		std::getline(readFile, line);
+		readMaterial.emissive[2] = stof(line);
+
+		std::getline(readFile, line);
+		readMaterial.specCoeff = stof(line);
+
+		bspFile->fileMaterials[i] = readMaterial;
 	}
 
 	readFile.close();
