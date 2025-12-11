@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 extern	int			numMapPlanes;
 extern	BspPlane 	mapPlanes[MAX_MAP_PLANES];
@@ -33,10 +34,17 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 		args = ParseArgsFromLine(line);
 
 		if(args[0] == "wmodel") {
-			MeshLoader loader;
+			MeshLoader meshLoader;
 
-			std::string fileName = expMapDir + "mesh-files/" + args[1] + ".obj";
-			LazyMesh *mesh = loader.ParseMeshFile(fileName.c_str());
+			std::string mtlFileName = expMapDir + "mesh-files/" + args[1] + ".mtl";
+			meshLoader.AddMaterials(mtlFileName.c_str(), *bspFile, materialMap);
+
+			std::string objFileName = expMapDir + "mesh-files/" + args[1] + ".obj";
+			LazyMesh *mesh = meshLoader.ParseMeshFile(objFileName.c_str(), materialMap);
+
+			if(!mesh) {
+				return;
+			}
 
 			BspModel model;
 			model.CreateTreeFromLazyMesh(mesh);

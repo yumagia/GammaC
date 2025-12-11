@@ -15,6 +15,8 @@ FileWriter::FileWriter() {
 	numVerts = 0;
 	numFaceVerts = 0;
 	numFaces = 0;
+	
+	numMaterials = 0;
 }
 
 FileWriter::~FileWriter() {

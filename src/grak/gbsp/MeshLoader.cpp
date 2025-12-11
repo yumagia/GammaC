@@ -9,25 +9,7 @@
 #include <memory>
 
 void MeshLoader::ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh) {
-	if(args[0] == "v") {
-		mesh->vertexList.push_back(new BspVertex(stof(args[1]), stof(args[2]), stof(args[3])));
-	}
 
-	if(args[0] == "f") {
-		int numVerts = args.size() - 1;
-
-		std::vector<int> vertIndices;
-		for(int i = 0; i < numVerts; i++) {
-			std::stringstream arg(args[i + 1]);
-			std::string vert;
-			std::getline(arg, vert, '/');
-			vertIndices.push_back(stoi(vert) - 1);
-		}
-
-		std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, PlaneNumFromTriangle(mesh->vertexList[vertIndices[0]]->point, mesh->vertexList[vertIndices[1]]->point, mesh->vertexList[vertIndices[2]]->point));
-
-		mesh->faces.push_back(newFace);
-	}
 }
 
 std::vector<std::string> MeshLoader::ParseArgsFromLine(std::string line) {
@@ -42,31 +24,122 @@ std::vector<std::string> MeshLoader::ParseArgsFromLine(std::string line) {
 	return args;
 }
 
-LazyMesh *MeshLoader::ParseMeshFile(const char *fileName) {
-	std::cout << " --- Creating new object ---" << std::endl;
+void MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap) {
+	std::cout << " --- Adding materials from file ---" << std::endl;
 	
+	std::ifstream file;
 	file.open(fileName);
 	std::cout << "Opening: " << fileName << std::endl;
 
 	if(!file.is_open()) {
 		std::cerr << "Error opening file!" << std::endl;
-		abort();
+		return;
+	}
+
+	std::string line;
+	std::vector<std::string> args;
+	FileMaterial *material = NULL;
+	while(std::getline(file, line)) {
+		args = ParseArgsFromLine(line);
+
+		if(args.empty()) {
+			continue;
+		}
+
+		if(args[0] == "newmtl") {
+			if(materialMap.find(args[1]) == materialMap.end()) {		// Add a new material if not found in map
+				materialMap.insert({args[1], materialMap.size()});
+				material = &bspFile.fileMaterials[materialCount];
+				materialCount++;
+				std::cout << "	Added material: " << args[1] << std::endl;
+			}
+			else {
+				material = NULL;
+			}
+		}
+		if(material) {
+			if(args[0] == "Kd") {
+				material->diffuse[0] = stof(args[1]);
+				material->diffuse[1] = stof(args[2]);
+				material->diffuse[2] = stof(args[3]);
+			}
+			else if(args[0] == "Ks") {
+				material->specular[0] = stof(args[1]);
+				material->specular[1] = stof(args[2]);
+				material->specular[2] = stof(args[3]);
+			}
+			else if(args[0] == "Ke") {
+				material->emissive[0] = stof(args[1]);
+				material->emissive[1] = stof(args[2]);
+				material->emissive[2] = stof(args[3]);
+			}
+			else if(args[0] == "Ns") {
+				material->specCoeff = stof(args[1]);
+			}
+		}
+	}
+
+	file.close();
+	std::cout << "Success!" << std::endl;
+}
+
+LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, int> &materialMap) {
+	std::cout << " --- Creating new object ---" << std::endl;
+	
+	std::ifstream file;
+	file.open(fileName);
+	std::cout << "Opening: " << fileName << std::endl;
+
+	if(!file.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return NULL;
 	}
 
 	LazyMesh *newMesh = new LazyMesh();
 
+	std::string line;
 	std::vector<std::string> args;
-	while(std::getline(file, currentLine)) {
-		args = ParseArgsFromLine(currentLine);
+	int currMaterialNum;
+	while(std::getline(file, line)) {
+		args = ParseArgsFromLine(line);
 
-		ApplyArgsToMesh(args, newMesh);
+		if(args.empty()) {
+			continue;
+		}
+
+		if(args[0] == "usemtl") {
+			currMaterialNum = materialMap[args[1]];
+		}
+		
+		if(args[0] == "v") {
+			newMesh->vertexList.push_back(new BspVertex(stof(args[1]), stof(args[2]), stof(args[3])));
+		}
+
+		if(args[0] == "f") {
+			int numVerts = args.size() - 1;
+
+			std::vector<int> vertIndices;
+			for(int i = 0; i < numVerts; i++) {
+				std::stringstream arg(args[i + 1]);
+				std::string vert;
+				std::getline(arg, vert, '/');
+				vertIndices.push_back(stoi(vert) - 1);
+			}
+			int planeNum =	PlaneNumFromTriangle(	newMesh->vertexList[vertIndices[0]]->point, 
+													newMesh->vertexList[vertIndices[1]]->point, 
+													newMesh->vertexList[vertIndices[2]]->point	);
+			std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, planeNum, currMaterialNum);
+
+			newMesh->faces.push_back(newFace);
+		}
 	}
 
 	file.close();
-	std::cout << "Sucessfully created new lazy mesh" << std::endl;
+	std::cout << "Successfully created new lazy mesh" << std::endl;
 	std::cout << "\t" << newMesh->faces.size() << " New faces" << std::endl;
 	std::cout << "\t" << newMesh->vertexList.size() << " New vertices" << std::endl;
 	std::cout << std::endl;
 
 	return newMesh;
 }
+

@@ -6,6 +6,7 @@
 #include "FileWriter.hpp"
 
 #include <string>
+#include <map>
 
 class GbspWriter : public FileWriter {
 public:
@@ -32,6 +33,8 @@ private:
     int startLeaf;
     int startFaceVert;
     int startFace;
+
+	std::map<std::string, int> materialMap;
 };
 
 #endif

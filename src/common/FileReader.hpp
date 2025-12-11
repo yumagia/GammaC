@@ -18,6 +18,8 @@ public:
 	int			numVerts = 0;
 	int			numFaceVerts = 0;
 	int			numFaces = 0;
+
+	int			numMaterials = 0;
 };
 
 #endif

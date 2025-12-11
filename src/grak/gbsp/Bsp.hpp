@@ -51,16 +51,23 @@ struct BspFace {
 
 	// Create from new winding, inherit plane
 	BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face);
-	BspFace(std::vector<int> vertIndices, int planeNum);
+	BspFace(std::vector<int> vertIndices, int planeNum, int materialNum);
 
 	std::vector<int>	vertIndices;
 	int			planeNum;
-	int			materialIdx;
+	int			materialNum;
 
 	// TODO: Face Lighting attributes
 	//int			lightingIdx;
 
 	int			outputNumber;
+};
+
+struct BspTexInfo {
+	Vec3f		uAxis, vAxis;
+	float		uOffset, vOffset;
+
+	int			material;
 };
 
 struct BspNode {

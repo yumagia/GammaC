@@ -13,7 +13,8 @@
 #define MAX_MAP_VERTS		65536
 #define MAX_MAP_FACE_VERTS	65536
 #define MAX_MAP_FACES		32768
-#define MAX_MAP_TEXT_INFOS	32768
+#define MAX_MAP_MATERIALS	512
+#define MAX_MAP_TEX_INFOS	32768
 #define MAX_LIGHTMAP		131072
 #define MAX_MAP_LIGHT_BASES	65536
 
@@ -94,7 +95,7 @@ struct FileFace {
 	int				lightMapOffset;
 };
 
-struct FileTextInfo {
+struct FileTexInfo {
 	float			uAxis[3];
 	float			uOffset;
 
@@ -113,6 +114,8 @@ struct FileMaterial {
 	float			diffuse[3];
 	float			specular[3];
 	float			emissive[3];
+
+	float			specCoeff;
 };
 
 struct BspFile {
@@ -126,8 +129,9 @@ struct BspFile {
 	FileVert		fileVerts[MAX_MAP_VERTS];
 	unsigned int	fileFaceVerts[MAX_MAP_FACE_VERTS];
 	FileFace		fileFaces[MAX_MAP_FACES];
-	FileTextInfo	fileTextInfos[MAX_MAP_TEXT_INFOS];
+	FileMaterial	fileMaterials[MAX_MAP_MATERIALS];
 
+	FileTexInfo		fileTexInfos[MAX_MAP_TEX_INFOS];
 	unsigned int	lightMap[MAX_LIGHTMAP];
 	FileLighting	fileLightBases[MAX_MAP_LIGHT_BASES];
 
