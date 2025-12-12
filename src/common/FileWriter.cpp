@@ -27,16 +27,16 @@ FileWriter::~FileWriter() {
 FileWriter::FileWriter(BspFile *bspFile) {
 	FileHeader header = bspFile->fileHeader;
 
-	numModels = header.lumps[LUMP_MODELS].length / 12;
-	numEntities = header.lumps[LUMP_ENTITIES].length / 7;
-	numPlanes = header.lumps[LUMP_PLANES].length / 4;
-	numNodes = header.lumps[LUMP_NODES].length / 11;
-	numLeafs = header.lumps[LUMP_LEAFS].length / 9;
+	numModels = header.lumps[LUMP_MODELS].length;
+	numEntities = header.lumps[LUMP_ENTITIES].length;
+	numPlanes = header.lumps[LUMP_PLANES].length;
+	numNodes = header.lumps[LUMP_NODES].length;
+	numLeafs = header.lumps[LUMP_LEAFS].length;
 	numLeafFaces = header.lumps[LUMP_LEAFFACES].length;
-	numVerts = header.lumps[LUMP_VERTS].length / 3;
+	numVerts = header.lumps[LUMP_VERTS].length;
 	numFaceVerts = header.lumps[LUMP_FACE_VERTS].length;
-	numFaces = header.lumps[LUMP_FACES].length / 4;
-	numMaterials = header.lumps[LUMP_MATERIALS].length / 10;
+	numFaces = header.lumps[LUMP_FACES].length;
+	numMaterials = header.lumps[LUMP_MATERIALS].length;
 
 	(*this).bspFile = bspFile;
 }
@@ -76,7 +76,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 12;
 		}
-		header.lumps[LUMP_MODELS].length = numLines - header.lumps[LUMP_MODELS].offset;
+		header.lumps[LUMP_MODELS].length = numModels;
 		
 		outputFile << "ENTITIES LUMP" << std::endl;
 		numLines++;
@@ -97,7 +97,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 7;
 		}
-		header.lumps[LUMP_ENTITIES].length = numLines - header.lumps[LUMP_ENTITIES].offset;
+		header.lumps[LUMP_ENTITIES].length = numEntities;
 
 		outputFile << "PLANES LUMP" << std::endl;
 		numLines++;
@@ -113,7 +113,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 4;
 		}
-		header.lumps[LUMP_PLANES].length = numLines - header.lumps[LUMP_PLANES].offset;
+		header.lumps[LUMP_PLANES].length = numPlanes;
 
 		outputFile << "NODES LUMP" << std::endl;
 		numLines++;
@@ -137,7 +137,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 11;
 		}
-		header.lumps[LUMP_NODES].length = numLines - header.lumps[LUMP_NODES].offset;
+		header.lumps[LUMP_NODES].length = numNodes;
 
 		outputFile << "LEAFS LUMP" << std::endl;
 		numLines++;
@@ -159,7 +159,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 9;
 		}
-		header.lumps[LUMP_LEAFS].length = numLines - header.lumps[LUMP_LEAFS].offset;
+		header.lumps[LUMP_LEAFS].length = numLeafs;
 
 		outputFile << "LEAF FACES LUMP" << std::endl;
 		numLines++;
@@ -168,7 +168,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << bspFile->fileLeafFaces[i] << std::endl;
 			numLines++;
 		}
-		header.lumps[LUMP_LEAFFACES].length = numLines - header.lumps[LUMP_LEAFFACES].offset;
+		header.lumps[LUMP_LEAFFACES].length = numLeafFaces;
 
 		outputFile << "VERTS LUMP" << std::endl;
 		numLines++;
@@ -182,7 +182,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 3;
 		}
-		header.lumps[LUMP_VERTS].length = numLines - header.lumps[LUMP_VERTS].offset;
+		header.lumps[LUMP_VERTS].length = numVerts;
 		
 
 		outputFile << "FACEVERTS LUMP" << std::endl;
@@ -192,7 +192,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << bspFile->fileFaceVerts[i] << std::endl;
 			numLines ++;
 		}
-		header.lumps[LUMP_FACE_VERTS].length = numLines - header.lumps[LUMP_FACE_VERTS].offset;
+		header.lumps[LUMP_FACE_VERTS].length = numFaceVerts;
 		
 		outputFile << "FACES LUMP" << std::endl;
 		numLines++;
@@ -207,7 +207,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 4;
 		}
-		header.lumps[LUMP_FACES].length = numLines - header.lumps[LUMP_FACES].offset;
+		header.lumps[LUMP_FACES].length = numFaces;
 
 		outputFile << "MATERIALS LUMP" << std::endl;
 		numLines++;
@@ -231,7 +231,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 			numLines += 10;
 		}
-		header.lumps[LUMP_MATERIALS].length = numLines - header.lumps[LUMP_MATERIALS].offset;
+		header.lumps[LUMP_MATERIALS].length = numMaterials;
 		
 		outputFile.close();
 	}

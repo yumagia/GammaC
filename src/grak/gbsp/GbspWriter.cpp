@@ -272,15 +272,15 @@ void GbspWriter::EndBspFile() {
 
 	FileHeader header;
 
-	header.lumps[LUMP_MODELS].length = numModels * 12;
-	header.lumps[LUMP_ENTITIES].length = numEntities * 7;
-	header.lumps[LUMP_PLANES].length = numPlanes * 4;
-	header.lumps[LUMP_NODES].length = numNodes * 11;
-	header.lumps[LUMP_LEAFS].length = numLeafs * 9;
+	header.lumps[LUMP_MODELS].length = numModels;
+	header.lumps[LUMP_ENTITIES].length = numEntities;
+	header.lumps[LUMP_PLANES].length = numPlanes;
+	header.lumps[LUMP_NODES].length = numNodes;
+	header.lumps[LUMP_LEAFS].length = numLeafs;
 	header.lumps[LUMP_LEAFFACES].length = numLeafFaces;
-	header.lumps[LUMP_VERTS].length = numVerts * 3;
+	header.lumps[LUMP_VERTS].length = numVerts;
 	header.lumps[LUMP_FACE_VERTS].length = numFaceVerts;
-	header.lumps[LUMP_FACES].length = numFaces * 3;
+	header.lumps[LUMP_FACES].length = numFaces;
 
 	bspFile->fileHeader = header;
 

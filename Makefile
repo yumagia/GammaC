@@ -1,8 +1,21 @@
 CC = g++ -fsanitize=address
 CXXFLAGS = -std=c++17 -O3 -ggdb
-# LDFLAGS = -lglfw
+LDFLAGS = $(shell pkg-config sdl2 --cflags --libs)
 
 COMMON_DIR := src/common
+
+# GAMMA Program
+GAMMA_EXEC := GAMMA
+GAMMA_BUILD_DIR := gamma-build
+GAMMA_SRC_DIRS := src/gamma $(COMMON_DIR)
+
+GAMMA_SRCS := $(shell find $(GAMMA_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+GAMMA_OBJS := $(GAMMA_SRCS:%=$(GAMMA_BUILD_DIR)/%.o)
+
+GAMMA_INC_DIRS := $(shell find $(GAMMA_SRC_DIRS) -type d)
+GAMMA_INC_FLAGS := $(addprefix -I,$(GAMMA_INC_DIRS))
+
+GAMMA_CPPFLAGS := $(GAMMA_INC_FLAGS) -MMD -MP
 
 # GBSP Program
 GBSP_EXEC := GBSP
@@ -30,7 +43,19 @@ GRAD_INC_FLAGS := $(addprefix -I,$(GRAD_INC_DIRS))
 
 GRAD_CPPFLAGS := $(GRAD_INC_FLAGS) -MMD -MP
 
-all: $(GBSP_EXEC) $(GRAD_EXEC)
+all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GRAD_EXEC)
+
+# GAMMA Executable
+$(GAMMA_EXEC): $(GAMMA_OBJS)
+	$(CC) $(GAMMA_OBJS) -o $@ $(LDFLAGS)
+
+$(GAMMA_BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(GAMMA_CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(GAMMA_BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(GAMMA_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # GBSP Executable
 $(GBSP_EXEC): $(GBSP_OBJS)
