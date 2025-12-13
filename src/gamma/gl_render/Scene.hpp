@@ -2,27 +2,34 @@
 #define SCENE_INCLUDED
 
 #include "glad/glad.h"
-#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 
 #include "GammaFile.hpp"
+#include "Camera.hpp"
+#include "ApplicationSpecification.hpp"
+#include "Shader.hpp"
 
 #include <vector>
 #include <iostream>
 
 struct Face {
-    unsigned int firstIndex, numIndices;
+    GLuint firstIndex, numIndices;
 };
 
-struct Vertex {
-    glm::vec3 position;
+struct RenderModel {
+    GLuint firstIndex, numIndices;
 };
 
 class Scene {
 public:
-    Scene() {}
+    Scene(ApplicationSpecification *appSpec) : appSpec(appSpec) {}
+    ~Scene();
 
     void OnInitialize();
+    void OnRender();
+    void OnTerminate();
+
+    void OnMouseControl(float dx, float dy);
     
     void LoadFile(std::string fileName);
 
@@ -33,11 +40,19 @@ private:
 
     BspFile *bspFile;
 
-    std::vector<Face> faces;
-    std::vector<GLuint> indices;
-    std::vector<Vertex> vertices;
+    Camera camera;
 
-    GLuint VAO, VBO, EBO;
+    Shader *shader;
+
+    ApplicationSpecification *appSpec;
+
+    std::vector<RenderModel> sceneModels;
+    std::vector<Face> sceneFaces;
+    std::vector<GLuint> sceneIndices;
+    std::vector<GLfloat> sceneVerts;
+
+    GLuint vao, vbo, ebo;
+    GLuint uniView, uniProj;
 };
 
 #endif

@@ -61,27 +61,38 @@ Quaternion::Quaternion(const Vec3f &axis, float angle) {
 }
 
 
-Quaternion Quaternion::GetConjugate() {
+Quaternion Quaternion::GetConjugate() const {
 	return Quaternion(w, -x, -y, -z);
 }
 
 // Vector rotation
 Vec3f Quaternion::RotateVector(const Vec3f &v) const {
-	Quaternion qv = Quaternion(	x * v.x + y + z * v.z,
-								w * v.x + (y * v.y - z * v.y),
-								w * v.y + (z * v.x - x * v.z),
-								w * v.z + (x * v.y - y * v.x)	);
 
-	return Vec3f(	qv.w * x + (qv.x * w - qv.y * z) + qv.z * y,
-					qv.w * y + (qv.y * w - qv.z * x) + qv.x * z,
-					qv.w * x + (qv.z * w - qv.x * y) + qv.y * x	);
+	// Vec3f vecNormalized = Vec3f(v);
+	// vecNormalized.Normalize();
+
+	Quaternion vecQuat = Quaternion(0.f, v.x, v.y, v.z);
+
+	Quaternion productQuat = Quaternion(vecQuat * GetConjugate());
+	productQuat = (*this) * productQuat;
+
+	return Vec3f(productQuat.x, productQuat.y, productQuat.z);
+
+	// Quaternion qv = Quaternion(	x * v.x + y + z * v.z,
+	// 							w * v.x + (y * v.y - z * v.y),
+	// 							w * v.y + (z * v.x - x * v.z),
+	// 							w * v.z + (x * v.y - y * v.x)	);
+
+	// return Vec3f(	qv.w * x + (qv.x * w - qv.y * z) + qv.z * y,
+	// 				qv.w * y + (qv.y * w - qv.z * x) + qv.x * z,
+	// 				qv.w * x + (qv.z * w - qv.x * y) + qv.y * x	);
 }
 
 Quaternion Quaternion::operator*(const Quaternion &q2) const {
-	return Quaternion(	w * q2.x + x * q2.w + y * q2.z - z * q2.y,
+	return Quaternion(	w * q2.w - x * q2.x - y * q2.y - z * q2.z,
+						w * q2.x + x * q2.w + y * q2.z - z * q2.y,
 						w * q2.y - x * q2.z + y * q2.w + z * q2.x,
-						w * q2.z + x * q2.y - y * q2.x + z * q2.w,
-						w * q2.w - x * q2.x - y * q2.y - z * q2.z	);
+						w * q2.z + x * q2.y - y * q2.x + z * q2.w	);
 }
 
 Color Color::operator+(const Color &v2) const {

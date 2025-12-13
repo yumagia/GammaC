@@ -45,7 +45,7 @@ public:
 
 	Quaternion(const Vec3f &axis, float angle); // Create from an axis-angle
 
-	Quaternion GetConjugate();
+	Quaternion GetConjugate() const;
 	void Normalize();
 	Vec3f RotateVector(const Vec3f &v) const;
 

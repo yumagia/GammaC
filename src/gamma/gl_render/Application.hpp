@@ -2,16 +2,12 @@
 #define APPLICATION_INCLUDED
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include "GammaFile.hpp"
 #include "Scene.hpp"
+#include "ApplicationSpecification.hpp"
 
 #include <iostream>
-
-struct ApplicationSpecification {
-	int width = 800;
-	int height = 600;
-	const char *title = "GRAK";
-};
 
 class Application {
 public:
@@ -31,15 +27,24 @@ private:
 	void BeginRendering();
 	void FinishRendering();
 	void RenderScene();
+
+	void Terminate();
 	
 private:
-	Scene     					*m_scene = NULL;
+	Scene	*m_scene = NULL;
+
+	GLint	uniView, uniProj;
 
 	ApplicationSpecification	m_spec;
 	SDL_Window					*m_window;
 	SDL_GLContext				m_renderContext;
 	SDL_Event					m_windowEvent;
-	bool						m_quit = false;
+
+	Uint64 lastTick, nowTick;
+	double deltaTime;
+
+	bool	m_quit = false;
+	bool	m_fullscreen = false;
 };
 
 #endif
