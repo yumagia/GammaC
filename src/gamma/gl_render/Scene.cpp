@@ -66,10 +66,19 @@ void Scene::SetupMesh() {
 			if(numTris < 1) {
 				continue;
 			}
-			for(int j = 1; j < numTris; j++) {
+			for(int j = 0; j < numTris; j++) {
 				sceneIndices.push_back(bspFace->firstVert);
-				sceneIndices.push_back(bspFace->firstVert + j);
 				sceneIndices.push_back(bspFace->firstVert + j + 1);
+				sceneIndices.push_back(bspFace->firstVert + j + 2);
+
+				FilePlane *facePlane = &bspFile->filePlanes[bspFace->planeNum];
+				sceneIndices.push_back(facePlane->normal[0]);
+				sceneIndices.push_back(facePlane->normal[1]);
+				sceneIndices.push_back(facePlane->normal[2]);
+
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[0]);
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[1]);
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[2]);
 			}
 
 			newFace.numIndices = sceneIndices.size();
@@ -98,8 +107,16 @@ void Scene::SetupMesh() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sceneIndices.size() * sizeof(GLuint), sceneIndices.data(), GL_STATIC_DRAW);
 
 	// Vertex positions
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);  
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)0);  
 	glEnableVertexAttribArray(0);
+
+	// Vertex normals
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 3));  
+	glEnableVertexAttribArray(1);
+
+	// Color attributes
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(sizeof(GLfloat) * 6));  
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 
@@ -108,15 +125,19 @@ void Scene::SetupMesh() {
 
 void Scene::OnInitialize() {
 	shader = new Shader("shaders/vertex.glsl", "shaders/fragment.glsl");
+}
 
-	uniView = glGetUniformLocation(shader->handle, "view");
-	uniProj = glGetUniformLocation(shader->handle, "proj");
-
+void Scene::OnCameraMove(int axis, float delta) {
+	
 }
 
 void Scene::OnRender() {
-	glUseProgram(shader->handle);
 
+	GLuint uniView = glGetUniformLocation(shader->handle, "view");
+	GLuint uniProj = glGetUniformLocation(shader->handle, "proj");
+	GLuint uniColor = glGetUniformLocation(shader->handle, "inColor");
+
+	glUseProgram(shader->handle);
 
 	glm::mat4 trans = camera.GetMatrix();
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(trans));
@@ -124,8 +145,7 @@ void Scene::OnRender() {
 	glm::mat4 proj = glm::perspective((PI/4), appSpec->width / (float) appSpec->height, 1.0f, 5000.0f);
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	GLint uniColor = glGetUniformLocation(shader->handle, "inColor");
-	glm::vec3 colVec(0.f, 0.7f, 0.3f);
+	glm::vec3 colVec(0.f, 0.f, 0.f);
 	glUniform3fv(uniColor, 1, glm::value_ptr(colVec));
 
 	glBindVertexArray(vao);

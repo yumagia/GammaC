@@ -10,6 +10,7 @@ class Camera {
 public:
     void AxisRotate(const Vec3f &axis, float angle);
     void AnglesRotate(float dx, float dy);
+    void Move(int axis, float delta);
 
     glm::mat4 GetMatrix();
 

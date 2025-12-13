@@ -8,10 +8,6 @@
 
 glm::mat4 Camera::GetMatrix() {
 	Vec3f lookAtVec = orientation.RotateVector(Vec3f(0.f, 0.f, 1.f));
-	std::cout << lookAtVec.x << std::endl;
-	std::cout << lookAtVec.y << std::endl;
-	std::cout << lookAtVec.z << std::endl;
-
 	glm::mat4 trans = glm::lookAt(	glm::vec3(lookAtVec.x, lookAtVec.y, lookAtVec.z),
 									glm::vec3(position.x, position.y, position.z),
 									glm::vec3(0.f, 1.f, 0.f)							);
@@ -32,9 +28,16 @@ void Camera::AnglesRotate(float dx, float dy) {
 	orientation = quatPitch * Quaternion();
 	Quaternion quatYaw = Quaternion(Vec3f(0.f, 1.f, 0.f), rotationY);
 	orientation = quatYaw * orientation;
+}
 
-	std::cout << orientation.w << std::endl;
-	std::cout << orientation.x << std::endl;
-	std::cout << orientation.y << std::endl;
-	std::cout << orientation.z << std::endl;
+void Camera::Move(int axis, float delta) {
+	if(axis = 0) {
+		position.x += delta;
+	}
+	else if(axis = 1) {
+		position.y += delta;
+	}
+	else if(axis = 2) {
+		position.z += delta;
+	}
 }

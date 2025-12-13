@@ -28,6 +28,7 @@ public:
     void OnInitialize();
     void OnRender();
     void OnTerminate();
+    void OnCameraMove(int axis, float delta);
 
     void OnMouseControl(float dx, float dy);
     
@@ -52,7 +53,6 @@ private:
     std::vector<GLfloat> sceneVerts;
 
     GLuint vao, vbo, ebo;
-    GLuint uniView, uniProj;
 };
 
 #endif

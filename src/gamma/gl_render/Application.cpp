@@ -118,6 +118,19 @@ int Application::Run() {
 				m_scene->OnMouseControl(-deltaTime * m_spec.keySens, 0);
 			}
 
+			if(m_windowEvent.type == SDL_KEYDOWN && m_windowEvent.key.keysym.sym == SDLK_w) {
+				m_scene->OnCameraMove(2, deltaTime * m_spec.moveSpeed);
+			}
+			if(m_windowEvent.type == SDL_KEYDOWN && m_windowEvent.key.keysym.sym == SDLK_a) {
+				m_scene->OnCameraMove(0, -deltaTime * m_spec.moveSpeed);
+			}
+			if(m_windowEvent.type == SDL_KEYDOWN && m_windowEvent.key.keysym.sym == SDLK_s) {
+				m_scene->OnCameraMove(2, -deltaTime * m_spec.moveSpeed);
+			}
+			if(m_windowEvent.type == SDL_KEYDOWN && m_windowEvent.key.keysym.sym == SDLK_d) {
+				m_scene->OnCameraMove(0, deltaTime * m_spec.moveSpeed);
+			}
+
 		}
 
 		lastTick = nowTick;

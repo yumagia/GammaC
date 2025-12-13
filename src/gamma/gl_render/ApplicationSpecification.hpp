@@ -7,8 +7,9 @@ public:
 	int height = 600;
 	const char *title = "GAMMA";
 
-	float mouseSens = 0.05f;
+	float mouseSens = 0.01f;
     float keySens = 10.f;
+    float moveSpeed = 10.f;
 };
 
 #endif
