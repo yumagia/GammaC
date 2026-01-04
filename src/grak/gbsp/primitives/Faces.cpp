@@ -20,10 +20,10 @@ BspFace::BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face) {
 
 	this->tested = face->tested;
 	this->planeNum = face->planeNum;
-	this->texInfoNum = face->texInfoNum;
+	this->materialNum = face->materialNum;
 }
 
-BspFace::BspFace(std::vector<int> vertIndices, int planeNum, int textureNum) {
+BspFace::BspFace(std::vector<int> vertIndices, int planeNum, int materialNum) {
 	if(vertIndices.size() < 3) {
 		std::cerr << "WARNING: Bad vert count (" << vertIndices.size() << ") for face" << std::endl;
 	}
@@ -32,5 +32,5 @@ BspFace::BspFace(std::vector<int> vertIndices, int planeNum, int textureNum) {
 
 	this->tested = false;
 	this->planeNum = planeNum;
-	this->texInfoNum = texInfoNum;
+	this->materialNum = materialNum;
 }

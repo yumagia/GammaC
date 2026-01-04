@@ -8,7 +8,8 @@ int main(int argc, char *argv[]) {
     std::cout << "GRAK GBSP" << std::endl;
 
     if(argc < 3) {
-        std::cout << "Program use: ./GBSP <map name> <output file name>" << std::endl;
+        std::cerr << "Program use: ./GBSP <map name> <output file name>" << std::endl;
+        exit(1);
     }
 
     GbspWriter *fileWriter = new GbspWriter();

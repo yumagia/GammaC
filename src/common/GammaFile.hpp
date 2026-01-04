@@ -85,25 +85,18 @@ struct FileLeaf {
 
 struct FileVert {
 	float			point[3];
+	float			surfaceUV[2];
+	float			lightMapUV[2];
+	float			normal[3];
 };
 
 struct FileFace {
 	unsigned int	planeNum;
 	unsigned int	firstVert, numVerts;
 
-	int				textInfo;
+	int				material;
 
 	int				lightMapOffset;
-};
-
-struct FileTexInfo {
-	float			uAxis[3];
-	float			uOffset;
-
-	float			vAxis[3];
-	float			vOffset;
-
-	int				material;
 };
 
 struct FileLighting {
@@ -131,8 +124,6 @@ struct BspFile {
 	unsigned int	fileFaceVerts[MAX_MAP_FACE_VERTS];
 	FileFace		fileFaces[MAX_MAP_FACES];
 	FileMaterial	fileMaterials[MAX_MAP_MATERIALS];
-
-	FileTexInfo		fileTexInfos[MAX_MAP_TEX_INFOS];
 	
 	unsigned int	lightMap[MAX_LIGHTMAP];
 	FileLighting	fileLightBases[MAX_MAP_LIGHT_BASES];

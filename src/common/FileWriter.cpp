@@ -203,7 +203,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentFace->firstVert << std::endl;
 			outputFile << currentFace->numVerts << std::endl;
 			outputFile << currentFace->planeNum << std::endl;
-			outputFile << currentFace->textInfo << std::endl;
+			outputFile << currentFace->material << std::endl;
 
 			numLines += 4;
 		}

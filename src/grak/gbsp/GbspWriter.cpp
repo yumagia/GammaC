@@ -152,7 +152,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	numFaces++;
 
 	emittedFace->planeNum = face->planeNum;
-	emittedFace->textInfo = face->materialNum;
+	emittedFace->material = face->materialNum;
 	
 	emittedFace->firstVert = numFaceVerts;
 	int numVerts = face->vertIndices.size();

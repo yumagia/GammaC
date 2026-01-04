@@ -284,7 +284,7 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		std::getline(readFile, line);
 		readFace.planeNum = stoi(line);
 		std::getline(readFile, line);
-		readFace.textInfo = stoi(line);
+		readFace.material = stoi(line);
 
 		bspFile->fileFaces[i] = readFace;
 	}
