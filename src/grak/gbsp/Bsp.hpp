@@ -51,11 +51,11 @@ struct BspFace {
 
 	// Create from new winding, inherit plane
 	BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face);
-	BspFace(std::vector<int> vertIndices, int planeNum, int materialNum);
+	BspFace(std::vector<int> vertIndices, int planeNum, int texInfoNum);
 
 	std::vector<int>	vertIndices;
 	int			planeNum;
-	int			materialNum;
+	int			texInfoNum;
 
 	// TODO: Face Lighting attributes
 	//int			lightingIdx;
@@ -125,5 +125,7 @@ void FreeTree(BspNode *node);
 
 int PlaneNumFromTriangle(Vec3f p0, Vec3f p1, Vec3f p2);
 int FindPlane(Vec3f normal, float dist);
+
+int TextureFromMaterial(int planeNum, int materialNum, Vec3f origin);
 
 #endif

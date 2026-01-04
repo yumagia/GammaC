@@ -133,6 +133,7 @@ struct BspFile {
 	FileMaterial	fileMaterials[MAX_MAP_MATERIALS];
 
 	FileTexInfo		fileTexInfos[MAX_MAP_TEX_INFOS];
+	
 	unsigned int	lightMap[MAX_LIGHTMAP];
 	FileLighting	fileLightBases[MAX_MAP_LIGHT_BASES];
 

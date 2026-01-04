@@ -130,7 +130,8 @@ LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, 
 			int planeNum =	PlaneNumFromTriangle(	newMesh->vertexList[vertIndices[0]]->point, 
 													newMesh->vertexList[vertIndices[1]]->point, 
 													newMesh->vertexList[vertIndices[2]]->point	);
-			std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, planeNum, currMaterialNum);
+			
+			std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, planeNum, TextureFromMaterial(planeNum, currMaterialNum, Vec3f()));
 
 			newMesh->faces.push_back(newFace);
 		}
