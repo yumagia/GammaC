@@ -7,16 +7,18 @@ class RadiosityBaker {
 public:
 	RadiosityBaker();
 
-	void BakeRad(BspFile &bspFile);
+	void BakeRad(BspFile *bspFile);
 	
 private:
-	void InitLightMaps(BspFile &bspFile);
+	void InitLightMaps();
 
 	void PatchesForFace(FileFace &face);
 
-	void InitialLightingPass(BspFile &bspFile);
+	void InitialLightingPass();
 
 private:
+	BspFile *bspFile = nullptr;
+
 	int numLumel = 0;
 };
 
