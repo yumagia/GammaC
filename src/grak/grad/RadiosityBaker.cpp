@@ -9,8 +9,9 @@ RadiosityBaker::RadiosityBaker() {
 void RadiosityBaker::PatchesForFace(FileFace &face) {
 	face.lightMapOffset = numLumel;
 
-	bspFile;
-	face.planeNum;
+	FilePlane *facePlane = &bspFile->filePlanes[face.planeNum];
+	Vec3f normal(facePlane->normal[0], facePlane->normal[1], facePlane->normal[2]);
+	
 }
 
 void RadiosityBaker::InitLightMaps() {

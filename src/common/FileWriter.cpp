@@ -180,7 +180,17 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentVert->point[1] << std::endl;
 			outputFile << currentVert->point[2] << std::endl;
 
-			numLines += 3;
+			outputFile << currentVert->normal[0] << std::endl;
+			outputFile << currentVert->normal[1] << std::endl;
+			outputFile << currentVert->normal[2] << std::endl;
+
+			outputFile << currentVert->surfaceUV[0] << std::endl;
+			outputFile << currentVert->surfaceUV[1] << std::endl;
+
+			outputFile << currentVert->lightMapUV[0] << std::endl;
+			outputFile << currentVert->lightMapUV[1] << std::endl;
+
+			numLines += 10;
 		}
 		header.lumps[LUMP_VERTS].length = numVerts;
 		

@@ -85,9 +85,10 @@ struct FileLeaf {
 
 struct FileVert {
 	float			point[3];
+	float			normal[3];
+	
 	float			surfaceUV[2];
 	float			lightMapUV[2];
-	float			normal[3];
 };
 
 struct FileFace {

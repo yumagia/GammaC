@@ -260,6 +260,23 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		std::getline(readFile, line);
 		readVert.point[2] = stof(line);
 
+		std::getline(readFile, line);
+		readVert.normal[0] = stof(line);
+		std::getline(readFile, line);
+		readVert.normal[1] = stof(line);
+		std::getline(readFile, line);
+		readVert.normal[2] = stof(line);
+
+		std::getline(readFile, line);
+		readVert.surfaceUV[0] = stof(line);
+		std::getline(readFile, line);
+		readVert.surfaceUV[1] = stof(line);
+
+		std::getline(readFile, line);
+		readVert.lightMapUV[0] = stof(line);
+		std::getline(readFile, line);
+		readVert.lightMapUV[1] = stof(line);
+
 		bspFile->fileVerts[i] = readVert;
 	}
 
