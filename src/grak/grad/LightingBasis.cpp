@@ -11,6 +11,7 @@ LightingBasis::LightingBasis() {
 	hBasis[5] = 0;
 }
 
+// Use a hemispherical basis
 LightingBasis::LightingBasis(const Vec3f &vector) {
 	hBasis[0] = 0.3989422804f;
 	hBasis[1] = -0.69098829894f * vector.x;

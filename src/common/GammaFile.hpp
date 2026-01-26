@@ -86,7 +86,7 @@ struct FileLeaf {
 struct FileVert {
 	float			point[3];
 	float			normal[3];
-	
+
 	float			surfaceUV[2];
 	float			lightMapUV[2];
 };
@@ -97,7 +97,10 @@ struct FileFace {
 
 	int				material;
 
-	int				lightMapOffset;
+	int				lightMapOffset, lightMapSize;
+	float			lightMapOrigin[3];
+	float			lightMapS[3];
+	float			lightMapT[3];
 };
 
 struct FileLighting {
