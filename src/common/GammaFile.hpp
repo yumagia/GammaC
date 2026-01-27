@@ -18,9 +18,11 @@
 #define MAX_LIGHTMAP		131072
 #define MAX_MAP_LIGHT_BASES	65536
 
-
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
+
+// LIGHTING CONSTS
+#define PATCH_SIZE	10
 
 // MISC MAP DEFS
 #define BOUND_PADDING 16
@@ -97,7 +99,7 @@ struct FileFace {
 
 	int				material;
 
-	int				lightMapOffset, lightMapSize;
+	int				lightMapOffset, lightMapWidth, lightMapHeight;
 	float			lightMapOrigin[3];
 	float			lightMapS[3];
 	float			lightMapT[3];
@@ -105,7 +107,7 @@ struct FileFace {
 
 struct FileLighting {
 	float			color[3];
-	float			hBasis[6];
+	float			hBasis[3][6];
 };
 
 struct FileMaterial {

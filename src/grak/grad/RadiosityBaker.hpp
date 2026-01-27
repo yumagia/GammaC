@@ -12,7 +12,7 @@ public:
 private:
 	void InitLightMaps();
 
-	void PatchesForFace(FileFace &face);
+	void PatchesForFace(FileFace *face);
 
 	void InitialLightingPass();
 

@@ -215,7 +215,23 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentFace->planeNum << std::endl;
 			outputFile << currentFace->material << std::endl;
 
-			numLines += 4;
+			outputFile << currentFace->lightMapOffset << std::endl;
+			outputFile << currentFace->lightMapWidth << std::endl;
+			outputFile << currentFace->lightMapHeight << std::endl;
+
+			outputFile << currentFace->lightMapOrigin[0] << std::endl;
+			outputFile << currentFace->lightMapOrigin[1] << std::endl;
+			outputFile << currentFace->lightMapOrigin[2] << std::endl;
+
+			outputFile << currentFace->lightMapS[0] << std::endl;
+			outputFile << currentFace->lightMapS[1] << std::endl;
+			outputFile << currentFace->lightMapS[2] << std::endl;
+
+			outputFile << currentFace->lightMapT[0] << std::endl;
+			outputFile << currentFace->lightMapT[1] << std::endl;
+			outputFile << currentFace->lightMapT[2] << std::endl;
+
+			numLines += 16;
 		}
 		header.lumps[LUMP_FACES].length = numFaces;
 
