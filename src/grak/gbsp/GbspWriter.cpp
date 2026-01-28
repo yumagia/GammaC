@@ -224,6 +224,8 @@ void GbspWriter::EmitPlanes() {
 	for(int i = 0; i < numMapPlanes; i++) {
 		FilePlane *emittedPlane = &bspFile->filePlanes[numPlanes];
 		numPlanes++;
+
+		emittedPlane->type = mapPlanes[i].type;
 		
 		emittedPlane->normal[0] = mapPlanes[i].normal.x;
 		emittedPlane->normal[1] = mapPlanes[i].normal.y;

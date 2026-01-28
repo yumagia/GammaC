@@ -11,7 +11,9 @@ BspPlane mapPlanes[MAX_MAP_PLANES];
 #define PLANE_HASHES 1024
 BspPlane	*hashPlanes[PLANE_HASHES];
 
-#define NORMAL_EPSILON	0.000001
+#define AXIAL_EPSILON		0.999
+
+#define NORMAL_EPSILON		0.000001
 #define DISTANCE_EPSILON	0.001
 
 int GetHashFromPlane(Vec3f normal, float dist) {
@@ -39,6 +41,25 @@ int FindPlane(Vec3f normal, float dist) {
 	plane = &mapPlanes[numMapPlanes];
 	plane->normal = normal;
 	plane->dist = dist;
+
+	if(normal.x > normal.y && normal.x > normal.z) {
+		plane->type = 0;
+		if(normal.x < AXIAL_EPSILON) {
+			plane->type += 3;
+		}
+	}
+	else if(normal.y > normal.z) {
+		plane->type = 1;
+		if(normal.y < AXIAL_EPSILON) {
+			plane->type += 3;
+		}
+	}
+	else {
+		plane->type = 2;
+		if(normal.z < AXIAL_EPSILON) {
+			plane->type += 3;
+		}
+	}
 
 	numMapPlanes++;
 

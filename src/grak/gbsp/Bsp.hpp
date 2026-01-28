@@ -28,6 +28,7 @@ struct BspPlane {
 
 	bool EqualTo(Vec3f normal, float dist);
 
+	int		type;
 	Vec3f	normal;
 	float	dist;
 	BspPlane *hashChain;

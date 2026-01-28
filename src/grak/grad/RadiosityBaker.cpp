@@ -108,16 +108,18 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapT[1] /= magT;
 	face->lightMapT[2] /= magT;
 
-	face->lightMapWidth = ceil(face->lightMapS[(major + 2) % 3] / PATCH_SIZE);
-	face->lightMapHeight = ceil(face->lightMapT[(major + 1) % 3] / PATCH_SIZE);
+	face->lightMapWidth = ceil(face->lightMapS[(major + 2) % 3] / PATCH_SIZE) + 1;
+	face->lightMapHeight = ceil(face->lightMapT[(major + 1) % 3] / PATCH_SIZE) + 1;
 
 	// Create the actual patches
 	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
-	for(int tStep; tStep < face->lightMapHeight; tStep++) {
-		for(int sStep; sStep < face->lightMapWidth; sStep++) {
-			Vec3f s = sVec * ((sStep + 0.5) * PATCH_SIZE);
-			Vec3f t = tVec * ((tStep + 0.5) * PATCH_SIZE);
+	for(int tStep = 0; tStep < face->lightMapHeight; tStep++) {
+		for(int sStep = 0; sStep < face->lightMapWidth; sStep++) {
+			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
+			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
+
+			Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 
 			numLumel++;
 		}

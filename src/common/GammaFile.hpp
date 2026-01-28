@@ -28,7 +28,6 @@
 #define BOUND_PADDING 16
 #define MAX_WINDING 32
 
-
 struct FileLump {
 	int		offset, length;
 };
@@ -67,6 +66,7 @@ struct FileEntity {
 };
 
 struct FilePlane {
+	int		type;
 	float	normal[3];
 	float	dist;
 };
@@ -106,8 +106,8 @@ struct FileFace {
 };
 
 struct FileLighting {
-	float			color[3];
 	float			hBasis[3][6];
+	int				legal;
 };
 
 struct FileMaterial {
