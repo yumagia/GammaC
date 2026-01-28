@@ -16,6 +16,10 @@ int main(int argc, char *argv[]) {
 	FileReader bspReader; 
 	BspFile *bspFile = bspReader.ReadFile(argv[1]);
 
+	if(!bspFile) {
+		exit(1);
+	}
+
 	RadiosityBaker baker;
 	baker.BakeRad(bspFile);
 

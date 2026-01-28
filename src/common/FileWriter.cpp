@@ -105,13 +105,15 @@ void FileWriter::WriteLevel(std::string fileName) {
 		for(int i = 0; i < numPlanes; i++) {
 			FilePlane *currentPlane = &bspFile->filePlanes[i];
 
+			outputFile << currentPlane->type << std::endl;
+
 			outputFile << currentPlane->normal[0] << std::endl;
 			outputFile << currentPlane->normal[1] << std::endl;
 			outputFile << currentPlane->normal[2] << std::endl;
 
 			outputFile << currentPlane->dist << std::endl;
 
-			numLines += 4;
+			numLines += 5;
 		}
 		header.lumps[LUMP_PLANES].length = numPlanes;
 

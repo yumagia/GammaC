@@ -13,6 +13,8 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 
 	if(!readFile.is_open()) {
 		std::cerr << "Error opening file" << std::endl;
+
+		delete bspFile;
 		return NULL;
 	}
 
@@ -163,6 +165,9 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 	std::getline(readFile, line);
 	for(int i = 0; i < numPlanes; i++) {
 		FilePlane readPlane;
+
+		std::getline(readFile, line);
+		readPlane.type = stof(line);
 
 		std::getline(readFile, line);
 		readPlane.normal[0] = stof(line);
