@@ -76,9 +76,9 @@ void Scene::SetupMesh() {
 				sceneIndices.push_back(facePlane->normal[1]);
 				sceneIndices.push_back(facePlane->normal[2]);
 
-				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[0]);
-				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[1]);
-				sceneIndices.push_back(bspFile->fileMaterials[bspFace->textInfo].diffuse[2]);
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->material].diffuse[0]);
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->material].diffuse[1]);
+				sceneIndices.push_back(bspFile->fileMaterials[bspFace->material].diffuse[2]);
 			}
 
 			newFace.numIndices = sceneIndices.size();
