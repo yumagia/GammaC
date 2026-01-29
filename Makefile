@@ -45,6 +45,8 @@ GRAD_CPPFLAGS := $(GRAD_INC_FLAGS) -MMD -MP
 
 all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GRAD_EXEC)
 
+tools: $(GBSP_EXEC) $(GRAD_EXEC)
+
 # GAMMA Executable
 $(GAMMA_EXEC): $(GAMMA_OBJS)
 	$(CC) $(GAMMA_OBJS) -o $@ $(LDFLAGS)
@@ -85,6 +87,6 @@ $(GRAD_BUILD_DIR)/%.cpp.o: %.cpp
 .PHONY: clean all
 
 clean:
-	$(RM) -r $(GBSP_BUILD_DIR) $(GRAD_BUILD_DIR)
+	$(RM) -r $(GBSP_BUILD_DIR) $(GRAD_BUILD_DIR) 
 
 MKDIR_P := mkdir -p

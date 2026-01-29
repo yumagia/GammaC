@@ -10,7 +10,10 @@ class RadiosityBaker {
 public:
 	RadiosityBaker();
 
-	void BakeRad(BspFile *bspFile);
+	// Creates lightmaps and bakes the lighting for the given world model, returns numLumels
+	int BakeRad(BspFile *bspFile);
+	// Also returns numLumels
+	int GetNumLumels();
 	
 private:
 	void InitLightMaps();
@@ -22,7 +25,7 @@ private:
 private:
 	BspFile *bspFile = nullptr;
 
-	int numLumel = 0;
+	int numLumels = 0;
 };
 
 #endif

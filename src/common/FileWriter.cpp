@@ -37,8 +37,9 @@ FileWriter::FileWriter(BspFile *bspFile) {
 	numFaceVerts = header.lumps[LUMP_FACE_VERTS].length;
 	numFaces = header.lumps[LUMP_FACES].length;
 	numMaterials = header.lumps[LUMP_MATERIALS].length;
+	numLumels = header.lumps[LUMP_LUMELS].length;
 
-	(*this).bspFile = bspFile;
+	this->bspFile = bspFile;
 }
 
 void FileWriter::WriteLevel(std::string fileName) {
@@ -260,6 +261,18 @@ void FileWriter::WriteLevel(std::string fileName) {
 			numLines += 10;
 		}
 		header.lumps[LUMP_MATERIALS].length = numMaterials;
+
+		outputFile << "LIGHTMAP LUMP" << std::endl;
+		numLines++;
+		header.lumps[LUMP_LUMELS].offset = numLines;
+		for(int i = 0; i < numLumels; i++) {
+			FileLumel *currentLumel = &bspFile->fileLightmaps[i];
+
+			outputFile << currentLumel->legal << std::endl;
+
+			numLines += 1;
+		}
+		header.lumps[LUMP_LUMELS].length = numLumels;
 		
 		outputFile.close();
 	}

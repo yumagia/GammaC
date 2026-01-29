@@ -1,4 +1,4 @@
-#include "FileWriter.hpp"
+#include "GradWriter.hpp"
 #include "FileReader.hpp"
 
 #include "RadiosityBaker.hpp"
@@ -21,9 +21,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	RadiosityBaker baker;
-	baker.BakeRad(bspFile);
+	int numLumels = baker.BakeRad(bspFile);
 
-	FileWriter *bspWriter = new FileWriter(bspFile);
+	GradWriter *bspWriter = new GradWriter(bspFile);
+	bspWriter->SetNumLumels(numLumels);
+
 	bspWriter->WriteLevel(argv[1]);
 
 	delete bspWriter;

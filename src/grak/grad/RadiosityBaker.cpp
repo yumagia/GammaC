@@ -5,11 +5,11 @@
 #include <iostream>
 
 RadiosityBaker::RadiosityBaker() {
-	numLumel = 0;
+	numLumels = 0;
 }
 
 void RadiosityBaker::PatchesForFace(FileFace *face) {
-	face->lightMapOffset = numLumel;
+	face->lightMapOffset = numLumels;
 
 	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
 
@@ -113,9 +113,9 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 			Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 			
-			SampleLegal(samplePosition, face);
+			bspFile->fileLightmaps[numLumels].legal = SampleLegal(samplePosition, face);
 
-			numLumel++;
+			numLumels++;
 		}
 	}
 }
@@ -186,10 +186,16 @@ void RadiosityBaker::InitialLightingPass() {
 
 }
 
-void RadiosityBaker::BakeRad(BspFile *bspFile) {
+int RadiosityBaker::BakeRad(BspFile *bspFile) {
 	this->bspFile = bspFile;
-	numLumel = 0;
+	numLumels = 0;
 
 	InitLightMaps();
 	InitialLightingPass();
+
+	return numLumels;
+}
+
+int RadiosityBaker::GetNumLumels() {
+	return numLumels;
 }

@@ -99,6 +99,13 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 	numMaterials = stoi(line);
 	std::cout << "	" << numMaterials << " number of materials" << std::endl;
 
+	std::getline(readFile, line);
+	header.lumps[LUMP_LUMELS].offset = stoi(line);
+	std::getline(readFile, line);
+	header.lumps[LUMP_LUMELS].length = stoi(line);
+	numLumels = stoi(line);
+	std::cout << "	" << numLumels << " number of lumels" << std::endl;
+
 	bspFile->fileHeader = header;
 
 	std::getline(readFile, line);

@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUM_LUMPS			10
+#define NUM_LUMPS			11
 
 // MAP UPPER BOUNDS
 #define MAX_MAP_MODELS		256
@@ -15,14 +15,13 @@
 #define MAX_MAP_FACES		32768
 #define MAX_MAP_MATERIALS	512
 #define MAX_MAP_TEX_INFOS	32768
-#define MAX_LIGHTMAP		131072
-#define MAX_MAP_LIGHT_BASES	65536
+#define MAX_MAP_LUMELS		131072
 
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
 
 // LIGHTING CONSTS
-#define PATCH_SIZE	2
+#define PATCH_SIZE	5
 
 // MISC MAP DEFS
 #define BOUND_PADDING 16
@@ -42,7 +41,8 @@ enum {
 	LUMP_VERTS,
 	LUMP_FACE_VERTS,
 	LUMP_FACES,
-	LUMP_MATERIALS
+	LUMP_MATERIALS,
+	LUMP_LUMELS
 };
 
 struct FileHeader {
@@ -105,7 +105,7 @@ struct FileFace {
 	float			lightMapT[3];
 };
 
-struct FileLighting {
+struct FileLumel {
 	float			hBasis[3][6];
 	int				legal;
 };
@@ -130,9 +130,7 @@ struct BspFile {
 	unsigned int	fileFaceVerts[MAX_MAP_FACE_VERTS];
 	FileFace		fileFaces[MAX_MAP_FACES];
 	FileMaterial	fileMaterials[MAX_MAP_MATERIALS];
-	
-	unsigned int	lightMap[MAX_LIGHTMAP];
-	FileLighting	fileLightBases[MAX_MAP_LIGHT_BASES];
+	FileLumel		fileLightmaps[MAX_MAP_LUMELS];
 
 	bool			valid = false;
 };
