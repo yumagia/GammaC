@@ -9,12 +9,13 @@ RadiosityBaker::RadiosityBaker() {
 }
 
 void RadiosityBaker::PatchesForFace(FileFace *face) {
+	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
+	int major;
+
 	face->lightMapOffset = numLumels;
 
-	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
-
 	// Determine the major axis
-	int major = facePlane->type;
+	major = facePlane->type;
 	if(facePlane->type > 2) {
 		major = facePlane->type - 3;
 	}
@@ -116,7 +117,14 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			bspFile->fileLightmaps[numLumels].legal = SampleLegal(samplePosition, face);
 
 			numLumels++;
+
 		}
+	}
+	
+	for(int i = 0; i < face->numVerts; i++) {
+		FileVert* vert = &bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
+		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / PATCH_SIZE;
+		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / PATCH_SIZE;
 	}
 }
 

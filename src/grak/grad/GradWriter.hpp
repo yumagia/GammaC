@@ -12,7 +12,6 @@ public:
 	GradWriter(BspFile *bspFile);
 
 	void	SetNumLumels(int numLumels);
-	
 };
 
 #endif
