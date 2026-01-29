@@ -22,7 +22,7 @@
 #define	MAX_VALUE	512
 
 // LIGHTING CONSTS
-#define PATCH_SIZE	10
+#define PATCH_SIZE	2
 
 // MISC MAP DEFS
 #define BOUND_PADDING 16

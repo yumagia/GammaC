@@ -3,6 +3,9 @@
 
 #include "GammaFile.hpp"
 
+#include "Math.hpp"
+
+
 class RadiosityBaker {
 public:
 	RadiosityBaker();
@@ -11,11 +14,11 @@ public:
 	
 private:
 	void InitLightMaps();
+	void InitialLightingPass();
 
 	void PatchesForFace(FileFace *face);
 
-	void InitialLightingPass();
-
+	bool SampleLegal(Vec3f samplePosition, FileFace *face);
 private:
 	BspFile *bspFile = nullptr;
 
