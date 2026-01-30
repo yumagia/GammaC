@@ -106,8 +106,9 @@ struct FileFace {
 };
 
 struct FileLumel {
-	float			hBasis[3][6];
 	int				legal;
+	int				faceIndex;
+	float			hBasis[3][6];
 };
 
 struct FileMaterial {

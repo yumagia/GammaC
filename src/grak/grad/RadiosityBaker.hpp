@@ -20,8 +20,8 @@ private:
 	void InitialLightingPass();
 
 	void PatchesForFace(FileFace *face);
-
 	bool SampleLegal(Vec3f samplePosition, FileFace *face);
+	void CollectLighting(FileLumel *lumel);
 private:
 	BspFile *bspFile = nullptr;
 

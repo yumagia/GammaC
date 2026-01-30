@@ -8,6 +8,61 @@ RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
 }
 
+bool RadiosityBaker::SampleLegal(Vec3f samplePosition, FileFace *face) {
+	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
+
+	// Determine the major axis
+	int major = facePlane->type;
+	if(facePlane->type > 2) {
+		major = facePlane->type - 3;
+	}
+
+	float sampleX, sampleY;
+	if(major == 0) {
+		sampleX = samplePosition.z;
+		sampleY = samplePosition.y;
+	}
+	else if(major == 1) {
+		sampleX = samplePosition.x;
+		sampleY = samplePosition.z;
+	}
+	else {
+		sampleX = samplePosition.y;
+		sampleY = samplePosition.x;
+	}
+	
+	int numPos, numNeg;
+	numPos = numNeg = 0;
+	float xv1, yv1, xv2, yv2;
+	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + face->numVerts - 1]];
+	xv2 = currVert.point[(major + 2) % 3];
+	yv2 = currVert.point[(major + 1) % 3];
+	for(int i = 0; i < face->numVerts; i++) {
+		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
+		xv1 = xv2;
+		yv1 = yv2;
+		xv2 = currVert.point[(major + 2) % 3];
+		yv2 = currVert.point[(major + 1) % 3];
+
+		// Edge Vector
+		float ex = xv2 - xv1;
+		float ey = yv2 - yv1;
+
+		// Sample vector
+		float esx = sampleX - xv1;
+		float esy = sampleY - yv1;
+
+		if((ex * esx) + (ey *esy) > 0) {
+			numPos++;
+		}
+		else {
+			numNeg++;
+		}
+	}
+
+	return !(numPos > 0 && numNeg > 0);
+}
+
 void RadiosityBaker::PatchesForFace(FileFace *face) {
 	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
 	int major;
@@ -114,7 +169,9 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 			Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 			
-			bspFile->fileLightmaps[numLumels].legal = SampleLegal(samplePosition, face);
+			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
+			lumel->legal = SampleLegal(samplePosition, face);
+			lumel->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
 
@@ -128,69 +185,38 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	}
 }
 
-bool RadiosityBaker::SampleLegal(Vec3f samplePosition, FileFace *face) {
-	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
-
-	// Determine the major axis
-	int major = facePlane->type;
-	if(facePlane->type > 2) {
-		major = facePlane->type - 3;
-	}
-
-	float sampleX, sampleY;
-	if(major == 0) {
-		sampleX = samplePosition.z;
-		sampleY = samplePosition.y;
-	}
-	else if(major == 1) {
-		sampleX = samplePosition.x;
-		sampleY = samplePosition.z;
-	}
-	else {
-		sampleX = samplePosition.y;
-		sampleY = samplePosition.x;
-	}
-	
-	int numPos, numNeg;
-	numPos = numNeg = 0;
-	float xv1, yv1, xv2, yv2;
-	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + face->numVerts - 1]];
-	xv2 = currVert.point[(major + 2) % 3];
-	yv2 = currVert.point[(major + 1) % 3];
-	for(int i = 0; i < face->numVerts; i++) {
-		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
-		xv1 = xv2;
-		yv1 = yv2;
-		xv2 = currVert.point[(major + 2) % 3];
-		yv2 = currVert.point[(major + 1) % 3];
-
-		// Edge Vector
-		float ex = xv2 - xv1;
-		float ey = yv2 - yv1;
-
-		// Sample vector
-		float esx = sampleX - xv1;
-		float esy = sampleY - yv1;
-
-		if((ex * esx) + (ey *esy) > 0) {
-			numPos++;
-		}
-		else {
-			numNeg++;
-		}
-	}
-
-	return !(numPos > 0 && numNeg > 0);
-}
-
 void RadiosityBaker::InitLightMaps() {
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
 		PatchesForFace(&bspFile->fileFaces[i]);
 	}
+
+	// Set numLumels
+	bspFile->fileHeader.lumps[LUMP_LUMELS].length = numLumels;
 }
 
 void RadiosityBaker::InitialLightingPass() {
+	for(int i = 0; i < bspFile->fileHeader.lumps[LUMP_LUMELS].length; i++) {
+		FileLumel *lumel = &bspFile->fileLightmaps[i];
+
+		if(!(lumel->legal)) {
+			continue;
+		}
+
+		CollectLighting(lumel);
+	}
+
+}
+
+void RadiosityBaker::CollectLighting(FileLumel *lumel) {
+	LightingBasis collected;
+
+	// Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
+	// Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
+	// Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
+	// Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
+
+	// Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 
 }
 

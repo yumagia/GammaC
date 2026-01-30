@@ -51,7 +51,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 
 	std::ofstream outputFile(fileName);
 
-	int numLines = 19;
+	int numLines = (2 * NUM_LUMPS) + 1;
 	if(outputFile.is_open()) {
 		outputFile << "MODELS LUMP" << std::endl;
 		numLines++;
@@ -269,6 +269,7 @@ void FileWriter::WriteLevel(std::string fileName) {
 			FileLumel *currentLumel = &bspFile->fileLightmaps[i];
 
 			outputFile << currentLumel->legal << std::endl;
+			outputFile << currentLumel->faceIndex << std::endl;
 
 			numLines += 1;
 		}

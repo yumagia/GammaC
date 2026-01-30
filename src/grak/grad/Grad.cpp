@@ -24,8 +24,6 @@ int main(int argc, char *argv[]) {
 	int numLumels = baker.BakeRad(bspFile);
 
 	GradWriter *bspWriter = new GradWriter(bspFile);
-	bspWriter->SetNumLumels(numLumels);
-
 	bspWriter->WriteLevel(argv[1]);
 
 	delete bspWriter;

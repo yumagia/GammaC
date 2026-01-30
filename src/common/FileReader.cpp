@@ -377,6 +377,18 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		bspFile->fileMaterials[i] = readMaterial;
 	}
 
+	std::getline(readFile, line);
+	for(int i = 0; i < numLumels; i++) {
+		FileLumel readLumel;
+
+		std::getline(readFile, line);
+		readLumel.legal = stoi(line);
+		std::getline(readFile, line);
+		readLumel.faceIndex = stoi(line);
+
+		bspFile->fileLightmaps[i] = readLumel;
+	}
+
 	readFile.close();
 	std::cout << "Successful read!" << std::endl;
 	bspFile->valid = true;

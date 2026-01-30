@@ -17,7 +17,3 @@ GradWriter::GradWriter(BspFile *bspFile) {
     
     this->bspFile = bspFile;
 }
-
-void GradWriter::SetNumLumels(int numLumels) {
-    this->numLumels = numLumels;
-}
