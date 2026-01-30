@@ -160,6 +160,7 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapHeight = ceil(magT / PATCH_SIZE) + 1;
 
 	// Create the actual patches
+	Vec3f lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
 	for(int tStep = 0; tStep < face->lightMapHeight; tStep++) {
@@ -167,7 +168,7 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
 			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
 
-			Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
+			Vec3f samplePosition = s + t + lmOrigin;
 			
 			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
 			lumel->legal = SampleLegal(samplePosition, face);
@@ -196,28 +197,43 @@ void RadiosityBaker::InitLightMaps() {
 }
 
 void RadiosityBaker::InitialLightingPass() {
-	for(int i = 0; i < bspFile->fileHeader.lumps[LUMP_LUMELS].length; i++) {
-		FileLumel *lumel = &bspFile->fileLightmaps[i];
-
-		if(!(lumel->legal)) {
-			continue;
-		}
-
-		CollectLighting(lumel);
+	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
+	for(int i = 0; i < numFaces; i++) {
+		CollectLightingForFace(&bspFile->fileFaces[i]);
 	}
 
 }
 
-void RadiosityBaker::CollectLighting(FileLumel *lumel) {
-	LightingBasis collected;
+void RadiosityBaker::CollectLightingForFace(FileFace *face) {
+	int		lmWidth, lmHeight, lmOffset;
+	Vec3f	lmOrigin;
 
-	// Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
-	// Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
-	// Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
-	// Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
+	lmOffset = face->lightMapOffset;
+	lmWidth = face->lightMapWidth;
+	lmHeight = face->lightMapHeight;
+	lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 
-	// Vec3f samplePosition = s + t + Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
+	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
+	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
+	for(int tStep = 0; tStep < lmHeight; tStep++) {
+		for(int sStep = 0; sStep < lmWidth; sStep++) {
+			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
+			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
 
+			Vec3f samplePosition = s + t + lmOrigin;
+			
+			FileLumel *lumel = &bspFile->fileLightmaps[lmOffset + (tStep * lmWidth) + sStep];
+
+			if(lumel->legal) {
+				CollectLightingForLumel(lumel, samplePosition);
+			}
+
+		}
+	}
+}
+
+void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition) {
+	
 }
 
 int RadiosityBaker::BakeRad(BspFile *bspFile) {

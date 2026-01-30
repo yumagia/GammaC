@@ -21,7 +21,8 @@ private:
 
 	void PatchesForFace(FileFace *face);
 	bool SampleLegal(Vec3f samplePosition, FileFace *face);
-	void CollectLighting(FileLumel *lumel);
+	void CollectLightingForFace(FileFace *face);
+	void CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition);
 private:
 	BspFile *bspFile = nullptr;
 
