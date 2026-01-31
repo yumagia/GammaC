@@ -6,6 +6,7 @@
 
 Trace::Trace(BspFile *bspFile) {
 	fileNodes = bspFile->fileNodes;
+	fileLeafs = bspFile->fileLeafs;
 	filePlanes = bspFile->filePlanes;
 }
 
@@ -28,7 +29,6 @@ bool Trace::FastTraceLine_r(int nodeIdx) {
 	FileNode *node = &fileNodes[nodeIdx];
 	FilePlane *plane = &filePlanes[node->planeNum];
 	Vec3f normal = Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]);
-	std::cout << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
 	float startDist = normal.Dot(startPos) - plane->dist;
 	float endDist = normal.Dot(endPos) - plane->dist;
 
@@ -41,12 +41,9 @@ bool Trace::FastTraceLine_r(int nodeIdx) {
 
 	int side = (startDist < 0);
 
-	bool frontTrace = FastTraceLine_r(node->children[side]);
-
-	if(frontTrace) {
-		return frontTrace;
+	if(FastTraceLine_r(node->children[side])) {
+		return true;
 	}
-
 	hitNodeIdx = nodeIdx;
 
 	return FastTraceLine_r(node->children[!side]);

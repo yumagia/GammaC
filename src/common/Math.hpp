@@ -65,6 +65,14 @@ public:
     Color() {}
     Color(float r, float g, float b) : r(r), g(g), b(b) {}
 	Color(const Color &c2) : r(c2.r), g(c2.g), b(c2.b) {}
+
+	float Magnitude() {
+		return sqrt(r * r + g * g + b * b);
+	}
+
+	float SquareMagnitude() {
+		return r * r + g * g + b * b;
+	}
 	
 	float r = 0.f;
 	float g = 0.f;

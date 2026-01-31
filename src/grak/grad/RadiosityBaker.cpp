@@ -249,15 +249,17 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 }
 
 void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition) {
+	Color	collectedLighting, averageLighting;
+	int		samplesCollected = 0;
+
 	FilePlane *lumelPlane = &bspFile->filePlanes[bspFile->fileFaces[lumel->faceIndex].planeNum];
 	Vec3f normal(lumelPlane->normal[0], lumelPlane->normal[1], lumelPlane->normal[2]);
 	Trace trace(bspFile);
 	Vec3f pos(samplePosition + (TRACE_PUSH_DIST * normal));
 
 	for(int i = 0; i < NUM_COLLECT_SAMPLES; i++) {
-		Vec3f disp(TRACE_MAX_DIST * (normal + SampleUnitSphere()));
+		Vec3f disp = TRACE_MAX_DIST * (normal + SampleUnitSphere());
 		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find if we struck a patch
-
 			FileNode *hitNode = &bspFile->fileNodes[trace.hitNodeIdx];
 			FilePlane *hitPlane = &bspFile->filePlanes[hitNode->planeNum];
 			Vec3f hitNormal(hitPlane->normal[0], hitPlane->normal[1], hitPlane->normal[2]);
@@ -265,18 +267,36 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 			float t = -(hitNormal.Dot(pos) - hitPlane->dist) / hitNormal.Dot(disp);
 			Vec3f hitPoint(pos + (disp * t));
 
-			if(FindStruckFace(hitNode, hitPoint) == -1) {	// A miss, uncommon but important to acknowledge
+			int hitFaceIndex = FindStruckFace(hitNode, hitPoint);
+			if(hitFaceIndex == -1) {	// A miss, common and important to acknowledge
 				errorcount++;
 			}
 			else {
-				std::cout << trace.hitNodeIdx << std::endl;
+				FileMaterial *hitMaterial = &bspFile->fileMaterials[bspFile->fileFaces[hitFaceIndex].material];
+				Color materialEmmisive(hitMaterial->emissive[0], hitMaterial->emissive[1], hitMaterial->emissive[2]);
+
+				if(materialEmmisive.SquareMagnitude() > 0.001f) {
+					collectedLighting = collectedLighting + materialEmmisive;
+				}
+
+				samplesCollected++; 
 			}
 			totalcount++;
-		}
-		else {		// Escaped to sky, sample it
 
 		}
+		else {		// Escaped to sky, sample it
+			Color skyColorSample = Color(0.4, 0.6, 1);
+			collectedLighting = collectedLighting + skyColorSample;
+
+			samplesCollected++;
+		}
 	}
+
+	averageLighting = collectedLighting / samplesCollected;
+
+	lumel->hBasis[0][0] = averageLighting.r;
+	lumel->hBasis[1][0] = averageLighting.g;
+	lumel->hBasis[2][0] = averageLighting.b;
 }
 
 // Find the index of the node face containing the given point
@@ -363,11 +383,7 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 	numLumels = 0;
 
 	InitLightMaps();
-	//InitialLightingPass();
-
-	Trace trace(bspFile);
-	std::cout << trace.FastTraceLine(Vec3f(0, 100, 0), Vec3f(0, -100, 0)) << std::endl;
-	std::cout << trace.hitNodeIdx << std::endl;
+	InitialLightingPass();
 
 	return numLumels;
 }

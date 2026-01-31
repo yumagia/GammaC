@@ -195,26 +195,26 @@ int GbspWriter::EmitTree(BspNode *node) {
 
 	emittedNode->numFaces = numFaces - emittedNode->firstFace;
 
-	if(node->back->isLeaf) {
-		emittedNode->children[0] = -numLeafs;
-		if(EmitLeaf(node->back) > 0) {
-			emittedNode->children[0] = -1;
-		}
-	}
-	else {
-		emittedNode->children[0] = numNodes;
-		EmitTree(node->back);
-	}
-
 	if(node->front->isLeaf) {
-		emittedNode->children[1] = -numLeafs;
+		emittedNode->children[0] = -numLeafs;
 		if(EmitLeaf(node->front) > 0) {
 			emittedNode->children[0] = -1;
 		}
 	}
 	else {
-		emittedNode->children[1] = numNodes;
+		emittedNode->children[0] = numNodes;
 		EmitTree(node->front);
+	}
+
+	if(node->back->isLeaf) {
+		emittedNode->children[1] = -numLeafs;
+		if(EmitLeaf(node->back) > 0) {
+			emittedNode->children[1] = -1;
+		}
+	}
+	else {
+		emittedNode->children[1] = numNodes;
+		EmitTree(node->back);
 	}
 
 	return emittedNode - bspFile->fileNodes;

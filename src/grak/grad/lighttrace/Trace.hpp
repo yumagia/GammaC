@@ -22,8 +22,9 @@ private:
 
 	Vec3f startPos, endPos;
 
-	FileNode *fileNodes;
-	FilePlane *filePlanes;
+	FileNode	*fileNodes;
+	FileLeaf	*fileLeafs;
+	FilePlane	*filePlanes;
 };
 
 
