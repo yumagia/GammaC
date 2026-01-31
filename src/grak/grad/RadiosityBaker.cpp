@@ -1,21 +1,35 @@
 #include "RadiosityBaker.hpp"
 
-#include "LightingBasis.hpp"
-
 #include <iostream>
+#include <cstdlib>
+
+#define TRACE_PUSH_DIST		0.1
+#define TRACE_MAX_DIST		100000
+#define NUM_COLLECT_SAMPLES	100
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
 }
 
-bool RadiosityBaker::SampleLegal(Vec3f samplePosition, FileFace *face) {
+Vec3f RadiosityBaker::SampleUnitSphere() {
+	Vec3f point(SampleNormalDistribution(), SampleNormalDistribution(), SampleNormalDistribution());
+	point.Normalize();
+
+	return point;
+}
+
+float RadiosityBaker::SampleNormalDistribution() {
+	float theta = 2 * PI * (rand() / ((float) RAND_MAX));
+	float rho = sqrt(-2 * log(rand() / ((float) RAND_MAX)));
+
+	return rho * cosf(theta);
+}
+
+bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
 	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
 
 	// Determine the major axis
-	int major = facePlane->type;
-	if(facePlane->type > 2) {
-		major = facePlane->type - 3;
-	}
+	int major = (facePlane->type) % 3;
 
 	float sampleX, sampleY;
 	if(major == 0) {
@@ -171,7 +185,7 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			Vec3f samplePosition = s + t + lmOrigin;
 			
 			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
-			lumel->legal = SampleLegal(samplePosition, face);
+			lumel->legal = SampleIsLegal(samplePosition, face);
 			lumel->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
@@ -196,12 +210,15 @@ void RadiosityBaker::InitLightMaps() {
 	bspFile->fileHeader.lumps[LUMP_LUMELS].length = numLumels;
 }
 
+int errorcount = 0;
+int totalcount = 0;
 void RadiosityBaker::InitialLightingPass() {
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
 	}
 
+	std::cout << ((float) errorcount) / totalcount << std::endl;
 }
 
 void RadiosityBaker::CollectLightingForFace(FileFace *face) {
@@ -220,20 +237,125 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
 			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
 
-			Vec3f samplePosition = s + t + lmOrigin;
+			Vec3f samplePosition = lmOrigin + s + t;
 			
 			FileLumel *lumel = &bspFile->fileLightmaps[lmOffset + (tStep * lmWidth) + sStep];
 
 			if(lumel->legal) {
 				CollectLightingForLumel(lumel, samplePosition);
 			}
-
 		}
 	}
 }
 
 void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition) {
+	FilePlane *lumelPlane = &bspFile->filePlanes[bspFile->fileFaces[lumel->faceIndex].planeNum];
+	Vec3f normal(lumelPlane->normal[0], lumelPlane->normal[1], lumelPlane->normal[2]);
+	Trace trace(bspFile);
+	Vec3f pos(samplePosition + (TRACE_PUSH_DIST * normal));
+
+	for(int i = 0; i < NUM_COLLECT_SAMPLES; i++) {
+		Vec3f disp(TRACE_MAX_DIST * (normal + SampleUnitSphere()));
+		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find if we struck a patch
+
+			FileNode *hitNode = &bspFile->fileNodes[trace.hitNodeIdx];
+			FilePlane *hitPlane = &bspFile->filePlanes[hitNode->planeNum];
+			Vec3f hitNormal(hitPlane->normal[0], hitPlane->normal[1], hitPlane->normal[2]);
+
+			float t = -(hitNormal.Dot(pos) - hitPlane->dist) / hitNormal.Dot(disp);
+			Vec3f hitPoint(pos + (disp * t));
+
+			if(FindStruckFace(hitNode, hitPoint) == -1) {	// A miss, uncommon but important to acknowledge
+				errorcount++;
+			}
+			else {
+				std::cout << trace.hitNodeIdx << std::endl;
+			}
+			totalcount++;
+		}
+		else {		// Escaped to sky, sample it
+
+		}
+	}
+}
+
+// Find the index of the node face containing the given point
+int RadiosityBaker::FindStruckFace(FileNode *node, Vec3f position) {
+	int firstFaceIdx = node->firstFace;
+	for(int i = 0; i < node->numFaces; i++) {
+		FileFace *face = &bspFile->fileFaces[firstFaceIdx + i];
+		if(SampleIsLegal(position, face)) {
+			return firstFaceIdx + i;
+		}
+	}
+
+	return -1;
+}
+
+// Find the lumel associated closest to a position on a node, return its index
+int RadiosityBaker::FindNodeLumel(FileNode *node, Vec3f position) {
+	int firstFaceIdx = node->firstFace;
+	for(int i = 0; i < node->numFaces; i++) {
+		FileFace *face = &bspFile->fileFaces[firstFaceIdx + i];
+		int patchIdx = FindFaceLumel(face, position);
+		if(patchIdx >= 0) {
+			return patchIdx;
+		}
+	}
+
+	return -1;
+}
+
+// Returns an index, -1 means no valid or legal lumel was found
+int RadiosityBaker::FindFaceLumel(FileFace *face, Vec3f position) {
+	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
+
+	float minBound[2], mappedPos[2];
+
+	int major = (facePlane->type) % 3;
+	if(major == 0) {
+		minBound[0] = face->lightMapOrigin[2];
+		minBound[1] = face->lightMapOrigin[1];
+
+		mappedPos[0] = position.z;
+		mappedPos[1] = position.y;
+	}
+	else if(major == 1) {
+		minBound[0] = face->lightMapOrigin[0];
+		minBound[1] = face->lightMapOrigin[2];
+
+		mappedPos[0] = position.x;
+		mappedPos[1] = position.z;
+	}
+	else {
+		minBound[0] = face->lightMapOrigin[1];
+		minBound[1] = face->lightMapOrigin[0];
+
+		mappedPos[0] = position.y;
+		mappedPos[1] = position.x;
+	}
+
+	float s = (mappedPos[0] - minBound[0]) / PATCH_SIZE;
+	float t = (mappedPos[1] - minBound[1]) / PATCH_SIZE;
+
+	// Quick and simple check to see if a point falls in-bounds of a lightmap
+	if(s < 0 || t < 0) {
+		return -1;
+	}
+	if(s > face->lightMapWidth || t > face->lightMapHeight) {
+		return -1;
+	}
+
+	int patchX = s + 0.5;
+	int patchY = t + 0.5;
+	int patchIdx = face->lightMapOffset + (patchY * face->lightMapWidth) + patchX;
+
+	// Might as well just check if its legal also
+	if(bspFile->fileLightmaps[patchIdx].legal) {
+		return patchIdx;
+	}
 	
+	return -1;
 }
 
 int RadiosityBaker::BakeRad(BspFile *bspFile) {
@@ -241,7 +363,11 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 	numLumels = 0;
 
 	InitLightMaps();
-	InitialLightingPass();
+	//InitialLightingPass();
+
+	Trace trace(bspFile);
+	std::cout << trace.FastTraceLine(Vec3f(0, 100, 0), Vec3f(0, -100, 0)) << std::endl;
+	std::cout << trace.hitNodeIdx << std::endl;
 
 	return numLumels;
 }

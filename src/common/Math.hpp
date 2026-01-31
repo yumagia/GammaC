@@ -1,6 +1,7 @@
 #ifndef MATH_INCLUDED
 #define MATH_INCLUDED
 
+#include "MathDefs.hpp"
 #include <math.h>
 
 // Default is origin

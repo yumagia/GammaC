@@ -1,7 +1,9 @@
 #ifndef RADIOSITY_BAKER_INCLUDED
 #define RADIOSITY_BAKER_INCLUDED
-
 #include "GammaFile.hpp"
+
+#include "LightingBasis.hpp"
+#include "Trace.hpp"
 
 #include "Math.hpp"
 
@@ -11,18 +13,23 @@ public:
 	RadiosityBaker();
 
 	// Creates lightmaps and bakes the lighting for the given world model, returns numLumels
-	int BakeRad(BspFile *bspFile);
+	int		BakeRad(BspFile *bspFile);
 	// Also returns numLumels
-	int GetNumLumels();
+	int		GetNumLumels();
 	
 private:
-	void InitLightMaps();
-	void InitialLightingPass();
+	void	InitLightMaps();
+	void	InitialLightingPass();
 
-	void PatchesForFace(FileFace *face);
-	bool SampleLegal(Vec3f samplePosition, FileFace *face);
-	void CollectLightingForFace(FileFace *face);
-	void CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition);
+	void	PatchesForFace(FileFace *face);
+	bool	SampleIsLegal(Vec3f samplePosition, FileFace *face);
+	void	CollectLightingForFace(FileFace *face);
+	void	CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition);
+	float	SampleNormalDistribution();
+	Vec3f	SampleUnitSphere();
+	int		FindStruckFace(FileNode *node, Vec3f position);
+	int		FindNodeLumel(FileNode *node, Vec3f position);
+	int		FindFaceLumel(FileFace *face, Vec3f position);
 private:
 	BspFile *bspFile = nullptr;
 
