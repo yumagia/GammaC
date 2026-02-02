@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	RadiosityBaker baker;
-	int numLumels = baker.BakeRad(bspFile);
+	baker.BakeRad(bspFile);
 
 	GradWriter *bspWriter = new GradWriter(bspFile);
 	bspWriter->WriteLevel(argv[1]);

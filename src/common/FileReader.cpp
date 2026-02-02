@@ -386,6 +386,46 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		std::getline(readFile, line);
 		readLumel.faceIndex = stoi(line);
 
+		std::getline(readFile, line);
+		readLumel.hBasis[0][0] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[0][1] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[0][2] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[0][3] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[0][4] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[0][5] = stoi(line);
+
+		std::getline(readFile, line);
+		readLumel.hBasis[1][0] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[1][1] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[1][2] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[1][3] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[1][4] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[1][5] = stoi(line);
+
+
+		std::getline(readFile, line);
+		readLumel.hBasis[2][0] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[2][1] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[2][2] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[2][3] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[2][4] = stoi(line);
+		std::getline(readFile, line);
+		readLumel.hBasis[2][5] = stoi(line);
+
 		bspFile->fileLightmaps[i] = readLumel;
 	}
 

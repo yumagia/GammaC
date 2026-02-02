@@ -271,7 +271,28 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentLumel->legal << std::endl;
 			outputFile << currentLumel->faceIndex << std::endl;
 
-			numLines += 1;
+			outputFile << currentLumel->hBasis[0][0] << std::endl;
+			outputFile << currentLumel->hBasis[0][1] << std::endl;
+			outputFile << currentLumel->hBasis[0][2] << std::endl;
+			outputFile << currentLumel->hBasis[0][3] << std::endl;
+			outputFile << currentLumel->hBasis[0][4] << std::endl;
+			outputFile << currentLumel->hBasis[0][5] << std::endl;
+
+			outputFile << currentLumel->hBasis[1][0] << std::endl;
+			outputFile << currentLumel->hBasis[1][1] << std::endl;
+			outputFile << currentLumel->hBasis[1][2] << std::endl;
+			outputFile << currentLumel->hBasis[1][3] << std::endl;
+			outputFile << currentLumel->hBasis[1][4] << std::endl;
+			outputFile << currentLumel->hBasis[1][5] << std::endl;
+
+			outputFile << currentLumel->hBasis[2][0] << std::endl;
+			outputFile << currentLumel->hBasis[2][1] << std::endl;
+			outputFile << currentLumel->hBasis[2][2] << std::endl;
+			outputFile << currentLumel->hBasis[2][3] << std::endl;
+			outputFile << currentLumel->hBasis[2][4] << std::endl;
+			outputFile << currentLumel->hBasis[2][5] << std::endl;
+
+			numLines += 20;
 		}
 		header.lumps[LUMP_LUMELS].length = numLumels;
 		

@@ -292,7 +292,9 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		}
 	}
 
-	averageLighting = collectedLighting / samplesCollected;
+	if(samplesCollected) {
+		averageLighting = collectedLighting / samplesCollected;
+	}
 
 	lumel->hBasis[0][0] = averageLighting.r;
 	lumel->hBasis[1][0] = averageLighting.g;
