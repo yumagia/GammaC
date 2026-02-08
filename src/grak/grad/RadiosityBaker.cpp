@@ -163,8 +163,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	
 	float sExtent = face->lightMapS[(major + 2) % 3];
 	float tExtent = face->lightMapT[(major + 1) % 3];
-	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 1;
-	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 1;
+	face->lightMapWidth = ceil(sExtent / PATCH_SIZE);
+	face->lightMapHeight = ceil(tExtent / PATCH_SIZE);
 	
 	float magS = sqrt(face->lightMapS[0] * face->lightMapS[0] + face->lightMapS[1] * face->lightMapS[1] + face->lightMapS[2] * face->lightMapS[2]);
 	face->lightMapS[0] /= magS;
@@ -195,10 +195,6 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 		}
 	}
 
-	std::cout << "sVec: " << sVec.x << ", " << sVec.y << ", " << sVec.z << ", " << std::endl;
-	std::cout << "tVec: " << tVec.x << ", " << tVec.y << ", " << tVec.z << ", " << std::endl;
-	std::cout << "lmDim: " << face->lightMapWidth << " " << face->lightMapHeight << std::endl;
-
 	// Shift back origin to cover smaller faces
 	Vec3f shiftOrigin(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 	if(face->lightMapWidth == 1) {
@@ -218,8 +214,6 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 		FileVert* vert = &bspFile->fileVerts[face->firstVert + i];
 		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / PATCH_SIZE;
 		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / PATCH_SIZE;
-		std::cout << "vert: " << vert->point[0] << ", " << vert->point[1] << ", " << vert->point[2] << std::endl;
-		std::cout << "lmUV: " << vert->lightMapUV[0] << ", " << vert->lightMapUV[1] << std::endl;
 	}
 }
 
@@ -267,6 +261,67 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 
 			if(lumel->legal) {
 				CollectLightingForLumel(lumel, samplePosition);
+			}
+		}
+	}
+
+	for(int j = 0; j < lmHeight; j++) {
+		for(int i = 0; i < lmWidth; i++) {
+			FileLumel *lumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + i];
+			if(!(lumel->legal)) {
+				int validNeighbors = 0;
+				Color neighborSum = Color();
+				FileLumel *neighborLumel = NULL;
+
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + (i - 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + i];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + (i + 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + (i - 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + (i + 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + (i - 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + i];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + (i + 1)];
+				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
+					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+					validNeighbors++;
+				}
+
+				if(validNeighbors > 0) {
+					Color averageColor = neighborSum / validNeighbors;
+
+					lumel->color[0] = averageColor.r;
+					lumel->color[1] = averageColor.g;
+					lumel->color[2] = averageColor.b;
+				}
+
 			}
 		}
 	}
