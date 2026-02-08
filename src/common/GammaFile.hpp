@@ -21,7 +21,7 @@
 #define	MAX_VALUE	512
 
 // LIGHTING CONSTS
-#define PATCH_SIZE	150
+#define PATCH_SIZE	300
 
 // MISC MAP DEFS
 #define BOUND_PADDING 16
@@ -95,7 +95,7 @@ struct FileVert {
 
 struct FileFace {
 	unsigned int	planeNum;
-	unsigned int	firstVert, numVerts;
+	unsigned int	firstMeshVert, firstVert, numVerts;
 
 	int				material;
 
@@ -108,7 +108,7 @@ struct FileFace {
 struct FileLumel {
 	int				legal;
 	int				faceIndex;
-	float			hBasis[3][6];
+	float			color[3];
 };
 
 struct FileMaterial {

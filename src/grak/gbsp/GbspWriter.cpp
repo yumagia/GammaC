@@ -154,7 +154,7 @@ void GbspWriter::EmitFace(std::shared_ptr<BspFace> face) {
 	emittedFace->planeNum = face->planeNum;
 	emittedFace->material = face->materialNum;
 	
-	emittedFace->firstVert = numFaceVerts;
+	emittedFace->firstMeshVert = numFaceVerts;
 	int numVerts = face->vertIndices.size();
 	emittedFace->numVerts = numVerts;
 	for(int i = 0; i < numVerts; i++) {
@@ -243,6 +243,23 @@ void GbspWriter::EmitVerts() {
 		emittedVert->point[0] = mapVerts[i].point.x;
 		emittedVert->point[1] = mapVerts[i].point.y;
 		emittedVert->point[2] = mapVerts[i].point.z;
+	}
+
+	for(int i = 0; i < numFaces; i++) {
+		FileFace *face = &bspFile->fileFaces[i];
+
+		face->firstVert = numVerts;
+
+		int firstMeshVert = face->firstMeshVert;
+		for(int j = 0; j < face->numVerts; j++) {
+			FileVert *emittedVert = &bspFile->fileVerts[numVerts];
+			numVerts++;
+
+			FileVert *sourceVert = &bspFile->fileVerts[bspFile->fileFaceVerts[firstMeshVert + j]];
+			emittedVert->point[0] = sourceVert->point[0];
+			emittedVert->point[1] = sourceVert->point[1];
+			emittedVert->point[2] = sourceVert->point[2];
+		}
 	}
 }
 

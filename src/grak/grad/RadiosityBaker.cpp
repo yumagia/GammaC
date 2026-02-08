@@ -5,7 +5,7 @@
 
 #define TRACE_PUSH_DIST		0.1
 #define TRACE_MAX_DIST		100000
-#define NUM_COLLECT_SAMPLES	100
+#define NUM_COLLECT_SAMPLES	1000
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
@@ -48,11 +48,11 @@ bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
 	int numPos, numNeg;
 	numPos = numNeg = 0;
 	float xv1, yv1, xv2, yv2;
-	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + face->numVerts - 1]];
+	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + face->numVerts - 1]];
 	xv2 = currVert.point[(major + 2) % 3];
 	yv2 = currVert.point[(major + 1) % 3];
 	for(int i = 0; i < face->numVerts; i++) {
-		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
+		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + i]];
 		xv1 = xv2;
 		yv1 = yv2;
 		xv2 = currVert.point[(major + 2) % 3];
@@ -90,11 +90,11 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	}
 
 	// Find min and max bounds of projected polygon
-	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert]];
+	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert]];
 	Vec3f min(currVert.point[0], currVert.point[1], currVert.point[2]);
 	Vec3f max = Vec3f(min);
 	for(int i = 1; i < face->numVerts; i++) {
-		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
+		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + i]];
 
 		if(min.x > currVert.point[0]) {
 			min.x = currVert.point[0];
@@ -132,11 +132,11 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 		cz2 = (facePlane->normal[2] * max.z + facePlane->normal[0] * max.x + facePlane->dist);
 		max.y = cz2 / facePlane->normal[1];
 	}
-	else if(major == 2) {
+	else {
 		cz1 = (facePlane->normal[0] * min.x + facePlane->normal[1] * min.y + facePlane->dist);
 		min.z = cz1 / facePlane->normal[2];
 
-		cz2 = (facePlane->normal[0] * max.z + facePlane->normal[1] * max.x + facePlane->dist);
+		cz2 = (facePlane->normal[0] * max.x + facePlane->normal[1] * max.y + facePlane->dist);
 		max.z = cz2 / facePlane->normal[2];
 	}
 
@@ -161,6 +161,11 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapT[major] = (	face->lightMapOrigin[(major + 1) % 3] * facePlane->normal[(major + 1) % 3]		// Same thing, but for T
 								+ farVert[(major + 2) % 3] * facePlane->normal[(major + 2) % 3]	) / facePlane->normal[major];
 	
+	float sExtent = face->lightMapS[(major + 2) % 3];
+	float tExtent = face->lightMapT[(major + 1) % 3];
+	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 1;
+	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 1;
+	
 	float magS = sqrt(face->lightMapS[0] * face->lightMapS[0] + face->lightMapS[1] * face->lightMapS[1] + face->lightMapS[2] * face->lightMapS[2]);
 	face->lightMapS[0] /= magS;
 	face->lightMapS[1] /= magS;
@@ -170,13 +175,10 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapT[1] /= magT;
 	face->lightMapT[2] /= magT;
 
-	face->lightMapWidth = ceil(magS / PATCH_SIZE) + 1;
-	face->lightMapHeight = ceil(magT / PATCH_SIZE) + 1;
-
 	// Create the actual patches
-	Vec3f lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
+	Vec3f lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 	for(int tStep = 0; tStep < face->lightMapHeight; tStep++) {
 		for(int sStep = 0; sStep < face->lightMapWidth; sStep++) {
 			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
@@ -192,17 +194,39 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 		}
 	}
+
+	std::cout << "sVec: " << sVec.x << ", " << sVec.y << ", " << sVec.z << ", " << std::endl;
+	std::cout << "tVec: " << tVec.x << ", " << tVec.y << ", " << tVec.z << ", " << std::endl;
+	std::cout << "lmDim: " << face->lightMapWidth << " " << face->lightMapHeight << std::endl;
+
+	// Shift back origin to cover smaller faces
+	Vec3f shiftOrigin(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
+	if(face->lightMapWidth == 1) {
+		shiftOrigin = shiftOrigin 
+						+ ((0.5 * (sExtent - PATCH_SIZE)) * sVec);
+	}
+	if(face->lightMapHeight == 1) {
+		shiftOrigin = shiftOrigin 
+						+ ((0.5 * (tExtent - PATCH_SIZE))* tVec);
+	}
+	face->lightMapOrigin[0] = shiftOrigin.x;
+	face->lightMapOrigin[1] = shiftOrigin.y;
+	face->lightMapOrigin[2] = shiftOrigin.z;
 	
+	// Generate vertex lightmap UVS
 	for(int i = 0; i < face->numVerts; i++) {
-		FileVert* vert = &bspFile->fileVerts[bspFile->fileFaceVerts[face->firstVert + i]];
+		FileVert* vert = &bspFile->fileVerts[face->firstVert + i];
 		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / PATCH_SIZE;
 		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / PATCH_SIZE;
+		std::cout << "vert: " << vert->point[0] << ", " << vert->point[1] << ", " << vert->point[2] << std::endl;
+		std::cout << "lmUV: " << vert->lightMapUV[0] << ", " << vert->lightMapUV[1] << std::endl;
 	}
 }
 
 void RadiosityBaker::InitLightMaps() {
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
+		std::cout << "faceNum: " << i << std::endl;
 		PatchesForFace(&bspFile->fileFaces[i]);
 	}
 
@@ -258,7 +282,9 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 	Vec3f pos(samplePosition + (TRACE_PUSH_DIST * normal));
 
 	for(int i = 0; i < NUM_COLLECT_SAMPLES; i++) {
-		Vec3f disp = TRACE_MAX_DIST * (normal + SampleUnitSphere());
+		Vec3f cosineWeighted = (normal + SampleUnitSphere());
+		cosineWeighted.Normalize();
+		Vec3f disp = TRACE_MAX_DIST * cosineWeighted;
 		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find if we struck a patch
 			FileNode *hitNode = &bspFile->fileNodes[trace.hitNodeIdx];
 			FilePlane *hitPlane = &bspFile->filePlanes[hitNode->planeNum];
@@ -285,7 +311,7 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 
 		}
 		else {		// Escaped to sky, sample it
-			Color skyColorSample = Color(0.4, 0.6, 1);
+			Color skyColorSample = Color(0.6, 0.8, 1);
 			collectedLighting = collectedLighting + skyColorSample;
 
 			samplesCollected++;
@@ -296,9 +322,9 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		averageLighting = collectedLighting / samplesCollected;
 	}
 
-	lumel->hBasis[0][0] = averageLighting.r;
-	lumel->hBasis[1][0] = averageLighting.g;
-	lumel->hBasis[2][0] = averageLighting.b;
+	lumel->color[0] = averageLighting.r;
+	lumel->color[1] = averageLighting.g;
+	lumel->color[2] = averageLighting.b;
 }
 
 // Find the index of the node face containing the given point

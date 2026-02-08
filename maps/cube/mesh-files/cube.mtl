@@ -1,0 +1,16 @@
+newmtl skip
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Tr 1
+illum 1
+Ns 0
+map_Kd textures/skip.jpg
+newmtl 128_grey_2
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Tr 1
+illum 1
+Ns 0
+map_Kd textures/128_grey_2.jpg
