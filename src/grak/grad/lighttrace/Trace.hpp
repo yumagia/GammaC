@@ -18,7 +18,7 @@ public:
 	Vec3f	hitPoint;
 	float	hitFraction = 0;
 private:
-	bool FastTraceLine_r(int nodeIdx);
+	bool FastTraceLine_r(int parentIdx, int nodeIdx);
 
 	Vec3f startPos, endPos;
 

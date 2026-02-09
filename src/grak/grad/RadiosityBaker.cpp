@@ -4,8 +4,8 @@
 #include <cstdlib>
 
 #define TRACE_PUSH_DIST		0.1
-#define TRACE_MAX_DIST		100000
-#define NUM_COLLECT_SAMPLES	1000
+#define TRACE_MAX_DIST		10000
+#define NUM_COLLECT_SAMPLES	500
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
@@ -22,7 +22,7 @@ float RadiosityBaker::SampleNormalDistribution() {
 	float theta = 2 * PI * (rand() / ((float) RAND_MAX));
 	float rho = sqrt(-2 * log(rand() / ((float) RAND_MAX)));
 
-	return rho * cosf(theta);
+	return rho * cos(theta);
 }
 
 bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
@@ -48,7 +48,7 @@ bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
 	int numPos, numNeg;
 	numPos = numNeg = 0;
 	float xv1, yv1, xv2, yv2;
-	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + face->numVerts - 1]];
+	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + (face->numVerts - 1)]];
 	xv2 = currVert.point[(major + 2) % 3];
 	yv2 = currVert.point[(major + 1) % 3];
 	for(int i = 0; i < face->numVerts; i++) {
@@ -59,14 +59,14 @@ bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
 		yv2 = currVert.point[(major + 1) % 3];
 
 		// Edge Vector
-		float ex = xv2 - xv1;
-		float ey = yv2 - yv1;
+		float ex = -yv2 + yv1;
+		float ey = xv2 - xv1;
 
 		// Sample vector
 		float esx = sampleX - xv1;
 		float esy = sampleY - yv1;
 
-		if((ex * esx) + (ey *esy) > 0) {
+		if((ex * esx) + (ey * esy) > 0) {
 			numPos++;
 		}
 		else {
@@ -220,7 +220,6 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 void RadiosityBaker::InitLightMaps() {
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
-		std::cout << "faceNum: " << i << std::endl;
 		PatchesForFace(&bspFile->fileFaces[i]);
 	}
 
@@ -340,7 +339,7 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		Vec3f cosineWeighted = (normal + SampleUnitSphere());
 		cosineWeighted.Normalize();
 		Vec3f disp = TRACE_MAX_DIST * cosineWeighted;
-		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find if we struck a patch
+		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find which face we struck
 			FileNode *hitNode = &bspFile->fileNodes[trace.hitNodeIdx];
 			FilePlane *hitPlane = &bspFile->filePlanes[hitNode->planeNum];
 			Vec3f hitNormal(hitPlane->normal[0], hitPlane->normal[1], hitPlane->normal[2]);

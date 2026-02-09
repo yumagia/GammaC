@@ -13,11 +13,12 @@ Trace::Trace(BspFile *bspFile) {
 bool Trace::FastTraceLine(Vec3f startPos, Vec3f endPos) {
 	this->startPos = startPos;
 	this->endPos = endPos;
+	hitNodeIdx = -1;
 
-	return FastTraceLine_r(0);
+	return FastTraceLine_r(0, 0);
 }
 
-bool Trace::FastTraceLine_r(int nodeIdx) {
+bool Trace::FastTraceLine_r(int parentIdx, int nodeIdx) {
 	if(nodeIdx < 0) {
 		if(nodeIdx == -1) {
 			return true;
@@ -33,18 +34,19 @@ bool Trace::FastTraceLine_r(int nodeIdx) {
 	float endDist = normal.Dot(endPos) - plane->dist;
 
 	if(startDist > -ON_PLANE_EPSILON && endDist > -ON_PLANE_EPSILON) {
-		return FastTraceLine_r(node->children[0]);
+		return FastTraceLine_r(nodeIdx, node->children[0]);
 	}
 	if(startDist < ON_PLANE_EPSILON && endDist < ON_PLANE_EPSILON) {
-		return FastTraceLine_r(node->children[1]);
+		return FastTraceLine_r(nodeIdx, node->children[1]);
 	}
 
 	int side = (startDist < 0);
 
-	if(FastTraceLine_r(node->children[side])) {
+	if(FastTraceLine_r(nodeIdx, node->children[side])) {
 		return true;
 	}
+
 	hitNodeIdx = nodeIdx;
 
-	return FastTraceLine_r(node->children[!side]);
+	return FastTraceLine_r(nodeIdx, node->children[!side]);
 }
