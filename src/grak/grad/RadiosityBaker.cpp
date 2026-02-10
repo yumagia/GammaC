@@ -163,8 +163,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	
 	float sExtent = face->lightMapS[(major + 2) % 3];
 	float tExtent = face->lightMapT[(major + 1) % 3];
-	face->lightMapWidth = ceil(sExtent / PATCH_SIZE);
-	face->lightMapHeight = ceil(tExtent / PATCH_SIZE);
+	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 1;
+	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 1;
 	
 	float magS = sqrt(face->lightMapS[0] * face->lightMapS[0] + face->lightMapS[1] * face->lightMapS[1] + face->lightMapS[2] * face->lightMapS[2]);
 	face->lightMapS[0] /= magS;
@@ -187,7 +187,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			Vec3f samplePosition = s + t + lmOrigin;
 			
 			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
-			lumel->legal = SampleIsLegal(samplePosition, face);
+			//lumel->legal = SampleIsLegal(samplePosition, face);
+			lumel->legal = true;
 			lumel->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
@@ -241,6 +242,8 @@ void RadiosityBaker::InitialLightingPass() {
 void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 	int		lmWidth, lmHeight, lmOffset;
 	Vec3f	lmOrigin;
+
+	FileMaterial *faceMaterial = &bspFile->fileMaterials[face->material];
 
 	lmOffset = face->lightMapOffset;
 	lmWidth = face->lightMapWidth;
@@ -316,9 +319,9 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 				if(validNeighbors > 0) {
 					Color averageColor = neighborSum / validNeighbors;
 
-					lumel->color[0] = averageColor.r;
-					lumel->color[1] = averageColor.g;
-					lumel->color[2] = averageColor.b;
+					lumel->color[0] = averageColor.r * faceMaterial->diffuse[0];
+					lumel->color[1] = averageColor.g * faceMaterial->diffuse[1];
+					lumel->color[2] = averageColor.b * faceMaterial->diffuse[2];
 				}
 
 			}
