@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#define TRACE_PUSH_DIST		0.1
+#define TRACE_PUSH_DIST		1.0f
 #define TRACE_MAX_DIST		10000
 #define NUM_COLLECT_SAMPLES	500
 
@@ -342,7 +342,7 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		Vec3f cosineWeighted = (normal + SampleUnitSphere());
 		cosineWeighted.Normalize();
 		Vec3f disp = TRACE_MAX_DIST * cosineWeighted;
-		if(trace.FastTraceLine(pos, pos + disp)) {		// Hit a surface, now find which face we struck
+		if(trace.TraceLine(pos, pos + disp)) {			// Hit a surface, now find which face we struck
 			FileNode *hitNode = &bspFile->fileNodes[trace.hitNodeIdx];
 			FilePlane *hitPlane = &bspFile->filePlanes[hitNode->planeNum];
 			Vec3f hitNormal(hitPlane->normal[0], hitPlane->normal[1], hitPlane->normal[2]);
