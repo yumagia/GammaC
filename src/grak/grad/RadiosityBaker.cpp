@@ -185,6 +185,10 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
 
 			Vec3f samplePosition = s + t + lmOrigin;
+
+			if(numLumels > MAX_MAP_LUMELS) {
+				std::cerr << "Reached MAX_MAP_LUMELS: " << MAX_MAP_LUMELS << std::endl;
+			}
 			
 			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
 			//lumel->legal = SampleIsLegal(samplePosition, face);
@@ -333,6 +337,8 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 	Color	collectedLighting, averageLighting;
 	int		samplesCollected = 0;
 
+	FileFace *lumelFace = &bspFile->fileFaces[lumel->faceIndex];
+	FileMaterial *lumelMaterial = &bspFile->fileMaterials[lumelFace->material];
 	FilePlane *lumelPlane = &bspFile->filePlanes[bspFile->fileFaces[lumel->faceIndex].planeNum];
 	Vec3f normal(lumelPlane->normal[0], lumelPlane->normal[1], lumelPlane->normal[2]);
 	Trace trace(bspFile);
@@ -379,9 +385,20 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		averageLighting = collectedLighting / samplesCollected;
 	}
 
-	lumel->color[0] = averageLighting.r;
-	lumel->color[1] = averageLighting.g;
-	lumel->color[2] = averageLighting.b;
+	Color diffuse(lumelMaterial->diffuse[0], lumelMaterial->diffuse[1], lumelMaterial->diffuse[2]);
+	Color emissive(lumelMaterial->emissive[0], lumelMaterial->emissive[1], lumelMaterial->emissive[2]);
+
+	Color lumelColor = averageLighting * diffuse + emissive;
+
+	lumel->color[0] = lumelColor.r;
+	lumel->color[1] = lumelColor.g;
+	lumel->color[2] = lumelColor.b;
+
+	if(lumelColor.Normalize() > 1) {
+		lumel->color[0] = lumelColor.r;
+		lumel->color[1] = lumelColor.g;
+		lumel->color[2] = lumelColor.b;
+	}
 }
 
 // Find the index of the node face containing the given point

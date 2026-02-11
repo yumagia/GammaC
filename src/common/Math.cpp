@@ -95,6 +95,25 @@ Quaternion Quaternion::operator*(const Quaternion &q2) const {
 						w * q2.z + x * q2.y - y * q2.x + z * q2.w	);
 }
 
+float Color::Normalize() {
+
+	float max = r;
+	if(g > max) {
+		max = g;
+	}
+	if(b > max) {
+		max = b;
+	}
+
+	float scale = 1.0f / max;
+
+	r = r * scale;
+	g = g * scale;
+	b = b * scale;
+
+	return max;
+}
+
 Color Color::operator+(const Color &v2) const {
 	return Color(r + v2.r, g + v2.g, b + v2.b);
 }

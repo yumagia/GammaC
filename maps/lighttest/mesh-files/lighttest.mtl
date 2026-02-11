@@ -1,0 +1,39 @@
+newmtl 128_grey_2
+Ns 250
+Ka 1 1 1
+Kd 0.8 0.8 0.8
+Ks 0.5 0.5 0.5
+Ke 0 0 0
+Ni 1.45
+d 1
+illum 2
+
+newmtl blood_1
+Ns 250
+Ka 1 1 1
+Kd 1 0.5 0.5
+Ks 0.5 0.5 0.5
+Ke 3 0 0
+Ni 1.45
+d 1
+illum 2
+
+newmtl cyan_1
+Ns 250
+Ka 1 1 1
+Kd 0.5 1 0.5
+Ks 0.5 0.5 0.5
+Ke 0 3 0
+Ni 1.45
+d 1
+illum 2
+
+newmtl blue_1
+Ns 250
+Ka 1 1 1
+Kd 0.5 0.5 1
+Ks 0.5 0.5 0.5
+Ke 0 0 3
+Ni 1.45
+d 1
+illum 2

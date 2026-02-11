@@ -73,6 +73,8 @@ public:
 	float SquareMagnitude() {
 		return r * r + g * g + b * b;
 	}
+
+	float Normalize();
 	
 	float r = 0.f;
 	float g = 0.f;
