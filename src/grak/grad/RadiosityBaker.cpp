@@ -5,7 +5,7 @@
 
 #define TRACE_PUSH_DIST		1.0f
 #define TRACE_MAX_DIST		10000
-#define NUM_COLLECT_SAMPLES	500
+#define NUM_COLLECT_SAMPLES	1500
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
@@ -400,6 +400,7 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 		lumel->color[2] = lumelColor.b;
 	}
 }
+
 
 // Find the index of the node face containing the given point
 int RadiosityBaker::FindStruckFace(FileNode *node, Vec3f position) {
