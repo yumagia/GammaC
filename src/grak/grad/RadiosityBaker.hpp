@@ -2,8 +2,9 @@
 #define RADIOSITY_BAKER_INCLUDED
 #include "GammaFile.hpp"
 
+#include "Patch.hpp"
 #include "LightingBasis.hpp"
-#include "Trace.hpp"
+#include "lighttrace/Trace.hpp"
 
 #include "Math.hpp"
 
@@ -24,7 +25,7 @@ private:
 	void	PatchesForFace(FileFace *face);
 	bool	SampleIsLegal(Vec3f samplePosition, FileFace *face);
 	void	CollectLightingForFace(FileFace *face);
-	void	CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition);
+	void	CollectLightingForPatch(Patch *patch, Vec3f samplePosition);
 	float	SampleNormalDistribution();
 	Vec3f	SampleUnitSphere();
 	int		FindStruckFace(FileNode *node, Vec3f position);
@@ -32,6 +33,8 @@ private:
 	int		FindFaceLumel(FileFace *face, Vec3f position);
 private:
 	BspFile *bspFile = nullptr;
+
+	Patch *patchList = nullptr;
 
 	int numLumels = 0;
 };

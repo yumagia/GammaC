@@ -189,11 +189,11 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			if(numLumels > MAX_MAP_LUMELS) {
 				std::cerr << "Reached MAX_MAP_LUMELS: " << MAX_MAP_LUMELS << std::endl;
 			}
-			
-			FileLumel *lumel = &bspFile->fileLightmaps[numLumels];
-			//lumel->legal = SampleIsLegal(samplePosition, face);
-			lumel->legal = true;
-			lumel->faceIndex = face - bspFile->fileFaces;
+
+			Patch *patch = &patchList[numLumels];
+			//patch->legal = SampleIsLegal(samplePosition, face);
+			patch->legal = true;
+			patch->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
 
@@ -248,6 +248,7 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 	Vec3f	lmOrigin;
 
 	FileMaterial *faceMaterial = &bspFile->fileMaterials[face->material];
+	Color faceDiffuse = Color(faceMaterial->diffuse[0], faceMaterial->diffuse[1], faceMaterial->diffuse[2]);
 
 	lmOffset = face->lightMapOffset;
 	lmWidth = face->lightMapWidth;
@@ -263,69 +264,75 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 
 			Vec3f samplePosition = lmOrigin + s + t;
 			
-			FileLumel *lumel = &bspFile->fileLightmaps[lmOffset + (tStep * lmWidth) + sStep];
+			Patch *patch = &patchList[lmOffset + (tStep * lmWidth) + sStep];
 
-			if(lumel->legal) {
-				CollectLightingForLumel(lumel, samplePosition);
+			if(patch->legal) {
+				CollectLightingForPatch(patch, samplePosition);
 			}
 		}
 	}
 
 	for(int j = 0; j < lmHeight; j++) {
 		for(int i = 0; i < lmWidth; i++) {
-			FileLumel *lumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + i];
-			if(!(lumel->legal)) {
+			Patch *patch = &patchList[lmOffset + (j * lmWidth) + i];
+			if(!(patch->legal)) {
 				int validNeighbors = 0;
 				Color neighborSum = Color();
-				FileLumel *neighborLumel = NULL;
+				Patch *neighborPatch = NULL;
 
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + (i - 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + (i - 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + i];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + i];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j - 1) * lmWidth) + (i + 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + (i + 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + (i - 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+
+				neighborPatch = &patchList[lmOffset + (j * lmWidth) + (i - 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + (j * lmWidth) + (i + 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + (j * lmWidth) + i];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + (i - 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + (j * lmWidth) + (i + 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + i];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+
+				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + (i - 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
-				neighborLumel = &bspFile->fileLightmaps[lmOffset + ((j + 1) * lmWidth) + (i + 1)];
-				if(neighborLumel->legal && (&bspFile->fileFaces[neighborLumel->faceIndex] == face)) {
-					neighborSum = neighborSum + Color(neighborLumel->color[0], neighborLumel->color[1], neighborLumel->color[2]);
+				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + i];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
+					validNeighbors++;
+				}
+				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + (i + 1)];
+				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+					neighborSum = neighborSum + neighborPatch->diffuse;
 					validNeighbors++;
 				}
 
 				if(validNeighbors > 0) {
 					Color averageColor = neighborSum / validNeighbors;
 
-					lumel->color[0] = averageColor.r * faceMaterial->diffuse[0];
-					lumel->color[1] = averageColor.g * faceMaterial->diffuse[1];
-					lumel->color[2] = averageColor.b * faceMaterial->diffuse[2];
+					patch->sampledLight = averageColor * faceDiffuse;
+					patch->accumulatedLight = patch->sampledLight;
 				}
 
 			}
@@ -333,13 +340,13 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 	}
 }
 
-void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosition) {
+void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition) {
 	Color	collectedLighting, averageLighting;
 	int		samplesCollected = 0;
 
-	FileFace *lumelFace = &bspFile->fileFaces[lumel->faceIndex];
-	FileMaterial *lumelMaterial = &bspFile->fileMaterials[lumelFace->material];
-	FilePlane *lumelPlane = &bspFile->filePlanes[bspFile->fileFaces[lumel->faceIndex].planeNum];
+	FileFace *patchFace = &bspFile->fileFaces[patch->faceIndex];
+	FileMaterial *lumelMaterial = &bspFile->fileMaterials[patchFace->material];
+	FilePlane *lumelPlane = &bspFile->filePlanes[patchFace->planeNum];
 	Vec3f normal(lumelPlane->normal[0], lumelPlane->normal[1], lumelPlane->normal[2]);
 	Trace trace(bspFile);
 	Vec3f pos(samplePosition + (TRACE_PUSH_DIST * normal));
@@ -388,17 +395,14 @@ void RadiosityBaker::CollectLightingForLumel(FileLumel *lumel, Vec3f samplePosit
 	Color diffuse(lumelMaterial->diffuse[0], lumelMaterial->diffuse[1], lumelMaterial->diffuse[2]);
 	Color emissive(lumelMaterial->emissive[0], lumelMaterial->emissive[1], lumelMaterial->emissive[2]);
 
-	Color lumelColor = averageLighting * diffuse + emissive;
+	Color patchColor = averageLighting * diffuse + emissive;
 
-	lumel->color[0] = lumelColor.r;
-	lumel->color[1] = lumelColor.g;
-	lumel->color[2] = lumelColor.b;
-
-	if(lumelColor.Normalize() > 1) {
-		lumel->color[0] = lumelColor.r;
-		lumel->color[1] = lumelColor.g;
-		lumel->color[2] = lumelColor.b;
+	patch->sampledLight = patchColor;
+	if(patchColor.Normalize() > 1) {
+		patch->sampledLight = patchColor;
 	}
+
+	patch->accumulatedLight = patch->sampledLight;
 }
 
 
@@ -474,7 +478,7 @@ int RadiosityBaker::FindFaceLumel(FileFace *face, Vec3f position) {
 	int patchIdx = face->lightMapOffset + (patchY * face->lightMapWidth) + patchX;
 
 	// Might as well just check if its legal also
-	if(bspFile->fileLightmaps[patchIdx].legal) {
+	if(patchList[patchIdx].legal) {
 		return patchIdx;
 	}
 	
@@ -482,11 +486,26 @@ int RadiosityBaker::FindFaceLumel(FileFace *face, Vec3f position) {
 }
 
 int RadiosityBaker::BakeRad(BspFile *bspFile) {
+	patchList = new Patch[MAX_MAP_LUMELS];
 	this->bspFile = bspFile;
 	numLumels = 0;
 
 	InitLightMaps();
 	InitialLightingPass();
+
+	for(int i = 0; i < numLumels; i++) {
+		FileLumel *lumel = &(this->bspFile)->fileLightmaps[i];
+		Patch *patch = &patchList[i];
+
+		lumel->color[0] = patch->accumulatedLight.r;
+		lumel->color[1] = patch->accumulatedLight.g;
+		lumel->color[2] = patch->accumulatedLight.b;
+
+		lumel->faceIndex = patch->faceIndex;
+		lumel->legal = patch->legal;
+	}
+
+	delete[] patchList;
 
 	return numLumels;
 }
