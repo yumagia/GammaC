@@ -77,6 +77,67 @@ bool RadiosityBaker::SampleIsLegal(Vec3f samplePosition, FileFace *face) {
 	return !(numPos > 0 && numNeg > 0);
 }
 
+// TODO: Get this working
+bool RadiosityBaker::SquareSampleIsLegal(Vec3f samplePosition, float extent, FileFace *face) {
+	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
+
+	// Determine the major axis
+	int major = (facePlane->type) % 3;
+
+	float sampleX, sampleY;
+	if(major == 0) {
+		sampleX = samplePosition.z;
+		sampleY = samplePosition.y;
+	}
+	else if(major == 1) {
+		sampleX = samplePosition.x;
+		sampleY = samplePosition.z;
+	}
+	else {
+		sampleX = samplePosition.y;
+		sampleY = samplePosition.x;
+	}
+	
+	int numPos, numNeg;
+	numPos = numNeg = 0;
+	float xv1, yv1, xv2, yv2;
+	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + (face->numVerts - 1)]];
+	xv2 = currVert.point[(major + 2) % 3];
+	yv2 = currVert.point[(major + 1) % 3];
+	for(int i = 0; i < face->numVerts; i++) {
+		currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert + i]];
+		xv1 = xv2;
+		yv1 = yv2;
+		xv2 = currVert.point[(major + 2) % 3];
+		yv2 = currVert.point[(major + 1) % 3];
+
+		// Edge normal vector
+		float eX = -yv2 + yv1;
+		float eY = xv2 - xv1;
+
+		float mag = sqrt(eX * eX + eY * eY);
+		eX = eX / mag;
+		eY = eY / mag;
+
+		float extX = eX * extent;
+		float extY = eY * extent;
+		float dist = extX * extX + extY * extY;
+		
+		// Sample vector
+		float esX = sampleX - xv1;
+		float esY = sampleY - yv1;
+
+		if((eX * esX + eY * esY) > -dist) {
+			numPos++;
+		}
+		else if((eX * esX + eY * esY) < dist) {
+			numNeg++;
+		}
+	}
+
+	return !(numPos > 0 && numNeg > 0);
+}
+
 void RadiosityBaker::PatchesForFace(FileFace *face) {
 	FilePlane *facePlane = &bspFile->filePlanes[face->planeNum];
 	int major;
@@ -191,8 +252,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 			}
 
 			Patch *patch = &patchList[numLumels];
-			//patch->legal = SampleIsLegal(samplePosition, face);
-			patch->legal = true;
+			patch->legal = SquareSampleIsLegal(samplePosition, PATCH_SIZE / 2, face);
+			//patch->legal = true;
 			patch->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
@@ -485,6 +546,9 @@ int RadiosityBaker::FindFaceLumel(FileFace *face, Vec3f position) {
 	return -1;
 }
 
+void RadiosityBaker::CreatePatchTransfers() {
+}
+
 int RadiosityBaker::BakeRad(BspFile *bspFile) {
 	patchList = new Patch[MAX_MAP_LUMELS];
 	this->bspFile = bspFile;
@@ -492,7 +556,9 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 
 	InitLightMaps();
 	InitialLightingPass();
+	CreatePatchTransfers();
 
+	// Write the patch lighting into the lumel lump
 	for(int i = 0; i < numLumels; i++) {
 		FileLumel *lumel = &(this->bspFile)->fileLightmaps[i];
 		Patch *patch = &patchList[i];

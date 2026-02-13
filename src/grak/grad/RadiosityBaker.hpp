@@ -21,9 +21,11 @@ public:
 private:
 	void	InitLightMaps();
 	void	InitialLightingPass();
+	void	CreatePatchTransfers();
 
 	void	PatchesForFace(FileFace *face);
 	bool	SampleIsLegal(Vec3f samplePosition, FileFace *face);
+	bool	SquareSampleIsLegal(Vec3f samplePosition, float extent, FileFace *face);
 	void	CollectLightingForFace(FileFace *face);
 	void	CollectLightingForPatch(Patch *patch, Vec3f samplePosition);
 	float	SampleNormalDistribution();
