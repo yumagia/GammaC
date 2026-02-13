@@ -1,4 +1,4 @@
-#include "Bsp.hpp"
+#include "../Bsp.hpp"
 #include "GammaFile.hpp"
 
 #include <iostream>
