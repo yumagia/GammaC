@@ -5,7 +5,7 @@
 
 #include <vector>
 
-struct LightingBasis {
+class LightingBasis {
 	LightingBasis();
 	LightingBasis(const Vec3f &vector);
 	LightingBasis(const LightingBasis &otherBasis);
