@@ -102,7 +102,7 @@ void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bsp
 	for(int i = 0; i < numTransfers; i++) {
 		Transfer *transfer = &transfers[i];
 
-		transfer->transfer = transfer->transfer / total;
+		transfer->transfer = (1 - escapeRate) * (transfer->transfer / total);
 	}
 }
 
@@ -121,9 +121,9 @@ void Patch::CollectLight(Color light) {
 	if(!legal) {
 		return;
 	}
-	sampledLight = light;
+	sampledLight = light * diffuse;
 
-	accumulatedLight = accumulatedLight + sampledLight * diffuse;
+	accumulatedLight = accumulatedLight + sampledLight;
 }
 
 void Patch::FreeTransfers() {

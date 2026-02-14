@@ -5,7 +5,7 @@
 
 #define TRACE_PUSH_DIST		1.0f
 #define TRACE_MAX_DIST		10000
-#define NUM_COLLECT_SAMPLES	1500
+#define NUM_COLLECT_SAMPLES	1000
 #define NUM_BOUNCES			6
 
 RadiosityBaker::RadiosityBaker() {
@@ -254,9 +254,9 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 			Patch *patch = &patchList[numLumels];
 			patch->legal = SquareSampleIsLegal(samplePosition, PATCH_SIZE / 2, face);
+			patch->faceIndex = face - bspFile->fileFaces;
 			patch->position = samplePosition;
 			patch->NudgePosition(bspFile);
-			patch->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
 
@@ -295,8 +295,6 @@ void RadiosityBaker::InitLightMaps() {
 	std::cout << "Successfully generated " << numLumels << " number of patches for face" << std::endl;
 }
 
-int errorcount = 0;
-int totalcount = 0;
 void RadiosityBaker::InitialLightingPass() {
 	std::cout << "--- Direct Lighting Pass ---" << std::endl;
 
@@ -307,8 +305,6 @@ void RadiosityBaker::InitialLightingPass() {
 	}
 
 	std::cout << "Finished!" << std::endl;
-
-	std::cout << ((float) errorcount) / totalcount << std::endl;
 }
 
 void RadiosityBaker::CollectLightingForFace(FileFace *face) {
@@ -411,6 +407,7 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition) {
 	Color	collectedLighting, averageLighting;
 	int		samplesCollected = 0;
+	int		escapes = 0;
 
 	FileFace *patchFace = &bspFile->fileFaces[patch->faceIndex];
 	FileMaterial *lumelMaterial = &bspFile->fileMaterials[patchFace->material];
@@ -418,6 +415,8 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 	Vec3f normal(lumelPlane->normal[0], lumelPlane->normal[1], lumelPlane->normal[2]);
 	Trace trace(bspFile);
 	Vec3f pos(samplePosition + (TRACE_PUSH_DIST * normal));
+
+	Color skyColorSample = Color(0.6, 0.8, 1);
 
 	for(int i = 0; i < NUM_COLLECT_SAMPLES; i++) {
 		Vec3f cosineWeighted = (normal + SampleUnitSphere());
@@ -433,7 +432,6 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 
 			int hitFaceIndex = FindStruckFace(hitNode, hitPoint);
 			if(hitFaceIndex == -1) {	// A miss, common and important to acknowledge
-				errorcount++;
 			}
 			else {
 				FileMaterial *hitMaterial = &bspFile->fileMaterials[bspFile->fileFaces[hitFaceIndex].material];
@@ -443,16 +441,14 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 					collectedLighting = collectedLighting + materialEmmisive;
 				}
 
-				samplesCollected++; 
+				samplesCollected++;
 			}
-			totalcount++;
-
 		}
 		else {		// Escaped to sky, sample it
-			Color skyColorSample = Color(0.6, 0.8, 1);
 			collectedLighting = collectedLighting + skyColorSample;
 
 			samplesCollected++;
+			escapes++;
 		}
 	}
 
@@ -464,13 +460,17 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 	Color emissive(lumelMaterial->emissive[0], lumelMaterial->emissive[1], lumelMaterial->emissive[2]);
 
 
-	patch->sampledLight = averageLighting;
-	Color patchColor = averageLighting * diffuse + emissive;
+	patch->sampledLight = averageLighting * diffuse;
+	Color patchColor = averageLighting + emissive;
 
 	patch->diffuse = diffuse;
 	patch->accumulatedLight = patchColor;
+	patch->escapeRate = 1;
+	if(!(samplesCollected == 0)) {
+		patch->escapeRate = escapes / (float) samplesCollected;
+	}
 
-	if(patchColor.Normalize() > 1) {
+	if(patchColor.Normalize() > 1.f) {
 		patch->accumulatedLight = patchColor;
 	}
 }
@@ -560,10 +560,26 @@ void RadiosityBaker::CreatePatchTransfers() {
 
 	std::cout << "Calculating patch transfers..." << std::endl;
 
+	int progress = 0;
+	int divisor = 12;
+
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 
 		patch->CalcTransfersForpatch(numLumels, patchList, bspFile);
+
+		if(i > (progress * (numLumels / (float) divisor))) {
+			progress++;
+
+			std::cout << "[";
+			for(int j = 0; j < progress; j++) {
+				std::cout << "###";
+			}
+			for(int j = progress; j < divisor; j++) {
+				std::cout << "   ";
+			}
+			std::cout << "]" << std::endl;
+		}
 	}
 
 	std::cout << "Finished creating transfers" << std::endl;

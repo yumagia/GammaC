@@ -25,13 +25,14 @@ public:
 	int		faceIndex;
 
 	int			numTransfers;
+
+	float		escapeRate;
+
 	Transfer	*transfers = nullptr;
 	Vec3f		position;
 
 	Color	accumulatedLight;
-
 	Color	diffuse, emissive;
-
 	Color	sampledLight;
 };
 
