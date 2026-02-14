@@ -22,6 +22,8 @@ private:
 	void	InitLightMaps();
 	void	InitialLightingPass();
 	void	CreatePatchTransfers();
+	void	BounceLight();
+	void	FreePatchTransfers();
 
 	void	PatchesForFace(FileFace *face);
 	bool	SampleIsLegal(Vec3f samplePosition, FileFace *face);

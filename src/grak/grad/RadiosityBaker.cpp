@@ -6,6 +6,7 @@
 #define TRACE_PUSH_DIST		1.0f
 #define TRACE_MAX_DIST		10000
 #define NUM_COLLECT_SAMPLES	1500
+#define NUM_BOUNCES			6
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
@@ -242,8 +243,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	Vec3f lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
 	for(int tStep = 0; tStep < face->lightMapHeight; tStep++) {
 		for(int sStep = 0; sStep < face->lightMapWidth; sStep++) {
-			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
-			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
+			Vec3f s = sVec * (sStep * PATCH_SIZE);
+			Vec3f t = tVec * (tStep * PATCH_SIZE);
 
 			Vec3f samplePosition = s + t + lmOrigin;
 
@@ -253,7 +254,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 			Patch *patch = &patchList[numLumels];
 			patch->legal = SquareSampleIsLegal(samplePosition, PATCH_SIZE / 2, face);
-			//patch->legal = true;
+			patch->position = samplePosition;
+			patch->NudgePosition(bspFile);
 			patch->faceIndex = face - bspFile->fileFaces;
 
 			numLumels++;
@@ -284,22 +286,27 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 }
 
 void RadiosityBaker::InitLightMaps() {
+	std::cout << "--- Initializing Lightmaps ---" << std::endl;
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
 		PatchesForFace(&bspFile->fileFaces[i]);
 	}
 
-	// Set numLumels
-	bspFile->fileHeader.lumps[LUMP_LUMELS].length = numLumels;
+	std::cout << "Successfully generated " << numLumels << " number of patches for face" << std::endl;
 }
 
 int errorcount = 0;
 int totalcount = 0;
 void RadiosityBaker::InitialLightingPass() {
+	std::cout << "--- Direct Lighting Pass ---" << std::endl;
+
+	std::cout << "Collecting lighting for all faces..." << std::endl;
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
 	}
+
+	std::cout << "Finished!" << std::endl;
 
 	std::cout << ((float) errorcount) / totalcount << std::endl;
 }
@@ -456,14 +463,16 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 	Color diffuse(lumelMaterial->diffuse[0], lumelMaterial->diffuse[1], lumelMaterial->diffuse[2]);
 	Color emissive(lumelMaterial->emissive[0], lumelMaterial->emissive[1], lumelMaterial->emissive[2]);
 
+
+	patch->sampledLight = averageLighting;
 	Color patchColor = averageLighting * diffuse + emissive;
 
-	patch->sampledLight = patchColor;
-	if(patchColor.Normalize() > 1) {
-		patch->sampledLight = patchColor;
-	}
+	patch->diffuse = diffuse;
+	patch->accumulatedLight = patchColor;
 
-	patch->accumulatedLight = patch->sampledLight;
+	if(patchColor.Normalize() > 1) {
+		patch->accumulatedLight = patchColor;
+	}
 }
 
 
@@ -547,6 +556,61 @@ int RadiosityBaker::FindFaceLumel(FileFace *face, Vec3f position) {
 }
 
 void RadiosityBaker::CreatePatchTransfers() {
+	std::cout << "--- CreatePatchTransfers ---" << std::endl;
+
+	std::cout << "Calculating patch transfers..." << std::endl;
+
+	for(int i = 0; i < numLumels; i++) {
+		Patch *patch = &patchList[i];
+
+		patch->CalcTransfersForpatch(numLumels, patchList, bspFile);
+	}
+
+	std::cout << "Finished creating transfers" << std::endl;
+}
+
+void RadiosityBaker::BounceLight() {
+	std::cout << "--- BounceLight ---" << std::endl;
+
+	std::cout << "Shooting light..." << std::endl;
+
+	Color *collectedLight = new Color[numLumels];
+
+	for(int bounces = 0; bounces < NUM_BOUNCES; bounces++) {
+		std::cout << "Bounce " << bounces + 1 << " out of " << NUM_BOUNCES << std::endl;
+
+		for(int i = 0; i < numLumels; i++) {
+			collectedLight[i] = Color(0, 0, 0);
+		}
+
+		for(int i = 0; i < numLumels; i++) {
+			Patch *patch = &patchList[i];
+
+			patch->ShootLight(collectedLight);
+		}
+
+		for(int i = 0; i < numLumels; i++) {
+			Patch *patch = &patchList[i];
+
+			patch->CollectLight(collectedLight[i]);
+		}
+	}
+
+	delete[] collectedLight;
+}
+
+void RadiosityBaker::FreePatchTransfers() {
+	std::cout << "--- Free Transfers ---" << std::endl;
+
+	for(int i = 0; i < numLumels; i++) {
+		Patch *patch = &patchList[i];
+
+		if(patch->legal) {
+			patch->FreeTransfers();
+		}
+	}
+
+	std::cout << "Freed all transfers" << std::endl;
 }
 
 int RadiosityBaker::BakeRad(BspFile *bspFile) {
@@ -557,11 +621,19 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 	InitLightMaps();
 	InitialLightingPass();
 	CreatePatchTransfers();
+	BounceLight();
+	FreePatchTransfers();
 
 	// Write the patch lighting into the lumel lump
 	for(int i = 0; i < numLumels; i++) {
 		FileLumel *lumel = &(this->bspFile)->fileLightmaps[i];
 		Patch *patch = &patchList[i];
+
+		// Clamp it real quick again
+		Color patchColor = patch->accumulatedLight;
+		if(patchColor.Normalize() > 1) {
+			patch->accumulatedLight = patchColor;
+		}
 
 		lumel->color[0] = patch->accumulatedLight.r;
 		lumel->color[1] = patch->accumulatedLight.g;
@@ -570,6 +642,9 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 		lumel->faceIndex = patch->faceIndex;
 		lumel->legal = patch->legal;
 	}
+
+	// Set numLumels
+	bspFile->fileHeader.lumps[LUMP_LUMELS].length = numLumels;
 
 	delete[] patchList;
 

@@ -10,6 +10,28 @@ Trace::Trace(BspFile *bspFile) {
 	filePlanes = bspFile->filePlanes;
 }
 
+bool Trace::PositionSolid_r(int nodeIdx) {
+	if(nodeIdx < 0) {
+		if(nodeIdx == -1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	FileNode *node = &fileNodes[nodeIdx];
+	FilePlane *plane = &filePlanes[node->planeNum];
+	Vec3f normal = Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]);
+	float startDist = normal.Dot(startPos) - plane->dist;
+
+	return PositionSolid_r(node->children[!(startDist > -ON_PLANE_EPSILON)]);
+}
+
+bool Trace::PositionSolid(Vec3f position) {
+	this->startPos = position;
+
+	return PositionSolid_r(0);
+}
 
 bool Trace::TraceLine_r(int nodeIdx, Vec3f startPos, Vec3f endPos) {
 	if(nodeIdx < 0) {

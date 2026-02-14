@@ -3,23 +3,36 @@
 #ifndef PATCH_INCLUDED
 #define PATCH_INCLUDED
 
+#include "GammaFile.hpp"
 #include "Math.hpp"
 
 struct Transfer {
 	unsigned int	patch;
-	unsigned int	transfer;
+	float			transfer;
 };
 
 class Patch {
 public:
-	int				legal;
-	int				faceIndex;
+	void	CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bspFile);
+	void	ShootLight(Color *collected);
+	void	CollectLight(Color light);
 
-	Color			accumulatedLight;
+	void	NudgePosition(BspFile *bspFile);
 
-	Color			diffuse, emissive;
+	void	FreeTransfers();
 
-	Color			sampledLight;
+	int		legal;
+	int		faceIndex;
+
+	int			numTransfers;
+	Transfer	*transfers = nullptr;
+	Vec3f		position;
+
+	Color	accumulatedLight;
+
+	Color	diffuse, emissive;
+
+	Color	sampledLight;
 };
 
 #endif
