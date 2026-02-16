@@ -12,26 +12,22 @@ void Patch::NudgePosition(BspFile *bspFile) {
 	}
 
 	// Test nudges in this order
-	float testUs[32] = {	-0.5, 0.5, 0, 0, 
+	float testUs[24] = {	-0.5, 0.5, 0, 0, 
 							-0.5, 0.5, -0.5, 0.5,
 							-1, 1, 0, 0, 
 							-1, 1, -1, 1,
 							-1.5, 1.5, 0, 0,
-							-1.5, 1.5, -1.5, 1.5,
-							-2, 2, 0, 0,
-							-2, 2, -2, 2	};
-	float testVs[32] = {	0, 0, -0.5, 0.5, 
+							-1.5, 1.5, -1.5, 1.5	};
+	float testVs[24] = {	0, 0, -0.5, 0.5, 
 							-0.5, 0.5, 0.5, -0.5,
 							0, 0, -1, 1, 
 							-1, 1, 1, -1,
 							0, 0, -1.5, 1.5,
-							-1.5, 1.5, 1.5, -1.5,
-							0, 0, -2, 2,
-							-2, 2, 2, -2	};
+							-1.5, 1.5, 1.5, -1.5	};
 
 	Vec3f sVec = PATCH_SIZE * Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = PATCH_SIZE * Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
-	for(int i = 0; i < 32; i++) {
+	for(int i = 0; i < 24; i++) {
 		Vec3f testPosition = position + testUs[i] * sVec + testVs[i] * tVec;
 
 		if(!trace.PositionSolid(testPosition)) {		// Patch is no longer stuck in solid, set new position
@@ -40,7 +36,8 @@ void Patch::NudgePosition(BspFile *bspFile) {
 		}
 	}
 
-	//std::cout << "A Lumel was nudged but remains stuck" << std::endl;
+	// TODO: Find out what's going on here
+	std::cout << "A Lumel was nudged but remains stuck" << std::endl;
 }
 
 void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bspFile) {

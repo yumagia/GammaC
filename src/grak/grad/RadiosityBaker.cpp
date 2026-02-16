@@ -5,7 +5,7 @@
 
 #define TRACE_PUSH_DIST		1.0f
 #define TRACE_MAX_DIST		10000
-#define NUM_COLLECT_SAMPLES	1000
+#define NUM_COLLECT_SAMPLES	1500
 #define NUM_BOUNCES			6
 
 RadiosityBaker::RadiosityBaker() {
@@ -146,10 +146,7 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapOffset = numLumels;
 
 	// Determine the major axis
-	major = facePlane->type;
-	if(facePlane->type > 2) {
-		major = facePlane->type - 3;
-	}
+	major = facePlane->type % 3;
 
 	// Find min and max bounds of projected polygon
 	FileVert currVert = bspFile->fileVerts[bspFile->fileFaceVerts[face->firstMeshVert]];
@@ -299,9 +296,27 @@ void RadiosityBaker::InitialLightingPass() {
 	std::cout << "--- Direct Lighting Pass ---" << std::endl;
 
 	std::cout << "Collecting lighting for all faces..." << std::endl;
+
+	int progress = 0;
+	int divisor = 12;
+
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
+
+			if(i > (progress * (numFaces / (float) divisor))) {
+				progress++;
+
+				std::cout << "[";
+				for(int j = 0; j < progress; j++) {
+					std::cout << "###";
+				}
+				for(int j = progress; j < divisor; j++) {
+					std::cout << "   ";
+				}
+				std::cout << "]" << std::endl;
+			}
+
 	}
 
 	std::cout << "Finished!" << std::endl;

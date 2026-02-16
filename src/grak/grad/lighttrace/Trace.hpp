@@ -11,7 +11,7 @@ public:
 	Trace(BspFile *bspFile);
 
 	bool PositionSolid(Vec3f position);
-	bool LineStab(Vec3f startPos, Vec3f endPos);			// Returns whether or not the line segment ever hits solid
+	bool LineStab(Vec3f startPos, Vec3f endPos);
 	bool TraceLine(Vec3f startPos, Vec3f endPos);
 
 	bool	startSolid = true;

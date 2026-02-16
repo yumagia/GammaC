@@ -8,8 +8,8 @@
 
 #define PLANE_EPSILON 0.01
 #define FLOAT_MAX 999999999
-#define SPLIT_BALANCE 0.8f
-#define MAX_TREE_DEPTH 200
+#define SPLIT_BALANCE 0.7f
+#define MAX_TREE_DEPTH 100
 
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
@@ -252,6 +252,7 @@ void SplitPolygon(std::shared_ptr<BspFace> polygon, BspPlane plane, std::shared_
 
 BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth) {
 	if(depth > MAX_TREE_DEPTH) {
+		std::cout << "MAX_TREE_DEPTH Reached" << std::endl;
 		return new BspNode(polygons);
 	}
 

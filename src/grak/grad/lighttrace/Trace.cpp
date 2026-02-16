@@ -1,6 +1,6 @@
 #include "Trace.hpp"
 
-#define ON_PLANE_EPSILON	0.1f
+#define ON_PLANE_EPSILON	0.5f
 
 #include <iostream>
 
@@ -24,7 +24,7 @@ bool Trace::PositionSolid_r(int nodeIdx) {
 	Vec3f normal = Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]);
 	float startDist = normal.Dot(startPos) - plane->dist;
 
-	return PositionSolid_r(node->children[!(startDist > -ON_PLANE_EPSILON)]);
+	return PositionSolid_r(node->children[startDist > ON_PLANE_EPSILON]);
 }
 
 bool Trace::PositionSolid(Vec3f position) {
@@ -106,6 +106,7 @@ bool Trace::LineStab_r(int nodeIdx) {
 	return LineStab_r(node->children[!side]);
 }
 
+// Returns whether or not the line segment ever hits solid
 bool Trace::LineStab(Vec3f startPos, Vec3f endPos) {
 	this->startPos = startPos;
 	this->endPos = endPos;
