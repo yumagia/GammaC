@@ -1,4 +1,4 @@
-CC = g++ -fsanitize=address
+CC = g++ -fsanitize=address -lsfml-graphics -lsfml-window -lsfml-system
 CXXFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = $(shell pkg-config sdl2 --cflags --libs)
 
@@ -11,11 +11,10 @@ GAMMA_SRC_DIRS := src/gamma $(COMMON_DIR)
 
 GAMMA_SRCS := $(shell find $(GAMMA_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 GAMMA_OBJS := $(GAMMA_SRCS:%=$(BUILD_DIR)/%.o)
+GAMMA_DEPS := $(GAMMA_OBJS:.o=.d)
 
 GAMMA_INC_DIRS := $(shell find $(GAMMA_SRC_DIRS) -type d)
 GAMMA_INC_FLAGS := $(addprefix -I,$(GAMMA_INC_DIRS))
-
-GAMMA_CPPFLAGS := $(GAMMA_INC_FLAGS) -MMD -MP
 
 # GBSP Program
 GBSP_EXEC := GBSP
@@ -27,8 +26,6 @@ GBSP_OBJS := $(GBSP_SRCS:%=$(BUILD_DIR)/%.o)
 GBSP_INC_DIRS := $(shell find $(GBSP_SRC_DIRS) -type d)
 GBSP_INC_FLAGS := $(addprefix -I,$(GBSP_INC_DIRS))
 
-GBSP_CPPFLAGS := $(GBSP_INC_FLAGS) -MMD -MP
-
 # GRAD Program
 GRAD_EXEC := GRAD
 GRAD_SRC_DIRS := src/grak/grad $(COMMON_DIR)
@@ -38,8 +35,6 @@ GRAD_OBJS := $(GRAD_SRCS:%=$(BUILD_DIR)/%.o)
 
 GRAD_INC_DIRS := $(shell find $(GRAD_SRC_DIRS) -type d)
 GRAD_INC_FLAGS := $(addprefix -I,$(GRAD_INC_DIRS))
-
-GRAD_CPPFLAGS := $(GRAD_INC_FLAGS) -MMD -MP
 
 # Misc Programs
 VBO_GEN_EXEC := VBOGen
@@ -51,7 +46,7 @@ VBO_GEN_OBJS := $(VBO_GEN_SRCS:%=$(BUILD_DIR)/%.o)
 VBO_GEN_INC_DIRS := $(shell find $(VBO_GEN_SRC_DIRS) -type d)
 VBO_GEN_INC_FLAGS := $(addprefix -I,$(VBO_GEN_INC_DIRS))
 
-VBO_GEN_CPPFLAGS := $(VBO_GEN_INC_FLAGS) -MMD -MP
+CPPFLAGS := $(GAMMA_INC_FLAGS) $(GBSP_INC_FLAGS) $(GRAD_INC_FLAGS) $(VBO_GEN_INC_FLAGS) -MMD -MP
 
 all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GRAD_EXEC)
 
@@ -63,55 +58,28 @@ misc: $(VBO_GEN_EXEC)
 $(GAMMA_EXEC): $(GAMMA_OBJS)
 	$(CC) $(GAMMA_OBJS) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(GAMMA_CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(GAMMA_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
 # GBSP Executable
 $(GBSP_EXEC): $(GBSP_OBJS)
 	$(CC) $(GBSP_OBJS) -o $@ $(LDFLAGS)
-
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(GBSP_CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(GBSP_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
 
 # GRAD Executable
 $(GRAD_EXEC): $(GRAD_OBJS)
 	$(CC) $(GRAD_OBJS) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(GRAD_CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(GRAD_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
-
 # Misc Executables
 $(VBO_GEN_EXEC): $(VBO_GEN_OBJS)
 	$(CC) $(VBO_GEN_OBJS) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(VBO_GEN_CPPFLAGS) $(CFLAGS) -c $< -o $@
-
+# Build
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(VBO_GEN_CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean all
 
 clean:
-	$(RM) -r $(BUILD_DIR) 
+	$(RM) -r $(BUILD_DIR) $(GAMMA_DEPS)
 
 MKDIR_P := mkdir -p
+
+-include $(GAMMA_DEPS)
