@@ -10,6 +10,9 @@ namespace GammaEngine {
 			~MainLoop();
 			int Run();
 
+		private:
+			bool GlfwInitialize();
+
 		protected:
 			virtual void Initialize() = 0;
 			Window window_;

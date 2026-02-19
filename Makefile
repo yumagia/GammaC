@@ -1,4 +1,5 @@
-CC = g++ -fsanitize=address -lsfml-graphics -lsfml-window -lsfml-system
+CC = g++ -fsanitize=address -lglfw -lGL -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread
+# CC = g++ -fsanitize=address 
 CXXFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = $(shell pkg-config sdl2 --cflags --libs)
 
@@ -73,7 +74,7 @@ $(VBO_GEN_EXEC): $(VBO_GEN_OBJS)
 # Build
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean all
 
