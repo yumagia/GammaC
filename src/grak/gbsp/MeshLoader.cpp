@@ -36,6 +36,8 @@ int MeshLoader::AddMaterials(const char *fileName, BspFile &bspFile, std::map<st
 		return 0;
 	}
 
+	materialCount = bspFile.fileHeader.lumps[LUMP_MATERIALS].length;
+
 	std::string line;
 	std::vector<std::string> args;
 	FileMaterial *material = NULL;
