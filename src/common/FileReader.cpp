@@ -325,25 +325,25 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		readFace.lightMapHeight = stoi(line);
 
 		std::getline(readFile, line);
-		readFace.lightMapOrigin[0] = stoi(line);
+		readFace.lightMapOrigin[0] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapOrigin[1] = stoi(line);
+		readFace.lightMapOrigin[1] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapOrigin[2] = stoi(line);
+		readFace.lightMapOrigin[2] = stof(line);
 
 		std::getline(readFile, line);
-		readFace.lightMapS[0] = stoi(line);
+		readFace.lightMapS[0] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapS[1] = stoi(line);
+		readFace.lightMapS[1] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapS[2] = stoi(line);
+		readFace.lightMapS[2] = stof(line);
 
 		std::getline(readFile, line);
-		readFace.lightMapT[0] = stoi(line);
+		readFace.lightMapT[0] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapT[1] = stoi(line);
+		readFace.lightMapT[1] = stof(line);
 		std::getline(readFile, line);
-		readFace.lightMapT[2] = stoi(line);
+		readFace.lightMapT[2] = stof(line);
 
 		bspFile->fileFaces[i] = readFace;
 	}
