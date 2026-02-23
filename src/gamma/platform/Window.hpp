@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -12,6 +14,7 @@ namespace GammaEngine {
 		bool CreateWindow();
 		bool IsOpen();
 		void HandleEvents();
+		void Display();
 
 		std::string		GetTitle();
 		unsigned int	GetWidth();

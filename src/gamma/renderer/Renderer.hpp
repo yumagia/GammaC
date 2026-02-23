@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Scene.hpp"
+
 namespace GammaEngine {
 	class Renderer {
 		public:
@@ -7,7 +9,7 @@ namespace GammaEngine {
 			~Renderer() {}
 			void Initialize(unsigned int width, unsigned int height);
 			void ResizeViewport(unsigned int width, unsigned int height);
-			void Draw();
+			void Draw(Scene &scene);
 
 		private:
 			unsigned int	width_;

@@ -72,5 +72,9 @@ namespace GammaEngine {
 
 		glfwPollEvents();
 	}
+
+	void Window::Display() {
+		glfwSwapBuffers(window_);
+	}
 }
 

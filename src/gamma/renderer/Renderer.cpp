@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
@@ -8,7 +10,6 @@
 
 namespace GammaEngine {
 	void Renderer::Initialize(unsigned int width, unsigned int height) {
-		GLuint pixelData[width * height * 4];
 
 		ResizeViewport(width, height);
 	}
@@ -24,10 +25,9 @@ namespace GammaEngine {
 		height_ = height;
 	}
 
-	struct Pixel {
-		uint8_t r{ 0 }, g{ 0 }, b{ 0 }, a{ 0 };
-	};
-	void Renderer::Draw() {
+	void Renderer::Draw(Scene &scene) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		scene.Draw();
 	}
 }

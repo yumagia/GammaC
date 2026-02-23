@@ -1,4 +1,4 @@
-CC = g++ -fsanitize=address -lglfw -lGL -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread
+CC = g++ -fsanitize=address -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread
 # CC = g++ -fsanitize=address 
 CXXFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = $(shell pkg-config sdl2 --cflags --libs)
