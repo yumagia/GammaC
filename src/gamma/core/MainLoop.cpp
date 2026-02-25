@@ -51,17 +51,25 @@ namespace GammaEngine {
 		renderer_.Initialize(window_.GetWidth(), window_.GetHeight());
 
 		clock_.Reset();
-
+		Clock intervalClock;
+		intervalClock.Reset();
+		mainLoopTicksElapsed_ = 0;
 		while(window_.IsOpen())	{
 			window_.HandleEvents();
 
 			float deltaTime = clock_.DeltaTime();
-			std::cout << 1.f / deltaTime << std::endl;
+			// std::cout << 1.f / deltaTime << std::endl;
 
 			Update(deltaTime);
 
 			renderer_.Draw(*scene_);
 			window_.Display();
+
+			if((mainLoopTicksElapsed_ % 60) == 0) {
+				std::cout << 60.f / intervalClock.DeltaTime() << std::endl;
+				intervalClock.Reset();
+			}
+			mainLoopTicksElapsed_++;
 		}
 		
 		return EXIT_SUCCESS;

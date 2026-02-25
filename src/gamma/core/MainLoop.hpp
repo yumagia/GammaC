@@ -21,6 +21,8 @@ namespace GammaEngine {
 			virtual void Configure() = 0;
 			virtual void Initialize(int argv, char **argc) = 0;
 			virtual void Update(float deltaTime) = 0;
+
+			unsigned int mainLoopTicksElapsed_;
 			
 			Window window_;
 			Renderer renderer_;
