@@ -1,0 +1,9 @@
+{
+	"name": "GammaC-dev",
+	"runArgs": [
+		"--name", "GammaC-dev"
+	],
+	"build": {
+		"dockerfile": "Dockerfile"
+	}
+}
