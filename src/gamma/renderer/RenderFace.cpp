@@ -44,7 +44,6 @@ namespace GammaEngine {
 	}
 
 	void RenderFace::Draw(unsigned int frameNum, Vec3f viewPosition) {
-
 		if(frameNum_ == frameNum) {									// Already rendered
 			return;
 		}

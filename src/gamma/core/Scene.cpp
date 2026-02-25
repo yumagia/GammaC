@@ -201,7 +201,8 @@ namespace GammaEngine {
 		camera_ = std::make_shared<Camera>();
 		camera_->SetPerspective(60.f, 4.f/3.f, 1.f, 100000.f);
 
-		camera_->SetPosition(Vec3f(0.f, 0.f, 500.f));
+		camera_->SetRotation(Quaternion(Vec3f(0.f, 1.f, 0.f), -0.75 * M_PI));
+		camera_->SetPosition(Vec3f(0.f, 100.f, -1000.f));
 	}
 
 	void Scene::DrawLeaf(int leafIdx) {
