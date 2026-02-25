@@ -74,6 +74,7 @@ namespace GammaEngine {
 	}
 
 	void Window::Display() {
+		glfwSwapInterval(verticalSync_);
 		glfwSwapBuffers(window_);
 	}
 }

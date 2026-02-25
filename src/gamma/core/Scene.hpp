@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_EBO 1000000
+
 #include "GammaFile.hpp"
 
 #include "RenderFace.hpp"
@@ -17,24 +19,29 @@ namespace GammaEngine {
 			~Scene();
 
 			void LoadBspFile(std::string fileName);
+			void CreateDefaltCamera();
 			
 			void Update(float deltaTime);
 			void Draw();
 
 		private:
+			void BindShader(const ShaderProgram& shaderProgram, const glm::mat4 &worldMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
+			void UnbindShader(const ShaderProgram& shaderProgram);
+
 			void DrawLeaf(int leafIdx);
 			void DrawWorldNodeRecursive(int childNodeIdx);
 
 		private:
-			GLuint vao_, vbo_;
+			GLuint vao_, vbo_, ebo_;
 			std::vector<float> buffer_;
+			unsigned int currentIndexCount_;
 
 			std::function<void()> gpuRelease_{0};
 
-			Camera camera_;
-			Transform view_;
+			std::shared_ptr<Camera> camera_{nullptr};
 
 			std::vector<RenderFace> renderFaces_;
+			unsigned int frameNum_;
 
 			std::vector<FileModel> models_;
 			std::vector<FileEntity> entities_;

@@ -9,7 +9,7 @@ class Application: public MainLoop {
 		~Application() {}
 	private:
 		void Configure() override;
-		void Initialize() override;
+		void Initialize(int argv, char **argc) override;
 		void Update(float deltaTime) override;
 };
 
@@ -17,8 +17,10 @@ void Application::Configure() {
 	window_.SetTitle("Gamma Engine");
 }
 
-void Application::Initialize() {
-	scene_->LoadBspFile("testgi.txt");
+void Application::Initialize(int argv, char **argc) {
+	scene_->CreateDefaltCamera();
+
+	scene_->LoadBspFile(argc[1]);
 
 	glClearColor(0.5f, 0.7f, 1.f, 0.f);
 }
@@ -36,5 +38,5 @@ int main(int argv, char **argc) {
 	}
 
 	Application application;
-	return application.Run();
+	return application.Run(argv, argc);
 }

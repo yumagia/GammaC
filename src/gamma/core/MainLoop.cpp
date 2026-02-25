@@ -23,7 +23,7 @@ namespace GammaEngine {
 		return 1;
 	}
 
-	int MainLoop::Run() {
+	int MainLoop::Run(int argv, char **argc) {
 		if(!GlfwInitialize()) {
 			std::cout << "Failed to initialize GLFW" << std::endl;
 			return EXIT_FAILURE;
@@ -41,7 +41,12 @@ namespace GammaEngine {
 			return EXIT_FAILURE;
 		}
 
-		Initialize();
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		Initialize(argv, argc);
 
 		renderer_.Initialize(window_.GetWidth(), window_.GetHeight());
 
@@ -51,6 +56,7 @@ namespace GammaEngine {
 			window_.HandleEvents();
 
 			float deltaTime = clock_.DeltaTime();
+			std::cout << 1.f / deltaTime << std::endl;
 
 			Update(deltaTime);
 

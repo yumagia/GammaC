@@ -1,11 +1,16 @@
 #include "Scene.hpp"
 
 #include "FileReader.hpp"
+#include "ShaderLoader.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 
 namespace GammaEngine {
 	Scene::Scene() {
+		frameNum_ = 0;
 	}
 
 	Scene::~Scene() {
@@ -94,6 +99,7 @@ namespace GammaEngine {
 				indices.push_back(firstVertIdx + i + 1);
 				indices.push_back(firstVertIdx + i + 2);
 			}
+			renderFace.SetPlane(&planes_[face.planeNum]);
 
 			renderFace.SetIndices(indices);
 
@@ -102,6 +108,7 @@ namespace GammaEngine {
 
 		glGenVertexArrays(1, &vao_);
 		glGenBuffers(1, &vbo_);
+		glGenBuffers(1, &ebo_);
 
 		glBindVertexArray(vao_);
 
@@ -139,6 +146,12 @@ namespace GammaEngine {
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (void*)(8 * sizeof(float)));
 		glEnableVertexAttribArray(3);
 
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_EBO * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
+
 		glBindVertexArray(0);
 
 		gpuRelease_ = [this]() {
@@ -147,6 +160,9 @@ namespace GammaEngine {
 			}
 			if(vbo_ != 0) {
 				glDeleteBuffers(1, &vbo_);
+			}
+			if(vbo_ != 0) {
+				glDeleteBuffers(1, &ebo_);
 			}
 		};
 
@@ -160,7 +176,32 @@ namespace GammaEngine {
 		std::cout << "Successfully generated scene from BSP file" << std::endl;
 	}
 
+	void Scene::BindShader(const ShaderProgram& shaderProgram, const glm::mat4 &worldMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
+		shaderProgram.Bind();
+
+		glm::mat4 modelViewMatrix = viewMatrix * worldMatrix;
+
+		glBindBuffer(GL_UNIFORM_BUFFER, shaderProgram.GetMatricesUbo());
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(worldMatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*1, sizeof(glm::mat4), glm::value_ptr(viewMatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2, sizeof(glm::mat4), glm::value_ptr(modelViewMatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*3, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
+	}
+
+	void Scene::UnbindShader(const ShaderProgram& shaderProgram) {
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        shaderProgram.Unbind();
+	}
+
 	void Scene::Update(float deltaTime) {
+	}
+
+	void Scene::CreateDefaltCamera() {
+		camera_ = std::make_shared<Camera>();
+		camera_->SetPerspective(60.f, 4.f/3.f, 1.f, 100000.f);
+
+		camera_->SetPosition(Vec3f(0.f, 0.f, 500.f));
 	}
 
 	void Scene::DrawLeaf(int leafIdx) {
@@ -171,7 +212,10 @@ namespace GammaEngine {
 		
 		unsigned int leafFace = leaf->firstLeafFace;
 		for(int i = 0; i < leaf->numLeafFaces; i++) {
-			renderFaces_[leafFaces_[leafFace]].Draw();
+			RenderFace *renderFace = &renderFaces_[leafFaces_[leafFace]];
+			renderFace->SetCurrentIndexCount(currentIndexCount_);
+			renderFace->Draw(frameNum_, camera_->GetPosition());
+			currentIndexCount_ = renderFace->GetCurrentIndexCount();
 			leafFace++;
 		}
 	}
@@ -184,7 +228,7 @@ namespace GammaEngine {
 						node->maxBound[2] - node->minBound[2]	);
 		
 		FilePlane *plane = &planes_[node->planeNum];
-		float dot = (view_.position_).Dot(Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]));
+		float dot = (camera_->GetPosition()).Dot(Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]));
 		bool side = (dot - plane->dist) < 0;
 		int childNodeIdx = node->children[!side];
 
@@ -210,17 +254,31 @@ namespace GammaEngine {
 	}
 
 	void Scene::Draw() {
+		frameNum_++;
+		currentIndexCount_ = 0;
 		nodesTraversed_ = 0;
-		view_ = camera_.GetTransform();
-
 		if(models_.empty()) {
 			return;
 		}
 
-		FileModel *worldModel = &models_[0];
 
+		camera_->UpdateMatrices();
+
+		glBindVertexArray(vao_);
+
+		FileModel *worldModel = &models_[0];
 		DrawWorldNodeRecursive(worldModel->headNode);
 
+		auto shaderProgram = ShaderLoader::LoadShader(ShaderType::DEFAULT);
+		BindShader(*shaderProgram, glm::mat4{1.f} , camera_->GetViewMatrix(), camera_->GetProjectionMatrix());
+
+		glDrawElements(GL_TRIANGLES, currentIndexCount_, GL_UNSIGNED_INT, (void*)0);
+		glBindVertexArray(0);
+
+		UnbindShader(*shaderProgram);
+
+		//std::cout << frameNum_ << std::endl;
+		//std::cout << currentIndexCount_ << std::endl;
 		//std::cout << nodesTraversed_ << " number of nodes traversed" << std::endl;
 	}
 }

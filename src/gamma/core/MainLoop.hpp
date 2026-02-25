@@ -12,14 +12,14 @@ namespace GammaEngine {
 		public:
 			MainLoop();
 			~MainLoop();
-			int Run();
+			int Run(int argv, char **argc);
 
 		private:
 			bool GlfwInitialize();
 
 		protected:
 			virtual void Configure() = 0;
-			virtual void Initialize() = 0;
+			virtual void Initialize(int argv, char **argc) = 0;
 			virtual void Update(float deltaTime) = 0;
 			
 			Window window_;
