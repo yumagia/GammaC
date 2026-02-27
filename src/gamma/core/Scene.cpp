@@ -20,7 +20,36 @@ namespace GammaEngine {
 	}
 
 	void Scene::GenerateLightmapAtlas() {
-		
+		atlas_ = std::make_shared<Atlas>();
+
+		atlas_->Initialize();
+
+		for(int i = 0; i < renderFaces_.size(); i++) {
+			FileFace *face = &faces_[i];
+			unsigned int lmOffset = face->lightMapOffset;
+			unsigned int lmWidth = face->lightMapWidth;
+			unsigned int lmHeight = face->lightMapHeight;
+
+			std::vector<unsigned char> texture;
+			texture.reserve(lmWidth * lmHeight * 4);
+			for(int j = 0; j < lmHeight; j++) {
+				for(int i = 0; i < lmWidth; i++) {
+					FileLumel *lumel = &lightmaps_[lmOffset + i + lmWidth * j];
+					unsigned int texLoc = (i + lmWidth * j) * 4;
+					texture[texLoc] = (unsigned char) (lumel->color[0] * 255.f);
+					texture[texLoc + 1] = (unsigned char) (lumel->color[1] * 255.f);
+					texture[texLoc + 2] = (unsigned char) (lumel->color[2] * 255.f);
+					texture[texLoc + 3] = 255;
+				}
+			}
+
+			if(!atlas_->UploadTexture(lmWidth, lmHeight, texture.data())) {
+				std::cerr << "WARNING: Terminating GenerateLightmapAtlas early" << std::endl;
+				return;
+			}
+		}
+
+		atlas_->WriteImageFile();
 	}
 
 	void Scene::LoadBspFile(std::string fileName) {
@@ -110,8 +139,6 @@ namespace GammaEngine {
 			renderFaces_.push_back(renderFace);
 		}
 
-		GenerateLightmapAtlas();
-
 		glGenVertexArrays(1, &vao_);
 		glGenBuffers(1, &vbo_);
 		glGenBuffers(1, &ebo_);
@@ -178,6 +205,8 @@ namespace GammaEngine {
 		}
 
 		buffer_.clear();
+
+		GenerateLightmapAtlas();
 
 		std::cout << "Successfully generated scene from BSP file" << std::endl;
 	}
