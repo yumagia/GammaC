@@ -65,8 +65,8 @@ namespace GammaEngine {
 			renderer_.Draw(*scene_);
 			window_.Display();
 
-			if((mainLoopTicksElapsed_ % 60) == 0) {
-				std::cout << 60.f / intervalClock.DeltaTime() << std::endl;
+			if((mainLoopTicksElapsed_ % 120) == 0) {
+				std::cout << 120.f / intervalClock.DeltaTime() << std::endl;
 				intervalClock.Reset();
 			}
 			mainLoopTicksElapsed_++;

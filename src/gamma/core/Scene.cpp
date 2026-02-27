@@ -19,6 +19,10 @@ namespace GammaEngine {
 		}
 	}
 
+	void Scene::GenerateLightmapAtlas() {
+		
+	}
+
 	void Scene::LoadBspFile(std::string fileName) {
 		FileReader fileReader;
 		BspFile *bspFile = fileReader.ReadFile(fileName);
@@ -105,6 +109,8 @@ namespace GammaEngine {
 
 			renderFaces_.push_back(renderFace);
 		}
+
+		GenerateLightmapAtlas();
 
 		glGenVertexArrays(1, &vao_);
 		glGenBuffers(1, &vbo_);

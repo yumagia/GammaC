@@ -6,6 +6,7 @@
 
 #include "RenderFace.hpp"
 #include "Camera.hpp"
+#include "Atlas.hpp"
 
 #include <memory>
 #include <vector>
@@ -25,6 +26,8 @@ namespace GammaEngine {
 			void Draw();
 
 		private:
+			void GenerateLightmapAtlas();
+
 			void BindShader(const ShaderProgram& shaderProgram, const glm::mat4 &worldMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
 			void UnbindShader(const ShaderProgram& shaderProgram);
 
@@ -38,6 +41,7 @@ namespace GammaEngine {
 
 			std::function<void()> gpuRelease_{0};
 
+			std::shared_ptr<Atlas> atlas_{nullptr};
 			std::shared_ptr<Camera> camera_{nullptr};
 
 			std::vector<RenderFace> renderFaces_;
