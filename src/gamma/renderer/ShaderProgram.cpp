@@ -104,6 +104,30 @@ namespace GammaEngine {
 		return *this;
 	}
 
+	void ShaderProgram::SetLightTexture(unsigned int width, unsigned int height, unsigned char *data) {
+		glGenTextures(1, &lightTextureID_);
+		glBindTexture(GL_TEXTURE_2D, lightTextureID_);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	void ShaderProgram::SetBaseTexture(unsigned int width, unsigned int height, unsigned char *data) {
+		glGenTextures(1, &baseTextureID_);
+		glBindTexture(GL_TEXTURE_2D, baseTextureID_);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	unsigned int ShaderProgram::GetBaseTexture() const {
+		return baseTextureID_;
+	}
+
+	unsigned int ShaderProgram::GetLightTexture() const {
+		return lightTextureID_;
+	}
+
 	void ShaderProgram::Bind() const {
 		glUseProgram(programId_);
 	}

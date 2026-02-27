@@ -18,6 +18,7 @@ namespace GammaEngine {
 
 			void SetPlane(const FilePlane *plane);
 			void SetIndices(std::vector<unsigned int> indices);
+			std::vector<unsigned int> GetIndices();
 
 			void Draw(unsigned int frameNum, Vec3f viewPosition);
 
@@ -27,7 +28,6 @@ namespace GammaEngine {
 		private:
 
 		private:
-			GLuint ebo_;
 			glm::vec4 color_;
 			const FilePlane *plane_;
 			

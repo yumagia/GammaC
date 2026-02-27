@@ -12,16 +12,11 @@
 
 namespace GammaEngine {
 	RenderFace::RenderFace() {
-		glGenBuffers(1, &ebo_);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-
 		frameNum_ = 0;
 	}
 
 	RenderFace::~RenderFace() {
-		if(ebo_ != 0) {
-			glDeleteVertexArrays(1, &ebo_);
-		}
+
 	}
 
 	void RenderFace::SetPlane(const FilePlane *plane) {
@@ -30,9 +25,10 @@ namespace GammaEngine {
 
 	void RenderFace::SetIndices(std::vector<unsigned int> indices) {
 		indices_ = indices;
+	}
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(unsigned int), indices_.data(), GL_STATIC_DRAW);
+	std::vector<unsigned int> RenderFace::GetIndices() {
+		return indices_;
 	}
 
 	void RenderFace::SetCurrentIndexCount(unsigned int currentIndexCount) {

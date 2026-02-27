@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#define RENDER_VERTEX_SIZE 10
+
 namespace GammaEngine {
 	Scene::Scene() {
 		frameNum_ = 0;
@@ -46,6 +48,13 @@ namespace GammaEngine {
 			if(!atlas_->UploadTexture(lmWidth, lmHeight, texture.data())) {
 				std::cerr << "WARNING: Terminating GenerateLightmapAtlas early" << std::endl;
 				return;
+			}
+
+			unsigned int firstVert = face->firstVert;
+			for(int i = 0; i < face->numVerts; i++) {
+				float &u = buffer_[(RENDER_VERTEX_SIZE * (firstVert + i)) + 8];
+				float &v = buffer_[(RENDER_VERTEX_SIZE * (firstVert + i)) + 9];
+				atlas_->RemapUv(u, v);
 			}
 		}
 
@@ -165,10 +174,15 @@ namespace GammaEngine {
 			}
 		}
 
+		GenerateLightmapAtlas();
+
+		shaderProgram_ = ShaderLoader::LoadShader(ShaderType::DEFAULT);
+		shaderProgram_->SetLightTexture(atlas_->GetDimensions(), atlas_->GetDimensions(), atlas_->GetData());
+
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 		glBufferData(GL_ARRAY_BUFFER, buffer_.size() * sizeof(float), buffer_.data(), GL_STATIC_DRAW);
 
-		constexpr unsigned int stride = 10 * sizeof(float);
+		constexpr unsigned int stride = RENDER_VERTEX_SIZE * sizeof(float);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
 		glEnableVertexAttribArray(0);
@@ -206,12 +220,19 @@ namespace GammaEngine {
 
 		buffer_.clear();
 
-		GenerateLightmapAtlas();
-
 		std::cout << "Successfully generated scene from BSP file" << std::endl;
 	}
 
 	void Scene::BindShader(const ShaderProgram& shaderProgram, const glm::mat4 &worldMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
+		GLint baseMapLoc = glGetUniformLocation(shaderProgram.GetId(), "textureAtlas");
+		GLint lightmapLoc = glGetUniformLocation(shaderProgram.GetId(), "lightmapAtlas");
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shaderProgram.GetBaseTexture()); 
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, shaderProgram.GetLightTexture());
+		
 		shaderProgram.Bind();
 
 		glm::mat4 modelViewMatrix = viewMatrix * worldMatrix;
@@ -221,15 +242,21 @@ namespace GammaEngine {
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*1, sizeof(glm::mat4), glm::value_ptr(viewMatrix));
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2, sizeof(glm::mat4), glm::value_ptr(modelViewMatrix));
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*3, sizeof(glm::mat4), glm::value_ptr(projectionMatrix));
+
+		int use_texture = 0;
+
+		// Update material UBO
+		glBindBuffer(GL_UNIFORM_BUFFER, shaderProgram.GetMaterialUbo());
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_texture);
+
+		//glUniform1i(baseMapLoc, 0);
+		glUniform1i(lightmapLoc, 1);
 	}
 
 	void Scene::UnbindShader(const ShaderProgram& shaderProgram) {
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         shaderProgram.Unbind();
-	}
-
-	void Scene::Update(float deltaTime) {
 	}
 
 	void Scene::CreateDefaltCamera() {
@@ -289,6 +316,14 @@ namespace GammaEngine {
 		}
 	}
 
+	std::shared_ptr<Camera> Scene::GetCamera() {
+		return camera_;
+	}
+
+	void Scene::Update(float deltaTime) {
+
+	}
+
 	void Scene::Draw() {
 		frameNum_++;
 		currentIndexCount_ = 0;
@@ -297,7 +332,6 @@ namespace GammaEngine {
 			return;
 		}
 
-
 		camera_->UpdateMatrices();
 
 		glBindVertexArray(vao_);
@@ -305,13 +339,12 @@ namespace GammaEngine {
 		FileModel *worldModel = &models_[0];
 		DrawWorldNodeRecursive(worldModel->headNode);
 
-		auto shaderProgram = ShaderLoader::LoadShader(ShaderType::DEFAULT);
-		BindShader(*shaderProgram, glm::mat4{1.f} , camera_->GetViewMatrix(), camera_->GetProjectionMatrix());
+		BindShader(*shaderProgram_, glm::mat4{1.f} , camera_->GetViewMatrix(), camera_->GetProjectionMatrix());
 
 		glDrawElements(GL_TRIANGLES, currentIndexCount_, GL_UNSIGNED_INT, (void*)0);
 		glBindVertexArray(0);
 
-		UnbindShader(*shaderProgram);
+		UnbindShader(*shaderProgram_);
 
 		//std::cout << frameNum_ << std::endl;
 		//std::cout << currentIndexCount_ << std::endl;

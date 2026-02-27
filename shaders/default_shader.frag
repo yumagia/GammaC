@@ -5,15 +5,16 @@ layout(std140, binding = 1) uniform Material {
     int useTexture;
 };
 
-uniform sampler2D textureImage;
+uniform sampler2D textureAtlas;
+uniform sampler2D lightmapAtlas;
 
 in vec4 vertexColor;
-in vec2 texCoord;
+in vec2 lmCoord;
 out vec4 fragColor;
 
 void main() {
-    fragColor = vertexColor * vec4(1, 1, 1, 1);
-    if(useTexture != 0) {
-        fragColor = texture(textureImage, texCoord);
-    }
+    vec4 baseColor = vec4(1, 1, 1, 1);
+    vec4 lightColor = texture(lightmapAtlas, lmCoord);
+
+    fragColor = baseColor * lightColor;
 }

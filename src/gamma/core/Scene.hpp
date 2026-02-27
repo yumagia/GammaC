@@ -22,6 +22,8 @@ namespace GammaEngine {
 			void LoadBspFile(std::string fileName);
 			void CreateDefaltCamera();
 			
+			std::shared_ptr<Camera> GetCamera();
+
 			void Update(float deltaTime);
 			void Draw();
 
@@ -35,6 +37,8 @@ namespace GammaEngine {
 			void DrawWorldNodeRecursive(int childNodeIdx);
 
 		private:
+			std::shared_ptr<GammaEngine::ShaderProgram> shaderProgram_;
+
 			GLuint vao_, vbo_, ebo_;
 			std::vector<float> buffer_;
 			unsigned int currentIndexCount_;

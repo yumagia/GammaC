@@ -277,8 +277,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	// Generate vertex lightmap UVS
 	for(int i = 0; i < face->numVerts; i++) {
 		FileVert* vert = &bspFile->fileVerts[face->firstVert + i];
-		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / PATCH_SIZE;
-		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / PATCH_SIZE;
+		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / (PATCH_SIZE * face->lightMapWidth);
+		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / (PATCH_SIZE * face->lightMapHeight);
 	}
 }
 

@@ -62,6 +62,9 @@ namespace GammaEngine {
 
 			Update(deltaTime);
 
+			std::shared_ptr<Camera> camera = scene_->GetCamera();
+			camera->Update(deltaTime);
+
 			renderer_.Draw(*scene_);
 			window_.Display();
 
