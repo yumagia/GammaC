@@ -37,7 +37,7 @@ void Patch::NudgePosition(BspFile *bspFile) {
 	}
 
 	// TODO: Find out what's going on here
-	std::cout << "A Lumel was nudged but remains stuck" << std::endl;
+	// std::cout << "A Lumel was nudged but remains stuck" << std::endl;
 }
 
 void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bspFile) {

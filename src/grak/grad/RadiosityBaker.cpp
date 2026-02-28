@@ -222,8 +222,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	
 	float sExtent = face->lightMapS[(major + 2) % 3];
 	float tExtent = face->lightMapT[(major + 1) % 3];
-	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 2;
-	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 2;
+	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 4;
+	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 4;
 	
 	float magS = sqrt(face->lightMapS[0] * face->lightMapS[0] + face->lightMapS[1] * face->lightMapS[1] + face->lightMapS[2] * face->lightMapS[2]);
 	face->lightMapS[0] /= magS;
@@ -234,10 +234,17 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	face->lightMapT[1] /= magT;
 	face->lightMapT[2] /= magT;
 
-	// Create the actual patches
 	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
 	Vec3f lmOrigin = Vec3f(face->lightMapOrigin[0], face->lightMapOrigin[1], face->lightMapOrigin[2]);
+
+	lmOrigin = lmOrigin - 2 * (sVec + tVec) * PATCH_SIZE;
+
+	face->lightMapOrigin[0] = lmOrigin.x;
+	face->lightMapOrigin[1] = lmOrigin.y;
+	face->lightMapOrigin[2] = lmOrigin.z;
+
+	// Create the actual patches
 	for(int tStep = 0; tStep < face->lightMapHeight; tStep++) {
 		for(int sStep = 0; sStep < face->lightMapWidth; sStep++) {
 			Vec3f s = sVec * (sStep * PATCH_SIZE);
