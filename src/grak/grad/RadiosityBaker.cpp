@@ -304,14 +304,16 @@ void RadiosityBaker::InitialLightingPass() {
 
 	std::cout << "Collecting lighting for all faces..." << std::endl;
 
+	int count = 0;
 	int progress = 0;
 	int divisor = 12;
 
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
+	#pragma omp parallel for num_threads(4)
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
 
-			if(i > (progress * (numFaces / (float) divisor))) {
+			if(count > (progress * (numFaces / (float) divisor))) {
 				progress++;
 
 				std::cout << "[";
@@ -323,7 +325,7 @@ void RadiosityBaker::InitialLightingPass() {
 				}
 				std::cout << "]" << std::endl;
 			}
-
+		count++;
 	}
 
 	std::cout << "Finished!" << std::endl;
@@ -582,15 +584,17 @@ void RadiosityBaker::CreatePatchTransfers() {
 
 	std::cout << "Calculating patch transfers..." << std::endl;
 
+	int count = 0;
 	int progress = 0;
 	int divisor = 12;
 
+	#pragma omp parallel for num_threads(4)
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 
 		patch->CalcTransfersForpatch(numLumels, patchList, bspFile);
 
-		if(i > (progress * (numLumels / (float) divisor))) {
+		if(count > (progress * (numLumels / (float) divisor))) {
 			progress++;
 
 			std::cout << "[";
@@ -602,6 +606,8 @@ void RadiosityBaker::CreatePatchTransfers() {
 			}
 			std::cout << "]" << std::endl;
 		}
+
+		count++;
 	}
 
 	std::cout << "Finished creating transfers" << std::endl;
@@ -640,6 +646,7 @@ void RadiosityBaker::BounceLight() {
 void RadiosityBaker::FreePatchTransfers() {
 	std::cout << "--- Free Transfers ---" << std::endl;
 
+	#pragma omp parallel for num_threads(4)
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 
