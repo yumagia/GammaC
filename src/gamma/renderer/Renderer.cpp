@@ -10,6 +10,7 @@
 
 namespace GammaEngine {
 	void Renderer::Initialize(unsigned int width, unsigned int height) {
+		glEnable(GL_DEPTH_TEST);
 
 		ResizeViewport(width, height);
 	}

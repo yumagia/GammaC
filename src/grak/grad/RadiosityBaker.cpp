@@ -222,8 +222,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	
 	float sExtent = face->lightMapS[(major + 2) % 3];
 	float tExtent = face->lightMapT[(major + 1) % 3];
-	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 1;
-	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 1;
+	face->lightMapWidth = ceil(sExtent / PATCH_SIZE) + 2;
+	face->lightMapHeight = ceil(tExtent / PATCH_SIZE) + 2;
 	
 	float magS = sqrt(face->lightMapS[0] * face->lightMapS[0] + face->lightMapS[1] * face->lightMapS[1] + face->lightMapS[2] * face->lightMapS[2]);
 	face->lightMapS[0] /= magS;
@@ -277,8 +277,8 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 	// Generate vertex lightmap UVS
 	for(int i = 0; i < face->numVerts; i++) {
 		FileVert* vert = &bspFile->fileVerts[face->firstVert + i];
-		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / (PATCH_SIZE * face->lightMapWidth);
-		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / (PATCH_SIZE * face->lightMapHeight);
+		vert->lightMapUV[0] = (vert->point[(major + 2) % 3] - face->lightMapOrigin[(major + 2) % 3]) / PATCH_SIZE;
+		vert->lightMapUV[1] = (vert->point[(major + 1) % 3] - face->lightMapOrigin[(major + 1) % 3]) / PATCH_SIZE;
 	}
 }
 

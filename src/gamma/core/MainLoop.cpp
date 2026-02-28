@@ -41,11 +41,6 @@ namespace GammaEngine {
 			return EXIT_FAILURE;
 		}
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		Initialize(argv, argc);
 
 		renderer_.Initialize(window_.GetWidth(), window_.GetHeight());

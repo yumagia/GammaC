@@ -5,7 +5,7 @@
 
 namespace GammaEngine {
 	void Camera::Update(float deltaTime) {
-		rotation_ = Quaternion(Vec3f(0, 1, 0), 1.f * deltaTime) * rotation_;
+		rotation_ = Quaternion(Vec3f(0, 1, 0), -0.1f * deltaTime) * rotation_;
 	}
 
 	void Camera::UpdateMatrices() {
