@@ -1,11 +1,14 @@
 #include "Renderer.hpp"
 
+#include "Clock.hpp"
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <iostream>
 
 
 namespace GammaEngine {
@@ -43,6 +46,11 @@ namespace GammaEngine {
 	void Renderer::Draw(Scene &scene) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//scene.Draw();
+		Clock sceneDrawClock;
+		sceneDrawClock.Reset();
+		scene.Draw();
+		if(0) {
+			std::cout << 1 / sceneDrawClock.GetElapsedTime() << std::endl;
+		}
 	}
 }
