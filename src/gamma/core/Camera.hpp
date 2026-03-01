@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math.hpp"
+#include "Frustum.hpp"
 
 #include <glm/glm.hpp>
 
@@ -24,6 +25,8 @@ namespace GammaEngine {
 			void SetProjectionMatrixDirty(bool dirty);
 			void SetPerspective(float fov, float aspectRatio, float near, float far);
 
+			bool BoxVisible(Vec3f cornerPoint, Vec3f extent);
+
 			void Update(float deltaTime);
 
 		private:
@@ -31,8 +34,11 @@ namespace GammaEngine {
 			Quaternion rotation_{1.f, 0.f, 0.f, 0.f};
 			glm::mat4 viewMatrix_{1.f};
 
+			float near_, far_;
+			float fov_;
 			float aspectRatio_{1.f};
 			bool projectionMatrixDirty_{true};
 			glm::mat4 projectionMatrix_{1.f};
+			Frustum frustum_;
 	};
 }

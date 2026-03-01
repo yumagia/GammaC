@@ -6,6 +6,8 @@
 namespace GammaEngine {
 	void Camera::Update(float deltaTime) {
 		rotation_ = Quaternion(Vec3f(0, 1, 0), -0.1f * deltaTime) * rotation_;
+
+		frustum_.SetFrustum(near_, far_, fov_, aspectRatio_, position_, rotation_);
 	}
 
 	void Camera::UpdateMatrices() {
@@ -47,7 +49,14 @@ namespace GammaEngine {
     }
 
     void Camera::SetPerspective(float fov, float aspectRatio, float near, float far) {
-        projectionMatrix_ = glm::perspective(glm::radians(fov), aspectRatio, near, far);
+		fov_ = glm::radians(fov);
+        projectionMatrix_ = glm::perspective(fov_, aspectRatio, near, far);
+		near_ = near;
+		far_ = far;
         aspectRatio_ = aspectRatio;
     }
+
+	bool Camera::BoxVisible(Vec3f cornerPoint, Vec3f extent) {
+		return frustum_.ContainsBox(cornerPoint, extent);
+	}
 }

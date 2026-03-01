@@ -286,29 +286,33 @@ namespace GammaEngine {
 	void Scene::DrawWorldNodeRecursive(int nodeIdx) {
 		nodesTraversed_++;
 		FileNode *node = &nodes_[nodeIdx];
-		Vec3f extents(	node->maxBound[0] - node->minBound[0], 
+		Vec3f extent(	node->maxBound[0] - node->minBound[0], 
 						node->maxBound[1] - node->minBound[1], 
 						node->maxBound[2] - node->minBound[2]	);
+
+		if(!camera_->BoxVisible(Vec3f(node->minBound[0], node->minBound[1], node->minBound[2]), extent)) {
+			return;
+		}
 		
 		FilePlane *plane = &planes_[node->planeNum];
 		float dot = (camera_->GetPosition()).Dot(Vec3f(plane->normal[0], plane->normal[1], plane->normal[2]));
 		bool side = (dot - plane->dist) < 0;
-		int childNodeIdx = node->children[!side];
+		int childNodeIdx = node->children[side];
 
 		if(childNodeIdx < 0) {
 			if(childNodeIdx < -1) {
-				DrawLeaf(-(childNodeIdx + 1));
+				DrawLeaf(-childNodeIdx);
 			}
 		}
 		else {
 			DrawWorldNodeRecursive(childNodeIdx);
 		}
 
-		childNodeIdx = node->children[side];
+		childNodeIdx = node->children[!side];
 
 		if(childNodeIdx < 0) {
 			if(childNodeIdx < -1) {
-				DrawLeaf(-(childNodeIdx + 1));
+				DrawLeaf(-childNodeIdx);
 			}
 		}
 		else {
