@@ -249,7 +249,7 @@ namespace GammaEngine {
 		glBindBuffer(GL_UNIFORM_BUFFER, shaderProgram.GetMaterialUbo());
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(int), &use_texture);
 
-		//glUniform1i(baseMapLoc, 0);
+		glUniform1i(baseMapLoc, 0);
 		glUniform1i(lightmapLoc, 1);
 	}
 
@@ -350,7 +350,6 @@ namespace GammaEngine {
 
 		UnbindShader(*shaderProgram_);
 
-		//std::cout << frameNum_ << std::endl;
 		//std::cout << currentIndexCount_ << std::endl;
 		//std::cout << nodesTraversed_ << " number of nodes traversed" << std::endl;
 	}

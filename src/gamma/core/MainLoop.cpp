@@ -13,7 +13,6 @@ namespace GammaEngine {
 
 	bool MainLoop::GlfwInitialize() {
 		GLenum error = glfwInit();
-		error = glewInit();
 		if(error != GLFW_TRUE) {
 			return 0;
 		}

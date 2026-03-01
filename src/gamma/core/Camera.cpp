@@ -5,7 +5,8 @@
 
 namespace GammaEngine {
 	void Camera::Update(float deltaTime) {
-		rotation_ = Quaternion(Vec3f(0, 1, 0), -0.1f * deltaTime) * rotation_;
+		//rotation_ = Quaternion(Vec3f(0, 1, 0), -0.2f * deltaTime) * rotation_;
+		//position_ = position_ + Vec3f(0, 30, 0) * deltaTime;
 
 		frustum_.SetFrustum(near_, far_, fov_, aspectRatio_, position_, rotation_);
 	}

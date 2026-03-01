@@ -368,52 +368,18 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 				Color neighborSum = Color();
 				Patch *neighborPatch = NULL;
 
-				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + (i - 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + i];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + ((j - 1) * lmWidth) + (i + 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
+				int xOffs[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+				int yOffs[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 
-				neighborPatch = &patchList[lmOffset + (j * lmWidth) + (i - 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + (j * lmWidth) + i];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + (j * lmWidth) + (i + 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-
-				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + (i - 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + i];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
-				}
-				neighborPatch = &patchList[lmOffset + ((j + 1) * lmWidth) + (i + 1)];
-				if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-					neighborSum = neighborSum + neighborPatch->diffuse;
-					validNeighbors++;
+				for(int neighbor = 0; neighbor < 8; neighbor++) {
+					int patchNum = lmOffset + ((j + yOffs[neighbor]) * lmWidth) + (i + xOffs[neighbor]);
+					if(patchNum >= 0 && patchNum < numLumels) {
+						neighborPatch = &patchList[patchNum];
+						if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+							neighborSum = neighborSum + neighborPatch->diffuse;
+							validNeighbors++;
+						}
+					}
 				}
 
 				if(validNeighbors > 0) {

@@ -53,6 +53,7 @@ namespace GammaEngine {
 		}
 
 		glfwMakeContextCurrent(window_);
+		glfwSwapInterval(verticalSync_);
 		return 1;
 	}
 
@@ -61,6 +62,8 @@ namespace GammaEngine {
 	}
 
 	void Window::HandleEvents() {
+		events_.clear();
+
 		if(window_ == NULL) {
 			std::cerr << "Error: window has not been created yet" << std::endl;
 			return;
@@ -70,12 +73,46 @@ namespace GammaEngine {
 			glfwSetWindowShouldClose(window_, true);
 		}
 
+		if(glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_W_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_A_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_S_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_D_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_UP) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_UP_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_DOWN_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_LEFT_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			events_.push_back(GAMMA_ENGINE_KEY_RIGHT_PRESSED);
+		}
+
 		glfwPollEvents();
 	}
 
 	void Window::Display() {
-		glfwSwapInterval(verticalSync_);
 		glfwSwapBuffers(window_);
+	}
+
+	bool Window::PollEvent(int &event) {
+		if(events_.empty()) {
+			return false;
+		}
+		event = events_.back();
+		events_.pop_back();
+
+		return true;
 	}
 }
 
