@@ -37,7 +37,10 @@ namespace GammaEngine {
 		void SetTitle(std::string title);
 		void SetWidth(unsigned int width);
 		void SetHeight(unsigned int height);
-		
+
+		bool GetDirty();
+		void SetDirty(bool dirty);
+
 	private:
 		std::vector<int>	events_;
 

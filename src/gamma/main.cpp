@@ -35,10 +35,10 @@ void Application::Update(float deltaTime) {
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, 0, -moveSpeed * deltaTime)));
 				break;
 			case GAMMA_ENGINE_KEY_A_PRESSED:
-				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, 0, moveSpeed * deltaTime)));
+				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(-moveSpeed * deltaTime, 0, 0)));
 				break;
 			case GAMMA_ENGINE_KEY_S_PRESSED:
-				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(-moveSpeed * deltaTime, 0, 0)));
+				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, 0, moveSpeed * deltaTime)));
 				break;
 			case GAMMA_ENGINE_KEY_D_PRESSED:
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(moveSpeed * deltaTime, 0, 0)));

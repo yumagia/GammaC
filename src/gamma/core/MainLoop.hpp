@@ -17,6 +17,8 @@ namespace GammaEngine {
 		private:
 			bool GlfwInitialize();
 
+			void HandleResize();
+
 		protected:
 			virtual void Configure() = 0;
 			virtual void Initialize(int argv, char **argc) = 0;

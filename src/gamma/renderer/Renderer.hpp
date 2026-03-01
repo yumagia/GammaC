@@ -8,11 +8,7 @@ namespace GammaEngine {
 			Renderer() {}
 			~Renderer() {}
 			void Initialize(unsigned int width, unsigned int height);
-			void ResizeViewport(unsigned int width, unsigned int height);
+			void ResizeViewport(unsigned int width, unsigned int height, float aspectRatio);
 			void Draw(Scene &scene);
-
-		private:
-			unsigned int	width_;
-			unsigned int	height_;
 	};
 }

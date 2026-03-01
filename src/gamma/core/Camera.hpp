@@ -29,6 +29,9 @@ namespace GammaEngine {
 
 			void Update(float deltaTime);
 
+			float GetAspectRatio();
+			void SetAspectRatio(float aspectRatio);
+
 		private:
 			Vec3f position_{0.f, 0.f, 0.f};
 			Quaternion rotation_{1.f, 0.f, 0.f, 0.f};

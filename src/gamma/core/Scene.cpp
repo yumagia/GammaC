@@ -261,7 +261,8 @@ namespace GammaEngine {
 
 	void Scene::CreateDefaltCamera() {
 		camera_ = std::make_shared<Camera>();
-		camera_->SetPerspective(60.f, 4.f/3.f, 1.f, 100000.f);
+		camera_->SetAspectRatio(4.f/3.f);
+		camera_->SetPerspective(60.f, camera_->GetAspectRatio(), 1.f, 100000.f);
 
 		camera_->SetRotation(Quaternion(Vec3f(0.f, 1.f, 0.f), -0.75 * M_PI));
 		camera_->SetPosition(Vec3f(0.f, 100.f, -1000.f));
@@ -350,7 +351,7 @@ namespace GammaEngine {
 
 		UnbindShader(*shaderProgram_);
 
-		//std::cout << currentIndexCount_ << std::endl;
+		// std::cout << currentIndexCount_ / 3 << std::endl;
 		//std::cout << nodesTraversed_ << " number of nodes traversed" << std::endl;
 	}
 }

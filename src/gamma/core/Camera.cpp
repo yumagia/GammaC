@@ -57,6 +57,14 @@ namespace GammaEngine {
         aspectRatio_ = aspectRatio;
     }
 
+	float Camera::GetAspectRatio() {
+		return aspectRatio_;
+	}
+	
+	void Camera::SetAspectRatio(float aspectRatio) {
+		aspectRatio_ = aspectRatio;
+	}
+
 	bool Camera::BoxVisible(Vec3f cornerPoint, Vec3f extent) {
 		return frustum_.ContainsBox(cornerPoint, extent);
 	}

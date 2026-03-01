@@ -1,6 +1,7 @@
 #include "MainLoop.hpp"
 
 #include <iostream>
+#include <memory>
 
 namespace GammaEngine {
 	MainLoop::MainLoop() {
@@ -59,6 +60,8 @@ namespace GammaEngine {
 			std::shared_ptr<Camera> camera = scene_->GetCamera();
 			camera->Update(deltaTime);
 
+			HandleResize();
+
 			renderer_.Draw(*scene_);
 			window_.Display();
 
@@ -70,5 +73,31 @@ namespace GammaEngine {
 		}
 		
 		return EXIT_SUCCESS;
+	}
+
+	void MainLoop::HandleResize() {
+		std::shared_ptr<Camera> camera = scene_->GetCamera();
+
+		if(camera) {
+			if(window_.GetDirty() || camera->GetProjectionMatrixDirty()) {
+				renderer_.ResizeViewport(	
+											window_.GetWidth(),
+											window_.GetHeight(),
+											camera->GetAspectRatio()	);
+
+				window_.SetDirty(false);
+				camera->SetProjectionMatrixDirty(false);
+			}
+		}
+		else {
+			if(window_.GetDirty()) {
+				renderer_.ResizeViewport(	
+											window_.GetWidth(),
+											window_.GetHeight(),
+											camera->GetAspectRatio()	);
+			}
+
+			window_.SetDirty(false);
+		}
 	}
 }

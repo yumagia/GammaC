@@ -44,6 +44,14 @@ namespace GammaEngine {
 		title_ = title;
 	}
 
+	bool Window::GetDirty() {
+		return dirty_;
+	}
+
+	void Window::SetDirty(bool dirty) {
+		dirty_ = dirty;
+	}
+
 	bool Window::CreateWindow() {
 		window_ = glfwCreateWindow(width_, height_, title_.c_str(), NULL, NULL);
 		if(window_ == NULL) {
@@ -96,6 +104,14 @@ namespace GammaEngine {
 		}
 		if(glfwGetKey(window_, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 			events_.push_back(GAMMA_ENGINE_KEY_RIGHT_PRESSED);
+		}
+
+		int newWidth, newHeight;
+		glfwGetFramebufferSize(window_, &newWidth, &newHeight);
+		if(newWidth != width_ || newHeight != height_) {
+			width_ = newWidth;
+			height_ = newHeight;
+			dirty_ = true;
 		}
 
 		glfwPollEvents();
