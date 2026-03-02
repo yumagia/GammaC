@@ -17,6 +17,7 @@ RUN apt update && apt install -y \
     libglm-dev \
     freeglut3-dev \
     mesa-common-dev \
+    mesa-utils \
     libglew-dev \ 
     libxxf86vm-dev \
     libxi-dev

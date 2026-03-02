@@ -27,34 +27,40 @@ void Application::Initialize(int argv, char **argc) {
 
 void Application::Update(float deltaTime) {
 	std::shared_ptr<Camera> camera = scene_->GetCamera();
-	int moveSpeed = 1000;
-	int event;
+	int moveSpeed = 2000;
+	UiEvent event;
 
 	while(window_.PollEvent(event)) {
 		switch(event) {
-			case GAMMA_ENGINE_KEY_W_PRESSED:
+			case UiEvent::W_PRESSED:
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, 0, -moveSpeed * deltaTime)));
 				break;
-			case GAMMA_ENGINE_KEY_A_PRESSED:
+			case UiEvent::A_PRESSED:
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(-moveSpeed * deltaTime, 0, 0)));
 				break;
-			case GAMMA_ENGINE_KEY_S_PRESSED:
+			case UiEvent::S_PRESSED:
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, 0, moveSpeed * deltaTime)));
 				break;
-			case GAMMA_ENGINE_KEY_D_PRESSED:
+			case UiEvent::D_PRESSED:
 				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(moveSpeed * deltaTime, 0, 0)));
 				break;
-			case GAMMA_ENGINE_KEY_UP_PRESSED:
-				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(1, 0, 0), 2.f * deltaTime));
+			case UiEvent::Q_PRESSED:
+				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, -moveSpeed * deltaTime, 0)));
 				break;
-			case GAMMA_ENGINE_KEY_DOWN_PRESSED:
-				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(1, 0, 0), -2.f * deltaTime));
+			case UiEvent::E_PRESSED:
+				camera->SetPosition(camera->GetPosition() + (camera->GetRotation()).RotateVector(Vec3f(0, moveSpeed * deltaTime, 0)));
 				break;
-			case GAMMA_ENGINE_KEY_LEFT_PRESSED:
-				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), 2.f * deltaTime) * camera->GetRotation());
+			case UiEvent::UP_PRESSED:
+				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(1, 0, 0), 3.f * deltaTime));
 				break;
-			case GAMMA_ENGINE_KEY_RIGHT_PRESSED:
-				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), -2.f * deltaTime) * camera->GetRotation());
+			case UiEvent::DOWN_PRESSED:
+				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(1, 0, 0), -3.f * deltaTime));
+				break;
+			case UiEvent::LEFT_PRESSED:
+				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), 3.f * deltaTime) * camera->GetRotation());
+				break;
+			case UiEvent::RIGHT_PRESSED:
+				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), -3.f * deltaTime) * camera->GetRotation());
 				break;
 		}
 	}

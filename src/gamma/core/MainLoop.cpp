@@ -53,6 +53,10 @@ namespace GammaEngine {
 			window_.HandleEvents();
 
 			float deltaTime = clock_.DeltaTime();
+
+			if(deltaTime > 0.1) {
+				deltaTime = 0.1;
+			}
 			// std::cout << 1.f / deltaTime << std::endl;
 
 			Update(deltaTime);

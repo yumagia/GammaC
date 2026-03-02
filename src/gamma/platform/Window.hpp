@@ -7,15 +7,17 @@
 #include <vector>
 
 namespace GammaEngine {
-	enum {
-		GAMMA_ENGINE_KEY_W_PRESSED,
-		GAMMA_ENGINE_KEY_A_PRESSED,
-		GAMMA_ENGINE_KEY_S_PRESSED,
-		GAMMA_ENGINE_KEY_D_PRESSED,
-		GAMMA_ENGINE_KEY_UP_PRESSED,
-		GAMMA_ENGINE_KEY_DOWN_PRESSED,
-		GAMMA_ENGINE_KEY_LEFT_PRESSED,
-		GAMMA_ENGINE_KEY_RIGHT_PRESSED
+	enum class UiEvent {
+		W_PRESSED,
+		A_PRESSED,
+		S_PRESSED,
+		D_PRESSED,
+		Q_PRESSED,
+		E_PRESSED,
+		UP_PRESSED,
+		DOWN_PRESSED,
+		LEFT_PRESSED,
+		RIGHT_PRESSED
 	};
 
 	class Window {
@@ -28,7 +30,7 @@ namespace GammaEngine {
 		void HandleEvents();
 		void Display();
 
-		bool PollEvent(int &event);
+		bool PollEvent(UiEvent &event);
 
 		std::string		GetTitle();
 		unsigned int	GetWidth();
@@ -42,7 +44,7 @@ namespace GammaEngine {
 		void SetDirty(bool dirty);
 
 	private:
-		std::vector<int>	events_;
+		std::vector<UiEvent>	events_;
 
 		GLFWwindow		*window_;
 		std::string		title_;

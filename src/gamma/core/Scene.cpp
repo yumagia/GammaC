@@ -208,7 +208,7 @@ namespace GammaEngine {
 			if(vbo_ != 0) {
 				glDeleteBuffers(1, &vbo_);
 			}
-			if(vbo_ != 0) {
+			if(ebo_ != 0) {
 				glDeleteBuffers(1, &ebo_);
 			}
 		};

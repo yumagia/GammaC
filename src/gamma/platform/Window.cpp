@@ -82,28 +82,34 @@ namespace GammaEngine {
 		}
 
 		if(glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_W_PRESSED);
+			events_.push_back(UiEvent::W_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_A_PRESSED);
+			events_.push_back(UiEvent::A_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_S_PRESSED);
+			events_.push_back(UiEvent::S_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_D_PRESSED);
+			events_.push_back(UiEvent::D_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
+			events_.push_back(UiEvent::Q_PRESSED);
+		}
+		if(glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS) {
+			events_.push_back(UiEvent::E_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_UP) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_UP_PRESSED);
+			events_.push_back(UiEvent::UP_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_DOWN) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_DOWN_PRESSED);
+			events_.push_back(UiEvent::DOWN_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_LEFT_PRESSED);
+			events_.push_back(UiEvent::LEFT_PRESSED);
 		}
 		if(glfwGetKey(window_, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			events_.push_back(GAMMA_ENGINE_KEY_RIGHT_PRESSED);
+			events_.push_back(UiEvent::RIGHT_PRESSED);
 		}
 
 		int newWidth, newHeight;
@@ -121,7 +127,7 @@ namespace GammaEngine {
 		glfwSwapBuffers(window_);
 	}
 
-	bool Window::PollEvent(int &event) {
+	bool Window::PollEvent(UiEvent &event) {
 		if(events_.empty()) {
 			return false;
 		}
