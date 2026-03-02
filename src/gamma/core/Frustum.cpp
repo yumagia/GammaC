@@ -17,8 +17,8 @@ namespace GammaEngine {
 		leftNormal_ = normal;
 		leftDist_ = normal.Dot(position);
 		normal = rotation.RotateVector(Vec3f(-cos(fov) * aspectRatio, 0, -sin(fov)));		
-		leftNormal_ = normal;
-		leftDist_ = normal.Dot(position);
+		rightNormal_ = normal;
+		rightDist_ = normal.Dot(position);
 
 		// Near and far
 		normal = rotation.RotateVector(Vec3f(0, 0, -1));
@@ -30,11 +30,11 @@ namespace GammaEngine {
 
 		// Bottom and top
 		normal = rotation.RotateVector(Vec3f(0, cos(fov), -sin(fov)));		
-		leftNormal_ = normal;
-		leftDist_ = normal.Dot(position);
+		bottomNormal_ = normal;
+		bottomDist_ = normal.Dot(position);
 		normal = rotation.RotateVector(Vec3f(0, -cos(fov), -sin(fov)));		
-		leftNormal_ = normal;
-		leftDist_ = normal.Dot(position);
+		topNormal_ = normal;
+		topDist_ = normal.Dot(position);
 	}
 
 	bool Frustum::ContainsBox(Vec3f cornerPoint, Vec3f extent) {

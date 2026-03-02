@@ -1,6 +1,6 @@
-#version 450 core
+#version 410 core
 
-layout(std140, binding = 1) uniform Material {
+layout(std140) uniform Material {
     vec4 materialColor;
     int useTexture;
 };

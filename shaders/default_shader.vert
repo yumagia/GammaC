@@ -1,6 +1,6 @@
-#version 450 core
+#version 410 core
 
-layout(std140, binding = 0) uniform Matrices {
+layout(std140) uniform Matrices {
     mat4 modelMatrix;
     mat4 viewMatrix;
     mat4 modelViewMatrix;

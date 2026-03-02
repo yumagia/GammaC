@@ -29,6 +29,7 @@ void Application::Update(float deltaTime) {
 	std::shared_ptr<Camera> camera = scene_->GetCamera();
 	int moveSpeed = 1000;
 	int event;
+
 	while(window_.PollEvent(event)) {
 		switch(event) {
 			case GAMMA_ENGINE_KEY_W_PRESSED:
@@ -50,10 +51,10 @@ void Application::Update(float deltaTime) {
 				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(1, 0, 0), -2.f * deltaTime));
 				break;
 			case GAMMA_ENGINE_KEY_LEFT_PRESSED:
-				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(0, 1, 0), 2.f * deltaTime));
+				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), 2.f * deltaTime) * camera->GetRotation());
 				break;
 			case GAMMA_ENGINE_KEY_RIGHT_PRESSED:
-				camera->SetRotation(camera->GetRotation() * Quaternion(Vec3f(0, 1, 0), -2.f * deltaTime));
+				camera->SetRotation(Quaternion(Vec3f(0, 1, 0), -2.f * deltaTime) * camera->GetRotation());
 				break;
 		}
 	}

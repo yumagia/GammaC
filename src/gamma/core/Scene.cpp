@@ -351,7 +351,7 @@ namespace GammaEngine {
 
 		UnbindShader(*shaderProgram_);
 
-		// std::cout << currentIndexCount_ / 3 << std::endl;
+		//std::cout << currentIndexCount_ / 3 << std::endl;
 		//std::cout << nodesTraversed_ << " number of nodes traversed" << std::endl;
 	}
 }

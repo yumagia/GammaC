@@ -1,7 +1,8 @@
-CC = g++ -fsanitize=address -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
+CC = g++
 # CC = g++ -fsanitize=address 
+# CC = g++ -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
 CXXFLAGS = -std=c++17 -O3 -ggdb
-LDFLAGS = $(shell pkg-config sdl2 --cflags --libs)
+LDFLAGS = -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
 
 COMMON_DIR := src/common
 BUILD_DIR := build
