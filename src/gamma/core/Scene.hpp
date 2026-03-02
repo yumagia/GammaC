@@ -4,6 +4,7 @@
 
 #include "GammaFile.hpp"
 
+#include "Clock.hpp"
 #include "RenderFace.hpp"
 #include "Camera.hpp"
 #include "Atlas.hpp"
@@ -37,6 +38,7 @@ namespace GammaEngine {
 			void DrawWorldNodeRecursive(int childNodeIdx);
 
 		private:
+			Clock profiler_;
 			std::shared_ptr<GammaEngine::ShaderProgram> shaderProgram_;
 
 			GLuint vao_, vbo_, ebo_;

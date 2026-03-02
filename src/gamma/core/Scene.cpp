@@ -330,6 +330,7 @@ namespace GammaEngine {
 	}
 
 	void Scene::Draw() {
+		#ifndef ENABLE_PROFILING
 		frameNum_++;
 		currentIndexCount_ = 0;
 		nodesTraversed_ = 0;
@@ -350,6 +351,35 @@ namespace GammaEngine {
 		glBindVertexArray(0);
 
 		UnbindShader(*shaderProgram_);
+		#else
+		std::cout << "Scene::Draw" << std::endl;
+		frameNum_++;
+		currentIndexCount_ = 0;
+		nodesTraversed_ = 0;
+		if(models_.empty()) {
+			return;
+		}
+
+		camera_->UpdateMatrices();
+
+		glBindVertexArray(vao_);
+
+		profiler_.Reset();
+		FileModel *worldModel = &models_[0];
+		DrawWorldNodeRecursive(worldModel->headNode);
+		std::cout << "\tDrawWorldNodeRecursive() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
+
+		profiler_.Reset();
+		BindShader(*shaderProgram_, glm::mat4{1.f} , camera_->GetViewMatrix(), camera_->GetProjectionMatrix());
+		std::cout << "\tBindShader() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
+
+		profiler_.Reset();
+		glDrawElements(GL_TRIANGLES, currentIndexCount_, GL_UNSIGNED_INT, (void*)0);
+		std::cout << "\tglDrawElements() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
+		glBindVertexArray(0);
+
+		UnbindShader(*shaderProgram_);
+		#endif
 
 		//std::cout << currentIndexCount_ / 3 << std::endl;
 		//std::cout << nodesTraversed_ << " number of nodes traversed" << std::endl;

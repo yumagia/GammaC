@@ -46,8 +46,9 @@ namespace GammaEngine {
 		renderer_.Initialize(window_.GetWidth(), window_.GetHeight());
 
 		clock_.Reset();
-		Clock intervalClock;
-		intervalClock.Reset();
+		Clock averageFramerateClock;
+		averageFramerateClock.Reset();
+		Clock profilingClock;
 		mainLoopTicksElapsed_ = 0;
 		while(window_.IsOpen())	{
 			window_.HandleEvents();
@@ -67,11 +68,18 @@ namespace GammaEngine {
 			HandleResize();
 
 			renderer_.Draw(*scene_);
+			
+			#ifdef ENABLE_PROFILING
+			profilingClock.Reset();
 			window_.Display();
+			std::cout << "window_.Display() took " << profilingClock.GetElapsedTime() * 1000 << "ms" << std::endl;
+			#else
+			window_.Display();
+			#endif
 
 			if((mainLoopTicksElapsed_ % 120) == 0) {
-				std::cout << 120.f / intervalClock.DeltaTime() << std::endl;
-				intervalClock.Reset();
+				std::cout << 120.f / averageFramerateClock.DeltaTime() << std::endl;
+				averageFramerateClock.Reset();
 			}
 			mainLoopTicksElapsed_++;
 		}

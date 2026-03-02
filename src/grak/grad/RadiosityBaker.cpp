@@ -309,7 +309,7 @@ void RadiosityBaker::InitialLightingPass() {
 	int divisor = 12;
 
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
-	#pragma omp parallel for num_threads(4) schedule(dynamic, 128)
+	#pragma omp parallel for num_threads(8) schedule(dynamic, 128)
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
 
@@ -554,7 +554,7 @@ void RadiosityBaker::CreatePatchTransfers() {
 	int progress = 0;
 	int divisor = 12;
 
-	#pragma omp parallel for num_threads(4) schedule(dynamic, 512)
+	#pragma omp parallel for num_threads(8) schedule(dynamic, 512)
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 
@@ -612,7 +612,7 @@ void RadiosityBaker::BounceLight() {
 void RadiosityBaker::FreePatchTransfers() {
 	std::cout << "--- Free Transfers ---" << std::endl;
 
-	#pragma omp parallel for num_threads(4) schedule(dynamic, 512)
+	#pragma omp parallel for num_threads(8) schedule(dynamic, 512)
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 

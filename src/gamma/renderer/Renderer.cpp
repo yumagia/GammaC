@@ -1,4 +1,5 @@
 #include "Renderer.hpp"
+#define RENDERER_PROFILING 0
 
 #include "Clock.hpp"
 
@@ -44,13 +45,18 @@ namespace GammaEngine {
 	}
 
 	void Renderer::Draw(Scene &scene) {
+		#ifdef ENABLE_PROFILING
+		std::cout << "Renderer::Draw" << std::endl;
+		profiler_.Reset();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		std::cout << "\tglClear() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
 
-		Clock sceneDrawClock;
-		sceneDrawClock.Reset();
+		profiler_.Reset();
 		scene.Draw();
-		if(0) {
-			std::cout << 1 / sceneDrawClock.GetElapsedTime() << std::endl;
-		}
+		std::cout << "\tscene.Draw() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
+		#else
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		scene.Draw();
+		#endif
 	}
 }
