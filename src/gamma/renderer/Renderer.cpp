@@ -45,7 +45,11 @@ namespace GammaEngine {
 	}
 
 	void Renderer::Draw(Scene &scene) {
-		#ifdef ENABLE_PROFILING
+		#ifndef ENABLE_PROFILING
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		scene.Draw();
+
+		#else
 		std::cout << "Renderer::Draw" << std::endl;
 		profiler_.Reset();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -54,9 +58,7 @@ namespace GammaEngine {
 		profiler_.Reset();
 		scene.Draw();
 		std::cout << "\tscene.Draw() took " << profiler_.GetElapsedTime() * 1000 << "ms" << std::endl;
-		#else
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene.Draw();
+		
 		#endif
 	}
 }

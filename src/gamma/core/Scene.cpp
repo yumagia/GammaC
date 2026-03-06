@@ -351,6 +351,7 @@ namespace GammaEngine {
 		glBindVertexArray(0);
 
 		UnbindShader(*shaderProgram_);
+
 		#else
 		std::cout << "Scene::Draw" << std::endl;
 		frameNum_++;
@@ -379,6 +380,7 @@ namespace GammaEngine {
 		glBindVertexArray(0);
 
 		UnbindShader(*shaderProgram_);
+		
 		#endif
 
 		//std::cout << currentIndexCount_ / 3 << std::endl;
