@@ -6,7 +6,7 @@
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-	std::cout << "GRAK GRAD" << std::endl;
+	std::cout << "GRAK GVIS" << std::endl;
 
 	if(argc < 2) {
 		std::cerr << "Error: Must provide a level BSP file" << std::endl;
@@ -20,8 +20,6 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	RadiosityBaker baker;
-	baker.BakeRad(bspFile);
 
 	FileWriter *bspWriter = new FileWriter(bspFile);
 	bspWriter->WriteLevel(argv[1]);

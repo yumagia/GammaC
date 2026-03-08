@@ -28,6 +28,16 @@ GBSP_OBJS := $(GBSP_SRCS:%=$(BUILD_DIR)/%.o)
 GBSP_INC_DIRS := $(shell find $(GBSP_SRC_DIRS) -type d)
 GBSP_INC_FLAGS := $(addprefix -I,$(GBSP_INC_DIRS))
 
+# GVIS Program
+GVIS_EXEC := GVIS
+GVIS_SRC_DIRS := src/grak/gvis $(COMMON_DIR)
+
+GVIS_SRCS := $(shell find $(GVIS_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+GVIS_OBJS := $(GVIS_SRCS:%=$(BUILD_DIR)/%.o)
+
+GVIS_INC_DIRS := $(shell find $(GVIS_SRC_DIRS) -type d)
+GVIS_INC_FLAGS := $(addprefix -I,$(GVIS_INC_DIRS))
+
 # GRAD Program
 GRAD_EXEC := GRAD
 GRAD_SRC_DIRS := src/grak/grad $(COMMON_DIR)
@@ -50,9 +60,9 @@ VBO_GEN_INC_FLAGS := $(addprefix -I,$(VBO_GEN_INC_DIRS))
 
 CPPFLAGS := $(GAMMA_INC_FLAGS) $(GBSP_INC_FLAGS) $(GRAD_INC_FLAGS) $(VBO_GEN_INC_FLAGS) -MMD -MP
 
-all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GRAD_EXEC)
+all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GVIS_EXEC) $(GRAD_EXEC)
 
-tools: $(GBSP_EXEC) $(GRAD_EXEC)
+tools: $(GBSP_EXEC) $(GVIS_EXEC) $(GRAD_EXEC)
 
 misc: $(VBO_GEN_EXEC)
 
@@ -63,6 +73,10 @@ $(GAMMA_EXEC): $(GAMMA_OBJS)
 # GBSP Executable
 $(GBSP_EXEC): $(GBSP_OBJS)
 	$(CC) $(GBSP_OBJS) -o $@ $(LDFLAGS)
+
+# GVIS Executable
+$(GVIS_EXEC): $(GVIS_OBJS)
+	$(CC) $(GVIS_OBJS) -o $@ $(LDFLAGS)
 
 # GRAD Executable
 $(GRAD_EXEC): $(GRAD_OBJS)
