@@ -58,9 +58,6 @@ struct BspFace {
 	int			planeNum;
 	int			materialNum;
 
-	// TODO: Face Lighting attributes
-	//int			lightingIdx;
-
 	int			outputNumber;
 };
 
