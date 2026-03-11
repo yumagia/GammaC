@@ -1,6 +1,5 @@
 CC = g++
-# CC = g++ -fsanitize=address 
-# CC = g++ -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
+# CC = g++ -fsanitize=address
 CXXFLAGS = -std=c++17 -O3 -ggdb
 LDFLAGS = -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
 
