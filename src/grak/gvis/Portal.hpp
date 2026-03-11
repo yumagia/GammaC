@@ -17,6 +17,8 @@ class Portal {
 
 		void CreateWindingFromNode(FileNode *node);
 
+		int Split(Plane *plane, Portal &front, Portal &back);
+		Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, Plane *plane);
 	private:
 		BspFile *bspFile;
 

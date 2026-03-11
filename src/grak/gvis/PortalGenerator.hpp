@@ -16,9 +16,15 @@ struct Leaf {
 class PortalGenerator {
 	public:
 		void GeneratePortals(BspFile *bspFile);
+		
 	private:
-		void GeneratePortals_r(FileNode *node);
+		void GenerateWorldBackTraces();
+		void GenerateWorldBackTraces_r(int nodeIdx, int parentIdx);
+		void GeneratePortals_r(FileNode *node, FileNode *parent);
+
+	private:
 		BspFile *bspFile;
+		std::vector<int> nodeParents;
 };
 
 #endif
