@@ -3,10 +3,12 @@
 #include <iostream>
 #include <cstdlib>
 
-#define TRACE_PUSH_DIST		1.0f
-#define TRACE_MAX_DIST		10000
-#define NUM_COLLECT_SAMPLES	1500
-#define NUM_BOUNCES			6
+#define TRACE_PUSH_DIST			1.0f
+#define TRACE_MAX_DIST			10000
+#define NUM_COLLECT_SAMPLES		250
+#define NUM_BOUNCES				0
+#define DENOISING_KERNEL_SIZE	5
+#define DENOISING_KERNEL_SIGMA	250
 
 RadiosityBaker::RadiosityBaker() {
 	numLumels = 0;
@@ -302,6 +304,26 @@ void RadiosityBaker::InitLightMaps() {
 void RadiosityBaker::InitialLightingPass() {
 	std::cout << "--- Direct Lighting Pass ---" << std::endl;
 
+	float kernelSum = 0;
+	kernelSize = DENOISING_KERNEL_SIZE;
+	gaussianKernel = new float[kernelSize * kernelSize];
+	float integConstant = 2 * DENOISING_KERNEL_SIGMA * DENOISING_KERNEL_SIGMA;
+	for(int j = 0; j < kernelSize; j++) {
+		for(int i = 0; i < kernelSize; i++) {
+			int x = (i - kernelSize / 2) * PATCH_SIZE;
+			int y = (j - kernelSize / 2) * PATCH_SIZE;
+			float sampleValue = exp( -(x * x + y * y) / integConstant);
+
+			kernelSum += sampleValue;
+
+			gaussianKernel[j * kernelSize + i] = sampleValue;
+		}
+	}
+
+	for(int i = 0; i < kernelSize * kernelSize; i++) {
+		gaussianKernel[i] = gaussianKernel[i] / kernelSum;
+	}
+
 	std::cout << "Collecting lighting for all faces..." << std::endl;
 
 	int count = 0;
@@ -328,6 +350,8 @@ void RadiosityBaker::InitialLightingPass() {
 		count++;
 	}
 
+	delete[] gaussianKernel;
+
 	std::cout << "Finished!" << std::endl;
 }
 
@@ -345,7 +369,7 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 
 	Vec3f sVec = Vec3f(face->lightMapS[0], face->lightMapS[1], face->lightMapS[2]);
 	Vec3f tVec = Vec3f(face->lightMapT[0], face->lightMapT[1], face->lightMapT[2]);
-	for(int tStep = 0; tStep < lmHeight; tStep++) {
+	for(int tStep = 0; tStep < lmHeight; tStep++) {					// This is the actual collection of direct lighting
 		for(int sStep = 0; sStep < lmWidth; sStep++) {
 			Vec3f s = sVec * ((sStep + 0.5f) * PATCH_SIZE);
 			Vec3f t = tVec * ((tStep + 0.5f) * PATCH_SIZE);
@@ -360,38 +384,135 @@ void RadiosityBaker::CollectLightingForFace(FileFace *face) {
 		}
 	}
 
+	// Below is some averaging done to ease noise and seams
+	// The lightmap will be copied so a denoising convolution can be applied
+	Color *copiedLmColors = new Color[lmWidth * lmHeight];
+	bool *copiedLmLegality = new bool[lmWidth * lmHeight];
 	for(int j = 0; j < lmHeight; j++) {
 		for(int i = 0; i < lmWidth; i++) {
 			Patch *patch = &patchList[lmOffset + (j * lmWidth) + i];
-			if(!(patch->legal)) {
-				int validNeighbors = 0;
-				Color neighborSum = Color();
-				Patch *neighborPatch = NULL;
-
-				int xOffs[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-				int yOffs[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-				for(int neighbor = 0; neighbor < 8; neighbor++) {
-					int patchNum = lmOffset + ((j + yOffs[neighbor]) * lmWidth) + (i + xOffs[neighbor]);
-					if(patchNum >= 0 && patchNum < numLumels) {
-						neighborPatch = &patchList[patchNum];
-						if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
-							neighborSum = neighborSum + neighborPatch->diffuse;
-							validNeighbors++;
-						}
-					}
-				}
-
-				if(validNeighbors > 0) {
-					Color averageColor = neighborSum / validNeighbors;
-
-					patch->sampledLight = averageColor * faceDiffuse;
-					patch->accumulatedLight = patch->sampledLight;
-				}
-
-			}
+			copiedLmColors[j * lmWidth + i] = patch->accumulatedLight;
+			copiedLmLegality[j * lmWidth + i] = patch->legal;
 		}
 	}
+
+	// Give "illegal" lumels their neighboring values
+	for(int j = 0; j < lmHeight; j++) {
+		for(int i = 0; i < lmWidth; i++) {
+			Color color = copiedLmColors[j * lmWidth + i];
+			bool legal = copiedLmLegality[j * lmWidth + i];
+			if(legal) {
+				continue;
+			}
+
+			int validNeighbors = 0;
+			Color neighborSum = Color();
+
+			int xOffs[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+			int yOffs[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+
+			for(int neighbor = 0; neighbor < 8; neighbor++) {
+				int patchNum = ((j + yOffs[neighbor]) * lmWidth) + (i + xOffs[neighbor]);
+				if(patchNum < 0 || patchNum >= lmWidth * lmHeight) {
+					continue;
+				}
+
+				if(copiedLmLegality[patchNum]) {
+					neighborSum = neighborSum + copiedLmColors[patchNum];
+					validNeighbors++;
+				}
+			}
+
+			if(validNeighbors > 0) {
+				Color averageColor = neighborSum / validNeighbors;
+
+				color = averageColor * faceDiffuse;
+			}
+
+		}
+	}
+
+	// for(int j = 0; j < lmHeight; j++) {								// Give "illegal" lumels their neighboring values
+	// 	for(int i = 0; i < lmWidth; i++) {
+	// 		Patch *patch = &patchList[lmOffset + (j * lmWidth) + i];
+	// 		if(!(patch->legal)) {
+	// 			int validNeighbors = 0;
+	// 			Color neighborSum = Color();
+	// 			Patch *neighborPatch = NULL;
+
+	// 			int xOffs[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+	// 			int yOffs[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+
+	// 			for(int neighbor = 0; neighbor < 8; neighbor++) {
+	// 				int patchNum = lmOffset + ((j + yOffs[neighbor]) * lmWidth) + (i + xOffs[neighbor]);
+	// 				if(patchNum >= 0 && patchNum < numLumels) {
+	// 					neighborPatch = &patchList[patchNum];
+	// 					if(neighborPatch->legal && (&bspFile->fileFaces[neighborPatch->faceIndex] == face)) {
+	// 						neighborSum = neighborSum + neighborPatch->accumulatedLight;
+	// 						validNeighbors++;
+	// 					}
+	// 				}
+	// 			}
+
+	// 			if(validNeighbors > 0) {
+	// 				Color averageColor = neighborSum / validNeighbors;
+
+	// 				patch->sampledLight = averageColor * faceDiffuse;
+	// 				patch->accumulatedLight = patch->sampledLight;
+	// 			}
+
+	// 		}
+	// 	}
+	// }
+
+
+	// Apply a gaussian filter for denoising
+	for(int j = 0; j < lmHeight; j++) {
+		for(int i = 0; i < lmWidth; i++) {
+			Patch *patch = &patchList[lmOffset + (j * lmWidth) + i];
+
+			if(!copiedLmLegality[j * lmWidth + i]) {
+				continue;
+			}
+			
+			int numColors = 0;
+			Color sumColors(0, 0, 0);
+			float sumKernel = 0;
+			for(int jKernel = 0; jKernel < kernelSize; jKernel++) {
+				for(int iKernel = 0; iKernel < kernelSize; iKernel++) {
+					int x = (iKernel - kernelSize / 2);
+					int y = (jKernel - kernelSize / 2);
+					int patchNum = ((j + y) * lmWidth) + (i + x);
+					if(patchNum < 0 || patchNum >= lmWidth * lmHeight) {
+						continue;
+					}
+					if(!copiedLmLegality[patchNum]) {
+						continue;
+					}
+
+					float kernelSample = gaussianKernel[jKernel * kernelSize + iKernel];
+					sumColors = sumColors + (kernelSample * copiedLmColors[patchNum]);
+					sumKernel += kernelSample;
+					numColors++;
+				}
+			}
+
+			patch->accumulatedLight = sumColors / sumKernel;
+
+		}
+	}
+
+	// for(int j = 0; j < lmHeight; j++) {									// Copy back over
+	// 	for(int i = 0; i < lmWidth; i++) {
+	// 		Color color = copiedLmColors[j * lmWidth + i];
+	// 		Patch *patch = &patchList[lmOffset + (j * lmWidth) + i];
+
+	// 		patch->accumulatedLight = color;
+	// 	}
+	// }
+
+	delete[] copiedLmColors;
+	delete[] copiedLmLegality;
 }
 
 void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition) {

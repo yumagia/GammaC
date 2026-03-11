@@ -35,10 +35,14 @@ private:
 	int		FindStruckFace(FileNode *node, Vec3f position);
 	int		FindNodeLumel(FileNode *node, Vec3f position);
 	int		FindFaceLumel(FileFace *face, Vec3f position);
+
 private:
 	BspFile *bspFile = nullptr;
 
 	Patch *patchList = nullptr;
+
+	float *gaussianKernel = nullptr;		// Used for smoothing out lighting noise
+	int kernelSize = 0;
 
 	int numLumels = 0;
 };
