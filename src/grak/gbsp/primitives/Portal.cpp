@@ -245,8 +245,8 @@ void BspPortal::AddToNodes(BspNode *front, BspNode *back) {
 
 // Returns 0 upon success
 int BspPortal::RemoveFromNode(BspNode *node) {
-	BspPortal *curr;
-	BspPortal *portalPointer = node->portals;
+	std::shared_ptr<BspPortal> curr;
+	std::shared_ptr<BspPortal> portalPointer = node->portals;
 	while(true) {
 		curr = portalPointer;
 		if(!curr) {
@@ -254,7 +254,7 @@ int BspPortal::RemoveFromNode(BspNode *node) {
 			return 1;
 		}
 
-		if(curr == this) {
+		if(curr.get() == this) {
 			break;
 		}
 
@@ -286,7 +286,7 @@ int BspPortal::GetNextNodeSide(BspNode *node) {
 	return (nodes[1] == node);
 }
 
-BspPortal *BspPortal::GetNext(int side) {
+std::shared_ptr<BspPortal> BspPortal::GetNext(int side) {
 	return next[side];
 }
 

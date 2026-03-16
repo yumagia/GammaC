@@ -6,7 +6,11 @@ void PortalGenerator::GeneratePortals_r(BspNode *node) {
 		return;
 	}
 
-	BspPortal *portal = new BspPortal();
+	CreateNodePortals(node);
+}
+
+void PortalGenerator::CreateNodePortals(BspNode *node) {
+	std::shared_ptr<BspPortal> portal = std::make_shared<BspPortal>();
 
 	portal->CreateWindingFromNode(node);
 
@@ -15,7 +19,7 @@ void PortalGenerator::GeneratePortals_r(BspNode *node) {
 	}
 }
 
-void PortalGenerator::AddPortalToNodes(BspPortal *portal, BspNode *front, BspNode *back) {
+void PortalGenerator::AddPortalToNodes(std::shared_ptr<BspPortal> portal, BspNode *front, BspNode *back) {
 	portal->AddToNodes(front, back);
 
 	front->portals = back->portals = portal;

@@ -85,7 +85,7 @@ struct BspNode {
 	int		planeNum;
 	// Leafs only
 	bool	solid;
-	BspPortal	*portals;
+	std::shared_ptr<BspPortal> portals = NULL;
 };
 
 class BspPortal {
@@ -98,7 +98,7 @@ class BspPortal {
 		void AddToNodes(BspNode *front, BspNode *back);
 		int GetNextNodeSide(BspNode *node);
 		int RemoveFromNode(BspNode *node);
-		BspPortal *GetNext(int side);
+		std::shared_ptr<BspPortal> GetNext(int side);
 		BspNode *GetNextNode(int side);
 		
 		bool WindingValid();
@@ -109,7 +109,7 @@ class BspPortal {
 		BspPlane	plane;
 		
 		BspNode		*nodes[2];
-		BspPortal	*next[2];
+		std::shared_ptr<BspPortal> next[2];
 
 		std::vector<Vec3f> winding;
 

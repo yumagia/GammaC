@@ -12,13 +12,13 @@ void FreeTreePortals_r(BspNode *node) {
 		FreeTreePortals_r(node->back);
 	}
 
-	BspPortal *curr = node->portals;
+	std::shared_ptr<BspPortal> curr = node->portals;
 	while(curr) {
 		int side = curr->GetNextNodeSide(node);
-		BspPortal *next = curr->GetNext(side);
+		std::shared_ptr<BspPortal> next = curr->GetNext(side);
 
 		curr->RemoveFromNode(curr->GetNextNode(!side));
-		delete curr;
+		curr.reset();
 
 		curr = next;
 	}
