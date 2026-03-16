@@ -293,10 +293,15 @@ void RadiosityBaker::PatchesForFace(FileFace *face) {
 
 void RadiosityBaker::InitLightMaps() {
 	std::cout << "--- Initializing Lightmaps ---" << std::endl;
-	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
-	for(int i = 0; i < numFaces; i++) {
-		PatchesForFace(&bspFile->fileFaces[i]);
+	int firstFace = bspFile->fileModels[0].firstFace;
+	for(int i = 0; i < bspFile->fileModels[0].numFaces; i++) {
+		PatchesForFace(&bspFile->fileFaces[firstFace + i]);
 	}
+
+	// int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
+	// for(int i = 0; i < numFaces; i++) {
+	// 	PatchesForFace(&bspFile->fileFaces[i]);
+	// }
 
 	std::cout << "Successfully generated " << numLumels << " number of patches" << std::endl;
 }

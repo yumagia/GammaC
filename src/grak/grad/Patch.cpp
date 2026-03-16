@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#define MAX_TRANSFERS 65536
+
 void Patch::NudgePosition(BspFile *bspFile) {
 	Trace trace(bspFile);
 	FileFace *face = &bspFile->fileFaces[faceIndex];
@@ -46,7 +48,7 @@ void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bsp
 	}
 
 	numTransfers = 0;
-	transfers = new Transfer[MAX_MAP_PATCHES];
+	transfers = new Transfer[MAX_TRANSFERS];
 	float total = 0;
 
 	for(int i = 0; i < numPatches; i++) {

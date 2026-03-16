@@ -54,6 +54,25 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 
 			FreeTree(model.root);
 		}
+		else if(args[0] == "smodel") {
+			MeshLoader meshLoader;
+
+			std::string objFileName = expMapDir + "mesh-files/" + args[1] + ".obj";
+			LazyMesh *mesh = meshLoader.ParseMeshFile(objFileName.c_str(), materialMap);
+
+			if(!mesh) {
+				return;
+			}
+
+			BspModel model;
+			model.CreateTreeFromLazyMesh(mesh);
+			delete mesh;
+
+			// TODO: push into world tree, and turn into submodels
+
+			FreeTree(model.root);
+		}
+
 	}
 
 	EndBspFile();

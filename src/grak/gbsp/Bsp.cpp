@@ -252,7 +252,7 @@ void SplitPolygon(std::shared_ptr<BspFace> polygon, BspPlane plane, std::shared_
 
 BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth) {
 	if(depth > MAX_TREE_DEPTH) {
-		std::cout << "MAX_TREE_DEPTH Reached" << std::endl;
+		std::cout << "WARNING: MAX_TREE_DEPTH Reached" << std::endl;
 		return new BspNode(polygons);
 	}
 
@@ -331,8 +331,8 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 
 	std::cout << "Applying offsets to map face verts..." << std::endl;
 	for(std::shared_ptr<BspFace> face : mesh->faces) {
-		for(int vertIndex : face->vertIndices) {
-			vertIndex += numMapVerts;
+		for(int i = 0; i < face->vertIndices.size(); i++) {
+			face->vertIndices[i] = face->vertIndices[i] + numMapVerts;
 		}
 	}
 
