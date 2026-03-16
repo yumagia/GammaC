@@ -12,6 +12,13 @@
  * =============================================
 */
 
+struct BspBoundBoxf;
+struct BspPlane;
+struct BspVertex;
+struct BspFace;
+struct BspNode;
+class BspPortal;
+
 struct BspBoundBoxf {
 	BspBoundBoxf() {}
 	BspBoundBoxf(Vec3f min, Vec3f max) : min(min), max(max) {}
@@ -78,6 +85,31 @@ struct BspNode {
 	int		planeNum;
 	// Leafs only
 	bool	solid;
+	BspPortal	*portals;
+};
+
+class BspPortal {
+	public:
+		BspPortal();
+
+		void CreateWindingFromNode(BspNode *node);		// Generates a "superportal" winding
+		int Split(BspPlane *plane, BspPortal *front, BspPortal *back);
+		
+		void AddToNodes(BspNode *front, BspNode *back);
+		
+		bool WindingValid();
+	private:
+
+		void Chop(BspPlane *plane);
+	private:
+		BspPlane	plane;
+		
+		BspNode		*nodes[2];
+		BspPortal	*next[2];
+
+		std::vector<Vec3f> winding;
+
+		BspFace		*face;
 };
 
 struct LazyMesh {
@@ -110,6 +142,8 @@ struct BspModel {
  * 
  * =============================================
 */
+
+Vec3f SegmentPlaneIntersection(Vec3f p1, Vec3f p2, BspPlane plane);
 
 void PrintTree(BspNode *node, int depth);
 void FreeTree(BspNode *node);

@@ -5,6 +5,7 @@
 #include "GammaDir.hpp"
 
 #include "MeshLoader.hpp"
+#include "PortalGenerator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -49,6 +50,13 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 			BspModel model;
 			model.CreateTreeFromLazyMesh(mesh);
 			delete mesh;
+
+			if(args.size() >= 3) {
+				// TODO: detail geometry merging
+			}
+
+			PortalGenerator portalGenerator;
+			portalGenerator.GeneratePortals(model.root);
 
 			AddWorldModel(&model);
 

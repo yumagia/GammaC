@@ -1,2 +1,1 @@
-wmodel dangomap
-smodel dangomap_dango
+wmodel dangomap dangomap_dango

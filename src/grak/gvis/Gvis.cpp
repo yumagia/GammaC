@@ -1,8 +1,6 @@
 #include "FileWriter.hpp"
 #include "FileReader.hpp"
 
-#include "PortalGenerator.hpp"
-
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -20,8 +18,6 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	PortalGenerator portalGenerator;
-	portalGenerator.GeneratePortals(bspFile);
 
 	FileWriter *bspWriter = new FileWriter(bspFile);
 	bspWriter->WriteLevel(argv[1]);

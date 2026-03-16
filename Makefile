@@ -1,6 +1,6 @@
-CC = g++ -O3
-# CC = g++ -fsanitize=address
-CXXFLAGS = -std=c++17 -ggdb
+CC = g++
+# CC = g++ 
+CXXFLAGS = -std=c++17 -ggdb -O3
 LDFLAGS = -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
 
 COMMON_DIR := src/common

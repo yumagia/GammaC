@@ -226,7 +226,8 @@ void SplitPolygon(std::shared_ptr<BspFace> polygon, BspPlane plane, std::shared_
 
 			// Output b to back side in all three cases
 			backVerts.push_back(curr);
-		} else {
+		} 
+		else {
 			// Leading vertex of edge is on the plane,
 			// So output it to the front side
 			frontVerts.push_back(curr);
@@ -314,7 +315,11 @@ BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
 
 	BspNode *node = new BspNode(frontTree, backTree, splitPlane, nodeFaces);
+
 	node->bounds = CalcBounds(polygons);
+	node->parent = NULL;
+	frontTree->parent = backTree->parent = node;
+
 	return node;
 }
 
