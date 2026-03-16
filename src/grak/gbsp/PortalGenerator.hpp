@@ -15,6 +15,7 @@ class PortalGenerator {
 	private:
 		void GeneratePortals_r(BspNode *node);
 		void CreateNodePortals(BspNode *node);
+		void SplitNodePortals(BspNode *node);
 		void AddPortalToNodes(std::shared_ptr<BspPortal> portal, BspNode *front, BspNode *back);
 };
 

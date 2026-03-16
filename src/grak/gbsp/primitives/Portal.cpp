@@ -9,13 +9,6 @@ extern	int			numMapPlanes;
 
 #define PLANE_EPSILON 0.01
 
-enum {
-	FRONT,
-	BACK,
-	SPLIT,
-	ERROR
-};
-
 BspPortal::BspPortal() {
 	nodes[0] = nodes[1] = NULL;
 }
@@ -84,18 +77,14 @@ void BspPortal::CreateWindingFromNode(BspNode *node) {
 	this->plane.dist = plane->dist;
 
 	BspNode *parent = node->parent;
-	int count = 0;
 	while(parent != NULL) {
 		Chop(&mapPlanes[parent->planeNum]);
 
 		parent = parent->parent;
-		count++;
 	}
-
-	std::cout << count << std::endl;
 }
 
-int BspPortal::Split(BspPlane *plane, BspPortal *front, BspPortal *back) {
+SplitPortalResult BspPortal::Split(BspPlane *plane, std::shared_ptr<BspPortal> front, std::shared_ptr<BspPortal> back) {
 	// First check if its coplanar
 	int count = 0;
 	for(Vec3f vertex : winding) {
@@ -110,10 +99,10 @@ int BspPortal::Split(BspPlane *plane, BspPortal *front, BspPortal *back) {
 	if(count == winding.size()) {
 		float dot = plane->normal.Dot(this->plane.normal);
 		if(dot > PLANE_EPSILON) {
-			return FRONT;
+			return SplitPortalResult::FRONT;
 		}
 		if(dot < -PLANE_EPSILON) {
-			return BACK;
+			return SplitPortalResult::BACK;
 		}
 
 		std::cerr << "WARNING: Potentially tiny portal" << std::endl;
@@ -174,18 +163,18 @@ int BspPortal::Split(BspPlane *plane, BspPortal *front, BspPortal *back) {
 		for(Vec3f vertex : winding) {
 			float dist = plane->normal.Dot(vertex) - plane->dist;
 			if(dist > PLANE_EPSILON) {
-				return FRONT;
+				return SplitPortalResult::FRONT;
 			}
 			else if(dist < -PLANE_EPSILON) {
-				return BACK;
+				return SplitPortalResult::BACK;
 			}
 		}
 	}
 	else {
-		return SPLIT;
+		return SplitPortalResult::SPLIT;
 	}
 
-	return ERROR;
+	return SplitPortalResult::COPLANAR;
 }
 
 bool BspPortal::WindingValid() {
@@ -233,7 +222,7 @@ void BspPortal::Chop(BspPlane *plane) {
 
 void BspPortal::AddToNodes(BspNode *front, BspNode *back) {
 	if(nodes[0] || nodes[1]) {
-		std::cerr << "BspPortal error: already included" << std::endl;
+		std::cerr << "BspPortal error: Portal already included" << std::endl;
 	}
 
 	nodes[0] = front;
@@ -246,11 +235,11 @@ void BspPortal::AddToNodes(BspNode *front, BspNode *back) {
 // Returns 0 upon success
 int BspPortal::RemoveFromNode(BspNode *node) {
 	std::shared_ptr<BspPortal> curr;
-	std::shared_ptr<BspPortal> portalPointer = node->portals;
+	std::shared_ptr<BspPortal> *portalPointer = &node->portals;
 	while(true) {
-		curr = portalPointer;
+		curr = *portalPointer;
 		if(!curr) {
-			std::cerr << "BspPortal Error: portal not in leaf" << std::endl;
+			std::cerr << "BspPortal Error: Portal does not exist in leaf" << std::endl;
 			return 1;
 		}
 
@@ -259,24 +248,24 @@ int BspPortal::RemoveFromNode(BspNode *node) {
 		}
 
 		if(curr->GetNextNode(0) == node) {
-			portalPointer = curr->GetNext(0);
+			portalPointer = &curr->next[0];
 		}
 		else if(curr->GetNextNode(1) == node) {
-			portalPointer = curr->GetNext(1);
+			portalPointer = &curr->next[1];
 		}
 		else {
-			std::cerr << "BspPortal Error: portal not bounding leaf" << std::endl;
+			std::cerr << "BspPortal Error: Portal not bounding leaf" << std::endl;
 			return 1;
 		}
+	}
 
-		if(nodes[0] == node) {
-			portalPointer = next[0];
-			nodes[0] = NULL;
-		}
-		else if(nodes[1] == node) {
-			portalPointer = next[1];
-			nodes[1] = NULL;
-		}
+	if(nodes[0] == node) {
+		*portalPointer = next[0];
+		nodes[0] = NULL;
+	}
+	else if(nodes[1] == node) {
+		*portalPointer = next[1];
+		nodes[1] = NULL;
 	}
 
 	return 0;

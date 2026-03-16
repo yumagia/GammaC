@@ -88,12 +88,19 @@ struct BspNode {
 	std::shared_ptr<BspPortal> portals = NULL;
 };
 
+enum class SplitPortalResult {
+	FRONT,
+	BACK,
+	SPLIT,
+	COPLANAR
+};
+
 class BspPortal {
 	public:
 		BspPortal();
 
 		void CreateWindingFromNode(BspNode *node);		// Generates a "superportal" winding
-		int Split(BspPlane *plane, BspPortal *front, BspPortal *back);
+		SplitPortalResult Split(BspPlane *plane, std::shared_ptr<BspPortal> front, std::shared_ptr<BspPortal> back);
 		
 		void AddToNodes(BspNode *front, BspNode *back);
 		int GetNextNodeSide(BspNode *node);
@@ -106,6 +113,7 @@ class BspPortal {
 
 		void Chop(BspPlane *plane);
 	private:
+
 		BspPlane	plane;
 		
 		BspNode		*nodes[2];
