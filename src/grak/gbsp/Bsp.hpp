@@ -96,6 +96,10 @@ class BspPortal {
 		int Split(BspPlane *plane, BspPortal *front, BspPortal *back);
 		
 		void AddToNodes(BspNode *front, BspNode *back);
+		int GetNextNodeSide(BspNode *node);
+		int RemoveFromNode(BspNode *node);
+		BspPortal *GetNext(int side);
+		BspNode *GetNextNode(int side);
 		
 		bool WindingValid();
 	private:

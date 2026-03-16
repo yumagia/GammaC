@@ -15,7 +15,6 @@ class PortalGenerator {
 	private:
 		void GeneratePortals_r(BspNode *node);
 		void AddPortalToNodes(BspPortal *portal, BspNode *front, BspNode *back);
-
 };
 
 #endif

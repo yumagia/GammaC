@@ -242,3 +242,54 @@ void BspPortal::AddToNodes(BspNode *front, BspNode *back) {
 	nodes[1] = back;
 	next[1] = back->portals;
 }
+
+// Returns 0 upon success
+int BspPortal::RemoveFromNode(BspNode *node) {
+	BspPortal *curr;
+	BspPortal *portalPointer = node->portals;
+	while(true) {
+		curr = portalPointer;
+		if(!curr) {
+			std::cerr << "BspPortal Error: portal not in leaf" << std::endl;
+			return 1;
+		}
+
+		if(curr == this) {
+			break;
+		}
+
+		if(curr->GetNextNode(0) == node) {
+			portalPointer = curr->GetNext(0);
+		}
+		else if(curr->GetNextNode(1) == node) {
+			portalPointer = curr->GetNext(1);
+		}
+		else {
+			std::cerr << "BspPortal Error: portal not bounding leaf" << std::endl;
+			return 1;
+		}
+
+		if(nodes[0] == node) {
+			portalPointer = next[0];
+			nodes[0] = NULL;
+		}
+		else if(nodes[1] == node) {
+			portalPointer = next[1];
+			nodes[1] = NULL;
+		}
+	}
+
+	return 0;
+}
+
+int BspPortal::GetNextNodeSide(BspNode *node) {
+	return (nodes[1] == node);
+}
+
+BspPortal *BspPortal::GetNext(int side) {
+	return next[side];
+}
+
+BspNode *BspPortal::GetNextNode(int side) {
+	return nodes[side];
+}

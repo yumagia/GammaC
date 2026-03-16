@@ -6,12 +6,32 @@
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
 
-void FreeTree(BspNode *node) {
+void FreeTreePortals_r(BspNode *node) {
+	if(!node->isLeaf) {
+		FreeTreePortals_r(node->front);
+		FreeTreePortals_r(node->back);
+	}
+
+	BspPortal *curr = node->portals;
+	while(curr) {
+		int side = curr->GetNextNodeSide(node);
+		BspPortal *next = curr->GetNext(side);
+
+		curr->RemoveFromNode(curr->GetNextNode(!side));
+		delete curr;
+
+		curr = next;
+	}
+
+	node->portals = NULL;
+}
+
+void FreeTree_r(BspNode *node) {
     std::shared_ptr<BspFace> f;
 
     if(!node->isLeaf) {
-        FreeTree(node->back);
-        FreeTree(node->front);
+        FreeTree_r(node->back);
+        FreeTree_r(node->front);
     }
     else {
         while(!node->faces.empty()) {
@@ -23,6 +43,11 @@ void FreeTree(BspNode *node) {
     }
 
     delete node;
+}
+
+void FreeTree(BspNode *node) {
+	FreeTreePortals_r(node);
+	FreeTree_r(node);
 }
 
 void PrintTree(BspNode *node, int depth) {
