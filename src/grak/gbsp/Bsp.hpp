@@ -85,7 +85,7 @@ struct BspNode {
 	BspBoundBoxf	bounds;
 	std::vector<std::shared_ptr<BspFace>>	faces;	// Used differently among leaves and internal nodes
 	// Internal nodes only
-	bool		detailSeperator = false;
+	bool		detailSeperator;
 	BspNode		*front, *back;
 	int		planeNum;
 	// Leaves only

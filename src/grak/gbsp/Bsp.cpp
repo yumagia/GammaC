@@ -73,6 +73,11 @@ BspBoundBoxf CalcBounds(std::vector<std::shared_ptr<BspFace>> polygons) {
 BspNode::BspNode(std::vector<std::shared_ptr<BspFace>> polygons) {
 	isLeaf = true;
 
+	contents = 0;
+	for(std::shared_ptr<BspFace> polygon : polygons) {
+		contents |= polygon->contentFlag;
+	}
+
 	solid = polygons.size() == 0;
 	this->faces = polygons;
 	if(solid) {
@@ -124,15 +129,25 @@ int ClassifyPolygonToPlane(std::shared_ptr<BspFace> polygon, BspPlane plane) {
 }
 
 // Pick the best splitting plane, heuristically
-int PickSplittingPlane(std::vector<std::shared_ptr<BspFace>> polygons) {
+int PickSplittingPlane(std::vector<std::shared_ptr<BspFace>> polygons, int pass) {
 	int bestPlaneNum = -1;
 	std::shared_ptr<BspFace> bestPoly = NULL;
 	float bestScore = FLOAT_MAX;
+
+	if(pass > 1) {		// Not a valid pass
+		return -1;
+	}
 
 	for(int i = 0; i < polygons.size(); i++) {
 
 		if(polygons[i]->tested) {	// Already tested
 			continue;
+		}
+		if((pass == 1) && !(polygons[i]->contentFlag & CONTENTS_DETAIL)) {
+			continue;				// Skip. We want detail only on this pass
+		}
+		if(!(pass == 1) && (polygons[i]->contentFlag & CONTENTS_DETAIL)) {
+			continue;				// Skip. This is our backbone pass
 		}
 
 		int numInFront = 0;
@@ -261,7 +276,16 @@ BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth
 		return new BspNode(polygons);
 	}
 
-	int splitPlane = PickSplittingPlane(polygons);
+	int pass;
+	int numPasses = 2;
+	int splitPlane;
+	for(pass = 0; pass < numPasses; pass++) {
+		splitPlane = PickSplittingPlane(polygons, pass);
+
+		if(splitPlane != -1) {
+			break;
+		}
+	}
 
 	if(splitPlane == -1) {
 		return new BspNode(polygons);
@@ -315,6 +339,13 @@ BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth
 	BspNode *backTree = BuildBspTree(backList, depth + 1);
 
 	BspNode *node = new BspNode(frontTree, backTree, splitPlane, nodeFaces);
+
+	if(pass == 0) {
+		node->detailSeperator = false;
+	}
+	else {
+		node->detailSeperator = true;
+	}
 
 	node->bounds = CalcBounds(polygons);
 	node->parent = NULL;

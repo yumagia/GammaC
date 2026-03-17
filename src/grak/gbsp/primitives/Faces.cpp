@@ -16,6 +16,8 @@ BspFace::BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face) {
 		std::cerr << "WARNING: Bad vert count (" << vertIndices.size() << ") for face" << std::endl;
 	}
 	
+	this->contentFlag = face->contentFlag;
+	
 	this->vertIndices = vertIndices;
 
 	this->tested = face->tested;

@@ -141,5 +141,5 @@ void PortalWriter::WritePortals(BspNode *node) {
 	
 	GeneratePortals_r(node);
 
-	//NumberLeafs_r(node);
+	NumberLeafs_r(node);
 }
