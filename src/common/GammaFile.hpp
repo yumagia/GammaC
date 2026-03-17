@@ -2,7 +2,7 @@
 
 #define NUM_LUMPS			11
 
-// MAP UPPER BOUNDS
+// MAP DESIGN BOUNDS
 #define MAX_MAP_MODELS		256
 #define MAX_MAP_ENTITIES	512
 #define MAX_MAP_PLANES		16384
@@ -26,6 +26,17 @@
 // MISC MAP DEFS
 #define BOUND_PADDING 16
 #define MAX_WINDING 32
+
+// CONTENT FLAGS
+// These are seperate bits, applied to leaves
+
+// These are the backbone flags
+// Lower bits are stronger, and will eat weaker brushes
+#define CONTENTS_SOLID			1
+#define LAST_VISIBLE_CONTENTS	64
+
+// The remaining content flags non-visible, and don't eat brushes
+#define CONTENTS_DETAIL			0x100000
 
 struct FileLump {
 	int		offset, length;

@@ -135,6 +135,8 @@ LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, 
 			
 			std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, planeNum, currMaterialNum);
 
+			newFace->contentFlag = contentFlag;
+
 			newMesh->faces.push_back(newFace);
 		}
 	}
@@ -148,3 +150,6 @@ LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, 
 	return newMesh;
 }
 
+void MeshLoader::SetContentFlag(int contentFlag) {
+	this->contentFlag = contentFlag;
+}

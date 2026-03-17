@@ -5,7 +5,7 @@
 #include "GammaDir.hpp"
 
 #include "MeshLoader.hpp"
-#include "PortalGenerator.hpp"
+#include "PortalWriter.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -40,6 +40,7 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 			std::string mtlFileName = expMapDir + "mesh-files/" + args[1] + ".mtl";
 			numMaterials += meshLoader.AddMaterials(mtlFileName.c_str(), *bspFile, materialMap);
 
+			meshLoader.SetContentFlag(CONTENTS_SOLID);
 			std::string objFileName = expMapDir + "mesh-files/" + args[1] + ".obj";
 			LazyMesh *mesh = meshLoader.ParseMeshFile(objFileName.c_str(), materialMap);
 
@@ -55,10 +56,10 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 				// TODO: detail geometry merging
 			}
 
-			PortalGenerator portalGenerator;
-			portalGenerator.GeneratePortals(model.root);
-
 			AddWorldModel(&model);
+
+			PortalWriter portalWriter;
+			portalWriter.WritePortals(model.root);
 
 			FreeTree(model.root);
 		}
@@ -76,7 +77,7 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 			model.CreateTreeFromLazyMesh(mesh);
 			delete mesh;
 
-			// TODO: push into world tree, and turn into submodels
+			// TODO: Create submodels
 
 			FreeTree(model.root);
 		}

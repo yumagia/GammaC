@@ -54,12 +54,14 @@ struct BspVertex {
 struct BspFace {
 	BspFace() {}
 
-	// Check if already tested for splitting
-	bool		tested;
-
 	// Create from new winding, inherit plane
 	BspFace(std::vector<int> vertIndices, std::shared_ptr<BspFace> face);
 	BspFace(std::vector<int> vertIndices, int planeNum, int materialNum);
+
+	// Check if already tested for splitting
+	bool		tested;
+
+	int			contentFlag;
 
 	std::vector<int>	vertIndices;
 	int			planeNum;
@@ -68,23 +70,28 @@ struct BspFace {
 	int			outputNumber;
 };
 
+// TODO: Use some consistent initialization?
+// (i.e., detailSeperator, portals list)
 struct BspNode {
 	BspNode() {}
 	
 	BspNode(std::vector<std::shared_ptr<BspFace>> polygons);
 	BspNode(BspNode *front, BspNode *back, int planeNum, std::vector<std::shared_ptr<BspFace>> polygons);
 
-	// Both leafs and internal nodes
+	// Both leaves and internal nodes
 	bool	isLeaf;
 	int		depth;
 	BspNode		*parent;
 	BspBoundBoxf	bounds;
-	std::vector<std::shared_ptr<BspFace>>	faces;	// Used differently among leafs and internal nodes
+	std::vector<std::shared_ptr<BspFace>>	faces;	// Used differently among leaves and internal nodes
 	// Internal nodes only
+	bool		detailSeperator = false;
 	BspNode		*front, *back;
 	int		planeNum;
-	// Leafs only
+	// Leaves only
 	bool	solid;
+	int		contents;
+	int		cluster;
 	std::shared_ptr<BspPortal> portals = NULL;
 };
 
@@ -109,9 +116,13 @@ class BspPortal {
 		BspNode *GetNextNode(int side);
 		
 		bool WindingValid();
+		bool VisFlood();
 	private:
 
 		void Chop(BspPlane *plane);
+
+		int VisibleContents(int contents);
+		int ClusterContents(BspNode *node);
 	private:
 
 		BspPlane	plane;

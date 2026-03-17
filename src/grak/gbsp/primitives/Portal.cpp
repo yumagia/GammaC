@@ -194,7 +194,7 @@ void BspPortal::Chop(BspPlane *plane) {
 	std::vector<Vec3f> choppedWinding;
 
 	float prevDot, currDot;
-	Vec3f prev = winding[winding.size()];
+	Vec3f prev = winding[winding.size() - 1];
 	prevDot = plane->normal.Dot(prev) - plane->dist;
 	for(Vec3f curr : winding) {
 		currDot = plane->normal.Dot(curr) - plane->dist;
@@ -281,4 +281,66 @@ std::shared_ptr<BspPortal> BspPortal::GetNext(int side) {
 
 BspNode *BspPortal::GetNextNode(int side) {
 	return nodes[side];
+}
+
+// Returns the strongest bit
+int BspPortal::VisibleContents(int contents) {
+	for(int i = 1; i < LAST_VISIBLE_CONTENTS; i <<= 1) {
+		if(contents & i) {
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+int BspPortal::ClusterContents(BspNode *node) {
+	if(node->isLeaf) {
+		return node->contents;
+	}
+
+	int cluster1 = ClusterContents(node->front);
+	int cluster2 = ClusterContents(node->back);
+
+	int cluster = cluster1 | cluster2;
+
+	// A cluster may have solid contents within, but
+	// is still considered to be see-through
+	if(!((cluster1 & CONTENTS_SOLID) && (cluster2 & CONTENTS_SOLID))) {
+		cluster &= ~CONTENTS_SOLID;			// Consider this cluster non-solid
+	}
+
+	return cluster;
+}
+
+// Returns true if the portal allows a 
+// line of sight to go through
+bool BspPortal::VisFlood() {
+	int cluster1 = ClusterContents(nodes[0]);
+	int cluster2 = ClusterContents(nodes[1]);
+
+	if(!VisibleContents(cluster1 ^ cluster2)) {
+		return true;
+	}
+
+	if(cluster1 & CONTENTS_DETAIL) {
+		cluster1 = 0;
+	}
+	if(cluster2 & CONTENTS_DETAIL) {
+		cluster2 = 0;
+	}
+
+	if((cluster1|cluster2) & CONTENTS_SOLID) {
+		return false;		// One of them is solid, and blocks out sight
+	}
+
+	if(!(cluster1 ^ cluster2)) {
+		return true;		// Identically see-through
+	}
+
+	if(!VisibleContents(cluster1 ^ cluster2)) {
+		return true;
+	}
+
+	return false;
 }

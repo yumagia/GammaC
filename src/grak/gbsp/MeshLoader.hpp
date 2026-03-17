@@ -13,12 +13,15 @@ public:
 	LazyMesh *ParseMeshFile(const char *fileName, std::map<std::string, int> &materialMap);
 
 	int		AddMaterials(const char *fileName, BspFile &bspFile, std::map<std::string, int> &materialMap);
+
+	void	SetContentFlag(int contentFlag);
 private:
 	std::vector<std::string> ParseArgsFromLine(std::string line);
+	void ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh);
 
 	int materialCount, vertexCount, faceCount;
 
-	void ApplyArgsToMesh(std::vector<std::string> args, LazyMesh *mesh);
+	int contentFlag;
 };
 
 #endif
