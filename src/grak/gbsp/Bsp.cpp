@@ -134,20 +134,15 @@ int PickSplittingPlane(std::vector<std::shared_ptr<BspFace>> polygons, int pass)
 	std::shared_ptr<BspFace> bestPoly = NULL;
 	float bestScore = FLOAT_MAX;
 
-	if(pass > 1) {		// Not a valid pass
-		return -1;
-	}
-
 	for(int i = 0; i < polygons.size(); i++) {
-
 		if(polygons[i]->tested) {	// Already tested
 			continue;
 		}
+		if((pass == 0) && (polygons[i]->contentFlag & CONTENTS_DETAIL)) {
+			continue;				// Skip. This is our backbone pass
+		}
 		if((pass == 1) && !(polygons[i]->contentFlag & CONTENTS_DETAIL)) {
 			continue;				// Skip. We want detail only on this pass
-		}
-		if(!(pass == 1) && (polygons[i]->contentFlag & CONTENTS_DETAIL)) {
-			continue;				// Skip. This is our backbone pass
 		}
 
 		int numInFront = 0;
@@ -295,7 +290,9 @@ BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth
 
 	int numPolys = polygons.size();
 	for(int i = 0; i < numPolys; i++) {
-		std::shared_ptr<BspFace> polygon = polygons[i], frontPart, backPart;
+		std::shared_ptr<BspFace> polygon = polygons[i];
+		std::shared_ptr<BspFace> frontPart, backPart;
+		frontPart = backPart = NULL;
 
 		switch(ClassifyPolygonToPlane(polygon, mapPlanes[splitPlane])) {
 		case POLYGON_COPLANAR:
@@ -384,7 +381,6 @@ void BspModel::CreateTreeFromLazyMesh(LazyMesh *mesh) {
 
 	std::cout << "Building tree..." << std::endl;
 
-	solid = mesh->solid;
 	root = BuildBspTree(mesh->faces, 0);
 
 	std::cout << "Sucessful BuildBSP run..." << std::endl;

@@ -107,13 +107,15 @@ class BspPortal {
 		BspPortal();
 
 		void CreateWindingFromNode(BspNode *node);		// Generates a "superportal" winding
-		SplitPortalResult Split(BspPlane *plane, std::shared_ptr<BspPortal> front, std::shared_ptr<BspPortal> back);
+		SplitPortalResult Split(BspPlane *plane, std::shared_ptr<BspPortal> &front, std::shared_ptr<BspPortal> &back);
 		
 		void AddToNodes(BspNode *front, BspNode *back);
 		int GetNextNodeSide(BspNode *node);
 		int RemoveFromNode(BspNode *node);
 		std::shared_ptr<BspPortal> GetNext(int side);
 		BspNode *GetNextNode(int side);
+
+		void SetWinding(std::vector<Vec3f> *winding);
 		
 		bool WindingValid();
 		bool VisFlood();
@@ -139,7 +141,8 @@ struct LazyMesh {
 	LazyMesh() {}
 	~LazyMesh();
 
-	bool	solid;
+	void Merge(LazyMesh *otherMesh);
+
 	std::vector<std::shared_ptr<BspFace>>	faces;
 	std::vector<BspVertex*> vertexList;
 };
@@ -149,8 +152,6 @@ struct BspModel {
 
 	void SetModel(Vec3f origin, Quaternion orientation);
 	void CreateTreeFromLazyMesh(LazyMesh *mesh);
-
-	bool solid;
 
 	Vec3f	origin = Vec3f();
 	Quaternion orientation = Quaternion();

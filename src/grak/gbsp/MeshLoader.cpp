@@ -150,6 +150,67 @@ LazyMesh *MeshLoader::ParseMeshFile(const char *fileName, std::map<std::string, 
 	return newMesh;
 }
 
+void MeshLoader::ParseMeshFileAppend(LazyMesh *mesh, const char *fileName, std::map<std::string, int> &materialMap) {
+	std::cout << " --- Creating new object ---" << std::endl;
+	
+	std::ifstream file;
+	file.open(fileName);
+	std::cout << "Opening: " << fileName << std::endl;
+
+	if(!file.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return;
+	}
+
+	int shift = mesh->vertexList.size();
+
+	std::string line;
+	std::vector<std::string> args;
+	int currMaterialNum;
+	while(std::getline(file, line)) {
+		args = ParseArgsFromLine(line);
+
+		if(args.empty()) {
+			continue;
+		}
+
+		if(args[0] == "usemtl") {
+			currMaterialNum = materialMap[args[1]];
+		}
+		
+		if(args[0] == "v") {
+			mesh->vertexList.push_back(new BspVertex(stof(args[1]), stof(args[2]), stof(args[3])));
+		}
+
+		if(args[0] == "f") {
+			int numVerts = args.size() - 1;
+
+			std::vector<int> vertIndices;
+			for(int i = 0; i < numVerts; i++) {
+				std::stringstream arg(args[i + 1]);
+				std::string vert;
+				std::getline(arg, vert, '/');
+				vertIndices.push_back(shift + stoi(vert) - 1);
+			}
+			int planeNum =	PlaneNumFromTriangle(	mesh->vertexList[vertIndices[0]]->point, 
+													mesh->vertexList[vertIndices[1]]->point, 
+													mesh->vertexList[vertIndices[2]]->point	);
+			
+			std::shared_ptr<BspFace> newFace = std::make_shared<BspFace>(vertIndices, planeNum, currMaterialNum);
+
+			newFace->contentFlag = contentFlag;
+
+			mesh->faces.push_back(newFace);
+		}
+	}
+
+	file.close();
+	std::cout << "Successfully added geometry to lazy mesh" << std::endl;
+	std::cout << "\t" << mesh->faces.size() << " New faces" << std::endl;
+	std::cout << "\t" << mesh->vertexList.size() << " New vertices" << std::endl;
+	std::cout << std::endl;
+}
+
 void MeshLoader::SetContentFlag(int contentFlag) {
 	this->contentFlag = contentFlag;
 }

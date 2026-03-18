@@ -84,7 +84,7 @@ void BspPortal::CreateWindingFromNode(BspNode *node) {
 	}
 }
 
-SplitPortalResult BspPortal::Split(BspPlane *plane, std::shared_ptr<BspPortal> front, std::shared_ptr<BspPortal> back) {
+SplitPortalResult BspPortal::Split(BspPlane *plane, std::shared_ptr<BspPortal> &front, std::shared_ptr<BspPortal> &back) {
 	// First check if its coplanar
 	int count = 0;
 	for(Vec3f vertex : winding) {
@@ -171,6 +171,13 @@ SplitPortalResult BspPortal::Split(BspPlane *plane, std::shared_ptr<BspPortal> f
 		}
 	}
 	else {
+		front = std::make_shared<BspPortal>();
+		*front = *this;
+		front->SetWinding(&frontVerts);
+		back = std::make_shared<BspPortal>();
+		*back = *this;
+		back->SetWinding(&backVerts);
+
 		return SplitPortalResult::SPLIT;
 	}
 
@@ -183,6 +190,10 @@ bool BspPortal::WindingValid() {
 	}
 	
 	return true;
+}
+
+void BspPortal::SetWinding(std::vector<Vec3f> *winding) {
+	this->winding = *winding;
 }
 
 // Sutherland-Hodgman

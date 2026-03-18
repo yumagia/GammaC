@@ -48,13 +48,15 @@ void GbspWriter::WriteMap(const char *mapDir, const char *bspLevelName) {
 				return;
 			}
 
+			if(args.size() >= 3) {
+				meshLoader.SetContentFlag(CONTENTS_SOLID | CONTENTS_DETAIL);
+				objFileName = expMapDir + "mesh-files/" + args[2] + ".obj";
+				meshLoader.ParseMeshFileAppend(mesh, objFileName.c_str(), materialMap);
+			}
+
 			BspModel model;
 			model.CreateTreeFromLazyMesh(mesh);
 			delete mesh;
-
-			if(args.size() >= 3) {
-				// TODO: detail geometry merging
-			}
 
 			AddWorldModel(&model);
 
