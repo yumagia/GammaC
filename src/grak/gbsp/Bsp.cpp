@@ -9,7 +9,7 @@
 #define PLANE_EPSILON 0.01
 #define FLOAT_MAX 999999999
 #define SPLIT_BALANCE 0.7f
-#define MAX_TREE_DEPTH 100
+#define MAX_TREE_DEPTH 200
 
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;
@@ -298,11 +298,11 @@ BspNode *BuildBspTree(std::vector<std::shared_ptr<BspFace>> &polygons, int depth
 		case POLYGON_COPLANAR:
 			nodeFaces.push_back(polygon);
 			polygon->tested = true; // Mark as tested so it won't recurse indefinitely
-			if(mapPlanes[splitPlane].normal.Dot(mapPlanes[polygon->planeNum].normal) < 0) {
-				backList.push_back(polygon);
+			if(mapPlanes[splitPlane].normal.Dot(mapPlanes[polygon->planeNum].normal) > 0) {
+				frontList.push_back(polygon);
 			}
 			else {
-				frontList.push_back(polygon);
+				backList.push_back(polygon);
 			}
 			break;
 		case POLYGON_IN_FRONT:

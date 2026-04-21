@@ -22,7 +22,7 @@ namespace GammaEngine {
 
 	class Window {
 	public:
-		Window(std::string title = "Gamma Engine", unsigned int width = 800, unsigned int height = 600);
+		Window(std::string title = "Gamma Engine", unsigned int width = 1200, unsigned int height = 900);
 		~Window();
 
 		bool CreateWindow();
