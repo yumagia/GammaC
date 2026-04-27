@@ -24,11 +24,12 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	std::cout << "Writing to OBJ File..." << std::endl;
 
-	std::ofstream outputFile(OBJ_MESHES_DIR + (std::string) "/" + argv[2]);
+	std::ofstream outputFile(OBJ_MESHES_DIR + (std::string) "/" + argv[2] + ".obj");
 
 	if(outputFile.is_open()) {
+		std::cout << "Writing to OBJ File..." << std::endl;
+
 		std::vector<std::string> outputFaces;
 		std::vector<float> outputVerts;
 		std::vector<float> outputUvs;
@@ -111,6 +112,9 @@ int main(int argc, char *argv[]) {
 			outputFile << std::endl;
 		}
 
+		// baseTexture is the name for the single texture atlas encompassing the gamemap
+		outputFile << "usemtl baseTexture" << std::endl;
+
 		for(std::string outputFace : outputFaces) {
 			outputFile << outputFace << std::endl;
 		}
@@ -122,6 +126,26 @@ int main(int argc, char *argv[]) {
 		outputFile.close();
 
 		std::cout << "Successfully wrote Wavefront OBJ!" << std::endl;
+	}
+
+	std::ofstream mtlFile(OBJ_MESHES_DIR + (std::string) "/" + argv[2] + ".mtl");
+
+	if(mtlFile.is_open()) {
+		std::cout << "Writing MTL File..." << std::endl;
+
+		mtlFile << "newmtl baseTexture" << std::endl;
+		mtlFile << "Ka 1.000000 1.000000 1.000000" << std::endl;
+		mtlFile << "Kd 1.000000 1.000000 1.000000" << std::endl;
+		mtlFile << "Ks 0.500000 0.500000 0.500000" << std::endl;
+		mtlFile << "Ke 0.000000 0.000000 0.000000" << std::endl;
+		mtlFile << "Ni 1.000000" << std::endl;
+		mtlFile << "d 1.000000" << std::endl;
+		mtlFile << "illum 2" << std::endl;
+		mtlFile << "map_Kd atlas.png" << std::endl;
+
+		mtlFile.close();
+
+		std::cout << "Successfully wrote MTL file!" << std::endl;
 	}
 
 	delete bspFile;
