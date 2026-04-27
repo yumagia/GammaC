@@ -5,3 +5,4 @@
 #define MAPS_DIR "maps"
 
 #define VERTEX_MESHES_DIR "vertex-meshes"
+#define OBJ_MESHES_DIR "obj-meshes"

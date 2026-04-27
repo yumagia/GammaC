@@ -1,6 +1,5 @@
-CC = g++
+CC = g++ -std=c++17 -ggdb -O3
 # CC = g++ 
-CXXFLAGS = -std=c++17 -ggdb -O3
 LDFLAGS = -lglfw -lGL -lGLU -lGLEW -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -fopenmp
 
 COMMON_DIR := src/common
@@ -57,13 +56,23 @@ VBO_GEN_OBJS := $(VBO_GEN_SRCS:%=$(BUILD_DIR)/%.o)
 VBO_GEN_INC_DIRS := $(shell find $(VBO_GEN_SRC_DIRS) -type d)
 VBO_GEN_INC_FLAGS := $(addprefix -I,$(VBO_GEN_INC_DIRS))
 
-CPPFLAGS := $(GAMMA_INC_FLAGS) $(GBSP_INC_FLAGS) $(GRAD_INC_FLAGS) $(VBO_GEN_INC_FLAGS) -MMD -MP
+OBJ_GEN_EXEC := OBJGen
+OBJ_GEN_SRC_DIRS := src/grak/misc/objgen $(COMMON_DIR)
+
+OBJ_GEN_SRCS := $(shell find $(OBJ_GEN_SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJ_GEN_OBJS := $(OBJ_GEN_SRCS:%=$(BUILD_DIR)/%.o)
+
+OBJ_GEN_INC_DIRS := $(shell find $(OBJ_GEN_SRC_DIRS) -type d)
+OBJ_GEN_INC_FLAGS := $(addprefix -I,$(OBJ_GEN_INC_DIRS))
+
+# CPPFLAGS
+CPPFLAGS := $(GAMMA_INC_FLAGS) $(GBSP_INC_FLAGS) $(GRAD_INC_FLAGS) $(VBO_GEN_INC_FLAGS) $(OBJ_GEN_INC_FLAGS) -MMD -MP
 
 all: $(GAMMA_EXEC) $(GBSP_EXEC) $(GVIS_EXEC) $(GRAD_EXEC)
 
 tools: $(GBSP_EXEC) $(GVIS_EXEC) $(GRAD_EXEC)
 
-misc: $(VBO_GEN_EXEC)
+misc: $(VBO_GEN_EXEC) $(OBJ_GEN_EXEC)
 
 # GAMMA Executable
 $(GAMMA_EXEC): $(GAMMA_OBJS)
@@ -84,6 +93,9 @@ $(GRAD_EXEC): $(GRAD_OBJS)
 # Misc Executables
 $(VBO_GEN_EXEC): $(VBO_GEN_OBJS)
 	$(CC) $(VBO_GEN_OBJS) -o $@ $(LDFLAGS)
+
+$(OBJ_GEN_EXEC): $(OBJ_GEN_OBJS)
+	$(CC) $(OBJ_GEN_OBJS) -o $@ $(LDFLAGS)
 
 # Build
 $(BUILD_DIR)/%.cpp.o: %.cpp
