@@ -5,23 +5,23 @@
 // MAP DESIGN BOUNDS
 #define MAX_MAP_MODELS		256
 #define MAX_MAP_ENTITIES	512
-#define MAX_MAP_PLANES		16384
+#define MAX_MAP_PLANES		65536
 
-#define MAX_MAP_NODES		32768
-#define MAX_MAP_LEAFS		32768
-#define MAX_MAP_LEAF_FACES	32768
-#define MAX_MAP_VERTS		65536
-#define MAX_MAP_FACE_VERTS	65536
-#define MAX_MAP_FACES		32768
+#define MAX_MAP_NODES		65536
+#define MAX_MAP_LEAFS		65536
+#define MAX_MAP_LEAF_FACES	65536
+#define MAX_MAP_VERTS		131072
+#define MAX_MAP_FACE_VERTS	131072
+#define MAX_MAP_FACES		131072
 #define MAX_MAP_MATERIALS	512
 #define MAX_MAP_TEX_INFOS	32768
-#define MAX_MAP_LUMELS		262144
+#define MAX_MAP_LUMELS		0x200000
 
 #define	MAX_KEY		16
 #define	MAX_VALUE	512
 
 // LIGHTING CONSTS
-#define PATCH_SIZE	250
+#define PATCH_SIZE	150
 
 // MISC MAP DEFS
 #define BOUND_PADDING 16
@@ -119,7 +119,7 @@ struct FileFace {
 struct FileLumel {
 	int				legal;
 	int				faceIndex;
-	float			color[3];
+	unsigned int	color;
 };
 
 struct FileMaterial {

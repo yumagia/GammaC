@@ -38,9 +38,9 @@ namespace GammaEngine {
 				for(int i = 0; i < lmWidth; i++) {
 					FileLumel *lumel = &lightmaps_[lmOffset + i + lmWidth * j];
 					unsigned int texLoc = (i + lmWidth * j) * 4;
-					texture[texLoc] = (unsigned char) (lumel->color[0] * 255.f);
-					texture[texLoc + 1] = (unsigned char) (lumel->color[1] * 255.f);
-					texture[texLoc + 2] = (unsigned char) (lumel->color[2] * 255.f);
+					texture[texLoc] = (unsigned int) ((lumel->color & 0xFF0000) >> 16);
+					texture[texLoc + 1] = (unsigned int) ((lumel->color & 0x00FF00) >> 8);
+					texture[texLoc + 2] = (unsigned int) (lumel->color & 0x0000FF);
 					texture[texLoc + 3] = 255;
 				}
 			}

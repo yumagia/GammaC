@@ -389,11 +389,7 @@ BspFile *FileReader::ReadFile(std::string fileName) {
 		readLumel.faceIndex = stoi(line);
 
 		std::getline(readFile, line);
-		readLumel.color[0] = stof(line);
-		std::getline(readFile, line);
-		readLumel.color[1] = stof(line);
-		std::getline(readFile, line);
-		readLumel.color[2] = stof(line);
+		readLumel.color = stoi(line);
 
 		bspFile->fileLightmaps[i] = readLumel;
 	}

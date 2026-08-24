@@ -1,0 +1,645 @@
+newmtl *slime0
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/_slime0.png
+
+newmtl *teleport
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/_teleport.png
+
+newmtl *water0
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/_water0.png
+
+newmtl +0planet
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/+0planet.png
+
+newmtl +0slip
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/+0slip.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/+0slip_emission.png
+
+newmtl +0slipbot
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/+0slipbot.png
+
+newmtl +0sliptop
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/+0sliptop.png
+
+newmtl basebutn3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/basebutn3.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/basebutn3_emission.png
+
+newmtl comp1_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_1.png
+
+newmtl comp1_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_2.png
+
+newmtl comp1_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_3.png
+
+newmtl comp1_4
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_4.png
+
+newmtl comp1_5
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_5.png
+
+newmtl comp1_6
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.12 0.1 0.08
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_6.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/comp1_6_emission.png
+
+newmtl crate0_side
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.2 0.16 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/crate0_side.png
+
+newmtl crate0_top
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.2 0.16 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/crate0_top.png
+
+newmtl ecop1_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.2 0.2 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/ecop1_1.png
+
+newmtl ecop1_4
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.18 0.18 0.10
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/ecop1_4.png
+
+newmtl ecop1_6
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.16 0.16 0.09
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/ecop1_6.png
+
+newmtl ground1_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.24 0.22 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/ground1_2.png
+
+newmtl ground1_6
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.21 0.22 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/ground1_6.png
+
+newmtl sfloor4_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/sfloor4_2.png
+
+newmtl sfloor4_5
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/sfloor4_5.png
+
+newmtl sky4
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 1.35 2 3
+Kd 0.2 0.24 0.35
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/sky4.png
+
+newmtl slip1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/slip1.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/slip1_emission.png
+
+newmtl slipbotsd
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/slipbotsd.png
+
+newmtl sliplite
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Kd 0.548768 0.613274 0.463385
+Ks 0.500000 0.500000 0.500000
+Ke 2 0.2 0.2
+Kd 0.7 0.05 0.05
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl slipside
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+Ke 1 0.1 0.1
+Kd 0.6 0 0
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/slipside.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/slipside_emission.png
+
+newmtl sliptopsd
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/sliptopsd.png
+
+newmtl switch_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+Kd 0.65 0.25 0.12
+Ke 0.5 0.1 0.05
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/switch_1.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/switch_1_emission.png
+
+newmtl tech01_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech01_1.png
+
+newmtl tech01_6
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech01_6.png
+
+newmtl tech01_7
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech01_7.png
+
+newmtl tech01_9
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech01_9.png
+
+newmtl tech04_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech04_1.png
+
+newmtl tech04_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech04_2.png
+
+newmtl tech04_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech04_3.png
+
+newmtl tech07_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+Kd 0.45 0.25 0.12
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech07_2.png
+
+newmtl tech08_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.45 0.25 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech08_1.png
+
+newmtl tech09_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.45 0.25 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech09_3.png
+
+newmtl tech10_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.45 0.25 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech10_1.png
+
+newmtl tech10_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.45 0.25 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech10_3.png
+
+newmtl tech11_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Kd 0.45 0.25 0.12
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tech11_2.png
+
+newmtl tlight01
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 6.5 6.5 2.5
+Kd 0.5 0.4 0.2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight01.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight01_emission.png
+
+newmtl tlight02
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 7 7 7
+Kd 0.8 0.70 0.3
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight02.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight02_emission.png
+
+newmtl tlight07
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 6 6 4
+Kd 0.8 0.70 0.3
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight07.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight07_emission.png
+
+newmtl tlight08
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 4 4 1.5
+Kd 0.6 0.5 0.2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight08.png
+
+newmtl tlight10
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 6 6 3.5
+Kd 0.8 0.70 0.3
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight10.png
+
+newmtl tlight11
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+Ke 6.5 6.5 6.5
+Kd 0.8 0.75 0.6
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight11.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/tlight11_emission.png
+
+newmtl twall1_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall1_1.png
+
+newmtl twall2_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall2_1.png
+
+newmtl twall2_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall2_2.png
+
+newmtl twall2_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall2_3.png
+
+newmtl twall2_5
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall2_5.png
+
+newmtl twall2_6
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall2_6.png
+
+newmtl twall3_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall3_1.png
+
+newmtl twall5_1
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall5_1.png
+
+newmtl twall5_3
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/twall5_3.png
+
+newmtl uwall1_2
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/uwall1_2.png
+
+newmtl z_exit
+Ns 324.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+Kd 0.67 0.14 0.04
+Ke 0.5 0.05 0.01
+illum 2
+map_Kd MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/z_exit.png
+map_Ke MS-DOS - Quake - Stages - E1M1_ The Slipgate Complex/z_exit_emission.png

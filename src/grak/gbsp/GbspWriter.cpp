@@ -257,6 +257,18 @@ void GbspWriter::EmitPlanes() {
 
 		emittedPlane->type = mapPlanes[i].type;
 		
+		if(fabs(mapPlanes[i].normal.x) < 0.0001f) {
+			mapPlanes[i].normal.x = 0.0f;
+		}
+		if(fabs(mapPlanes[i].normal.y) < 0.0001f) {
+			mapPlanes[i].normal.y = 0.0f;
+		}
+		if(fabs(mapPlanes[i].normal.z) < 0.0001f) {
+			mapPlanes[i].normal.z = 0.0f;
+		}
+		if(fabs(mapPlanes[i].dist) < 0.0001f) {
+			mapPlanes[i].dist = 0.0f;
+		}
 		emittedPlane->normal[0] = mapPlanes[i].normal.x;
 		emittedPlane->normal[1] = mapPlanes[i].normal.y;
 		emittedPlane->normal[2] = mapPlanes[i].normal.z;
@@ -270,9 +282,19 @@ void GbspWriter::EmitVerts() {
 		FileVert *emittedVert = &bspFile->fileVerts[numVerts];
 		numVerts++;
 
+		if(fabs(mapVerts[i].point.x) < 0.0001f) {
+			mapVerts[i].point.x = 0.0f;
+		}
+		if(fabs(mapVerts[i].point.y) < 0.0001f) {
+			mapVerts[i].point.y = 0.0f;
+		}
+		if(fabs(mapVerts[i].point.z) < 0.0001f) {
+			mapVerts[i].point.z = 0.0f;
+		}
 		emittedVert->point[0] = mapVerts[i].point.x;
 		emittedVert->point[1] = mapVerts[i].point.y;
 		emittedVert->point[2] = mapVerts[i].point.z;
+
 	}
 
 	for(int i = 0; i < numFaces; i++) {
@@ -289,6 +311,13 @@ void GbspWriter::EmitVerts() {
 			emittedVert->point[0] = sourceVert->point[0];
 			emittedVert->point[1] = sourceVert->point[1];
 			emittedVert->point[2] = sourceVert->point[2];
+
+			emittedVert->normal[0] = sourceVert->normal[0];
+			emittedVert->normal[1] = sourceVert->normal[1];
+			emittedVert->normal[2] = sourceVert->normal[2];
+
+			emittedVert->surfaceUV[0] = sourceVert->surfaceUV[0];
+			emittedVert->surfaceUV[1] = sourceVert->surfaceUV[1];
 		}
 	}
 }

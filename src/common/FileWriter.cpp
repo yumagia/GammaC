@@ -272,9 +272,8 @@ void FileWriter::WriteLevel(std::string fileName) {
 			outputFile << currentLumel->legal << std::endl;
 			outputFile << currentLumel->faceIndex << std::endl;
 
-			outputFile << currentLumel->color[0] << std::endl;
-			outputFile << currentLumel->color[1] << std::endl;
-			outputFile << currentLumel->color[2] << std::endl;
+			outputFile << (unsigned int) (currentLumel->color) << std::endl;
+
 
 			numLines += 5;
 		}

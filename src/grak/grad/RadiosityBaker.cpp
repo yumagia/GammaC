@@ -3,9 +3,9 @@
 #include <iostream>
 #include <cstdlib>
 
-#define TRACE_PUSH_DIST			1.0f
-#define TRACE_MAX_DIST			10000
-#define NUM_COLLECT_SAMPLES		250
+#define TRACE_PUSH_DIST			0.125f
+#define TRACE_MAX_DIST			5000.f
+#define NUM_COLLECT_SAMPLES		500
 #define NUM_BOUNCES				8
 #define DENOISING_KERNEL_SIZE	5
 #define DENOISING_KERNEL_SIGMA	250
@@ -336,7 +336,7 @@ void RadiosityBaker::InitialLightingPass() {
 	int divisor = 12;
 
 	int numFaces = bspFile->fileHeader.lumps[LUMP_FACES].length;
-	#pragma omp parallel for num_threads(8) schedule(dynamic, 128)
+	#pragma omp parallel for num_threads(16) schedule(dynamic, 1024)
 	for(int i = 0; i < numFaces; i++) {
 		CollectLightingForFace(&bspFile->fileFaces[i]);
 
@@ -553,7 +553,7 @@ void RadiosityBaker::CollectLightingForPatch(Patch *patch, Vec3f samplePosition)
 				FileMaterial *hitMaterial = &bspFile->fileMaterials[bspFile->fileFaces[hitFaceIndex].material];
 				Color materialEmmisive(hitMaterial->emissive[0], hitMaterial->emissive[1], hitMaterial->emissive[2]);
 
-				if(materialEmmisive.SquareMagnitude() > 0.001f) {
+				if(materialEmmisive.SquareMagnitude() > 0.0001f) {
 					collectedLighting = collectedLighting + materialEmmisive;
 				}
 
@@ -680,7 +680,7 @@ void RadiosityBaker::CreatePatchTransfers() {
 	int progress = 0;
 	int divisor = 12;
 
-	#pragma omp parallel for num_threads(8) schedule(dynamic, 512)
+	#pragma omp parallel for num_threads(16) schedule(dynamic, 1024)
 	for(int i = 0; i < numLumels; i++) {
 		Patch *patch = &patchList[i];
 
@@ -757,9 +757,9 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 
 	InitLightMaps();
 	InitialLightingPass();
-	CreatePatchTransfers();
-	BounceLight();
-	FreePatchTransfers();
+	//CreatePatchTransfers();
+	//BounceLight();
+	//FreePatchTransfers();
 
 	// Write the patch lighting into the lumel lump
 	for(int i = 0; i < numLumels; i++) {
@@ -772,9 +772,7 @@ int RadiosityBaker::BakeRad(BspFile *bspFile) {
 			patch->accumulatedLight = patchColor;
 		}
 
-		lumel->color[0] = patch->accumulatedLight.r;
-		lumel->color[1] = patch->accumulatedLight.g;
-		lumel->color[2] = patch->accumulatedLight.b;
+		lumel->color = ((int) (patch->accumulatedLight.r * 255.f)) << 16 | ((int) (patch->accumulatedLight.g * 255.f)) << 8 | ((int) (patch->accumulatedLight.b * 255.f));
 
 		lumel->faceIndex = patch->faceIndex;
 		lumel->legal = patch->legal;

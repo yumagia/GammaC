@@ -6,10 +6,10 @@
 #include <iostream>
 #include <memory>
 
-#define PLANE_EPSILON 0.01
+#define PLANE_EPSILON 0.1
 #define FLOAT_MAX 999999999
-#define SPLIT_BALANCE 0.7f
-#define MAX_TREE_DEPTH 200
+#define SPLIT_BALANCE 0.60f
+#define MAX_TREE_DEPTH 300
 
 extern	BspPlane	mapPlanes[MAX_MAP_PLANES];
 extern	int			numMapPlanes;

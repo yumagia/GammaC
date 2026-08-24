@@ -73,9 +73,25 @@ int main(int argc, char *argv[]) {
 				faceStream << "/";
 				faceStream << outputUvs.size() / 2  + 1;
 
-				outputVerts.push_back(vert->point[0]);
-				outputVerts.push_back(vert->point[1]);
-				outputVerts.push_back(vert->point[2]);
+				if(fabs(vert->point[0]) > 0.0001f) {
+					outputVerts.push_back(vert->point[0]);
+					
+				}
+				else {
+					outputVerts.push_back(0.0f);
+				}
+				if(fabs(vert->point[1]) > 0.0001f) {
+					outputVerts.push_back(vert->point[1]);
+				}
+				else {
+					outputVerts.push_back(0.0f);
+				}
+				if(fabs(vert->point[2]) > 0.0001f) {
+					outputVerts.push_back(vert->point[2]);
+				}
+				else {
+					outputVerts.push_back(0.0f);
+				}
 
 				float &u = vert->lightMapUV[0];
 				float &v = vert->lightMapUV[1];

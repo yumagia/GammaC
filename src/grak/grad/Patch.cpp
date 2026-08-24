@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#define MAX_TRANSFERS 65536
+#define MAX_TRANSFERS 16384
 
 void Patch::NudgePosition(BspFile *bspFile) {
 	Trace trace(bspFile);
@@ -54,10 +54,14 @@ void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bsp
 	for(int i = 0; i < numPatches; i++) {
 		Patch *otherPatch = &patchList[i];
 
+		if(numTransfers >= MAX_TRANSFERS) {
+			break;
+		}
+
 		if(this == otherPatch) {
 			continue;
 		}
-
+		
 		FileFace *face = &bspFile->fileFaces[this->faceIndex];
 		FileFace *face2 = &bspFile->fileFaces[otherPatch->faceIndex];
 
@@ -69,11 +73,14 @@ void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bsp
 		
 		Vec3f ray = otherPatch->position - this->position;
 		float dist = ray.Normalize();
+		if(dist > 1500.f) {
+			continue;
+		}
 
 		// Basically lambert
 		float intensity = ray.Dot(patchNormal);
 		intensity *= -ray.Dot(patchNormal2);
-		if(intensity <= 0) {
+		if(intensity <= 0.f) {
 			continue;
 		}
 
@@ -85,11 +92,11 @@ void Patch::CalcTransfersForpatch(int numPatches, Patch *patchList, BspFile *bsp
 
 		float transferValue = intensity * (PATCH_SIZE * PATCH_SIZE) / (dist * dist);
 
-		if(transferValue < 0) {
-			transferValue = 0;
+		if(transferValue < 0.0001f) {
+			transferValue = 0.f;
 		}
 
-		if(transferValue > 0) {
+		if(transferValue > 0.f) {
 			Transfer *transfer = &transfers[numTransfers];
 			transfer->transfer = transferValue;
 			transfer->patch = i;
